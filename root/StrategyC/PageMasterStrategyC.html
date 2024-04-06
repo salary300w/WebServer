@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy-C</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #007BFF;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        nav {
+            margin: 20px 0;
+        }
+        nav a {
+            margin: 0 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .post {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .post h2 {
+            margin: 0 0 10px;
+        }
+        .post p {
+            margin: 0;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Strategy-C</h1>
+        <nav>
+            <a href="#posts">股票数据</a>
+            <a href="#contact">联系我</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <section id="posts">
+            <h2>股票数据</h2>
+            <div id="post-list"></div> <!-- 动态生成股票数据列表的位置 -->
+        </section>
+
+        <section id="contact">
+            <h2>联系我</h2>
+            <p>如果你有任何问题或建议，请通过电子邮件联系我。</p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Strategy-A. 保留所有权利.</p>
+    </footer>
+    <script src="articles.js"></script> <!-- 引入 JavaScript 文件 -->
+    <script>
+        const postList = document.getElementById('post-list');
+
+        articles.forEach(article => {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+            postDiv.innerHTML = `
+                <h2><a href="${article.file}" style="color: inherit; text-decoration: none;">${article.title}</a></h2>
+                <p>${article.summary}</p>
+            `;
+            postList.appendChild(postDiv);
+        });
+    </script>
+</body>
+</html>

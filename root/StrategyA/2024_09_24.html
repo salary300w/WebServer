@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>下探/涨</th>
+            <th>换手</th>
+            <th>量比</th>
+            <th>下/上探</th>
+            <th>次日涨幅</th>
+            <th>次日最大跌幅</th>
+            <th>次日最大涨幅</th>
+        </th>
+    <thead>
+        <tr>
+            <th>601966</th>
+            <th>玲珑轮胎</th>
+            <th>0.78</th>
+            <th>2.04%</th>
+            <th>2.69</th>
+            <th>6.43</th>
+            <th>0.41%</th>
+            <th>0</th>
+            <th>3.63%</th>
+        </th>
+        <tr>
+            <th>600426</th>
+            <th>华鲁恒升</th>
+            <th>0.80</th>
+            <th>1.30%</th>
+            <th>1.55</th>
+            <th>20.00</th>
+            <th>0.23%</th>
+            <th>0.05%</th>
+            <th>3.30%</th>
+        </th>
+        <tr>
+            <th>600132</th>
+            <th>重庆啤酒</th>
+            <th>0.72</th>
+            <th>1.00%</th>
+            <th>2.10</th>
+            <th>37.67</th>
+            <th>1.12%</th>
+            <th>0</th>
+            <th>4.03%</th>
+        </th>
+        <tr>
+            <th>603801</th>
+            <th>志邦家居</th>
+            <th>2.27</th>
+            <th>2.66%</th>
+            <th>1.60</th>
+            <th>8.50</th>
+            <th>-1.50%</th>
+            <th>1.60%</th>
+            <th>3.30%</th>
+        </th>
+        <tr>
+            <th>600309</th>
+            <th>万华化学</th>
+            <th>0.71</th>
+            <th>0.72%</th>
+            <th>1.65</th>
+            <th>34.25</th>
+            <th>-1.57%</th>
+            <th>1.76%</th>
+            <th>3.29%</th>
+        </th>
+        <tr>
+            <th>603322</th>
+            <th>超讯通信</th>
+            <th>0.71</th>
+            <th>3.14%</th>
+            <th>1.16</th>
+            <th>3.05</th>
+            <th>1.90%</th>
+            <th>0</th>
+            <th>4.72%</th>
+        </th>
+        <tr>
+            <th>002555</th>
+            <th>三七互娱</th>
+            <th>0.91</th>
+            <th>5.58%</th>
+            <th>2.11</th>
+            <th>14.33</th>
+            <th>4.19%</th>
+            <th>0</th>
+            <th>8.59%</th>
+        </th>
+        <tr>
+            <th>002991</th>
+            <th>甘源食品</th>
+            <th>1.27</th>
+            <th>4.43%</th>
+            <th>1.60</th>
+            <th>∞</th>
+            <th>-1.26%</th>
+            <th>1.37%</th>
+            <th>2.08%</th>
+        </th>
+        <tr>
+            <th>000799</th>
+            <th>酒鬼酒*</th>
+            <th>2.50</th>
+            <th>4.69%</th>
+            <th>2.02</th>
+            <th>4.41</th>
+            <th>-1.92%</th>
+            <th>2.02%</th>
+            <th>2.40%</th>
+        </th>
+        <tr>
+            <th>000596</th>
+            <th>古井贡酒</th>
+            <th>0.73</th>
+            <th>1.03%</th>
+            <th>1.56</th>
+            <th>2.31</th>
+            <th>0.22%</th>
+            <th>0</th>
+            <th>3.73%</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
