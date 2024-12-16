@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+            <th>市值</th>
+            <th>1日开盘价</th>
+            <th>1日涨幅</th>
+        </th>
+    <thead>
+        <tr>
+            <th>603356</th>
+            <th>华菱精工</th>
+            <th>10.03%</th>
+            <th>41.49</th>
+            <th>24.0</th>
+            <th>19.66</th>
+            <th>☆-4.61%</th>
+        </th>
+        <tr>
+            <th>603999</th>
+            <th>读者传媒</th>
+            <th>10.03%</th>
+            <th>19.63</th>
+            <th>44.7</th>
+            <th>8.04</th>
+            <th>☆-0.39%☆☆</th>
+        </th>
+        <tr>
+            <th>603330</th>
+            <th>天洋新材</th>
+            <th>10.02%</th>
+            <th>35.49</th>
+            <th>36.91</th>
+            <th>9.05</th>
+            <th>-5.22%</th>
+        </th>
+        <tr>
+            <th>603159</th>
+            <th>上海亚虹</th>
+            <th>10.02%</th>
+            <th>6.61</th>
+            <th>24.39</th>
+            <th>18.42</th>
+            <th>-7.19%</th>
+        </th>
+        <tr>
+            <th>605336</th>
+            <th>帅丰电器</th>
+            <th>10.02%</th>
+            <th>26.93</th>
+            <th>33.0</th>
+            <th>21.19</th>
+            <th>☆☆-10.01%☆</th>
+        </th>
+        <tr>
+            <th>603956</th>
+            <th>威派格*</th>
+            <th>10.02%</th>
+            <th>12.24</th>
+            <th>34.17</th>
+            <th>7.07</th>
+            <th>☆☆1.79%☆☆</th>
+        </th>
+        <tr>
+            <th>603533</th>
+            <th>掌阅科技</th>
+            <th>10.01%</th>
+            <th>50.57</th>
+            <th>120.7</th>
+            <th>29.0</th>
+            <th>-6.94%☆</th>
+        </th>
+        <tr>
+            <th>600986</th>
+            <th>浙文互联</th>
+            <th>10.01%</th>
+            <th>78.79</th>
+            <th>105.4</th>
+            <th>8.4</th>
+            <th>☆☆☆3.64%☆☆</th>
+        </th>
+        <tr>
+            <th>600706</th>
+            <th>曲江文旅</th>
+            <th>10.00%</th>
+            <th>64.86</th>
+            <th>34.47</th>
+            <th>13.79</th>
+            <th>☆2.80%</th>
+        </th>
+        <tr>
+            <th>600569</th>
+            <th>安阳钢铁</th>
+            <th>10.00%</th>
+            <th>54.36</th>
+            <th>66.07</th>
+            <th>2.33</th>
+            <th>-0.43%☆☆</th>
+        </th>
+        <tr>
+            <th>600561</th>
+            <th>江西长运</th>
+            <th>10.00%</th>
+            <th>34.92</th>
+            <th>19.26</th>
+            <th>6.9</th>
+            <th>-5.31%</th>
+        </th>
+        <tr>
+            <th>603390</th>
+            <th>通达电气</th>
+            <th>9.99%</th>
+            <th>18.01</th>
+            <th>38.12</th>
+            <th>11.3</th>
+            <th>☆0.00%☆☆</th>
+        </th>
+        <tr>
+            <th>603607</th>
+            <th>京华激光</th>
+            <th>9.99%</th>
+            <th>21.59</th>
+            <th>35.92</th>
+            <th>20.89</th>
+            <th>-2.28%☆</th>
+        </th>
+        <tr>
+            <th>603887</th>
+            <th>城地香江</th>
+            <th>9.98%</th>
+            <th>96.21</th>
+            <th>96.63</th>
+            <th>17.2</th>
+            <th>☆2.16%☆</th>
+        </th>
+        <tr>
+            <th>603333</th>
+            <th>尚纬股份</th>
+            <th>9.94%</th>
+            <th>74.54</th>
+            <th>32.44</th>
+            <th>5.43</th>
+            <th>-5.61%</th>
+        </th>
+        <tr>
+            <th>002115</th>
+            <th>三维通信</th>
+            <th>10.05%</th>
+            <th>125.21</th>
+            <th>81.99</th>
+            <th>11.92</th>
+            <th>☆☆☆0.55%</th>
+        </th>
+        <tr>
+            <th>002103</th>
+            <th>广博股份</th>
+            <th>10.02%</th>
+            <th>76.66</th>
+            <th>55.54</th>
+            <th>16.67</th>
+            <th>☆☆☆-2.77%☆☆</th>
+        </th>
+        <tr>
+            <th>002752</th>
+            <th>昇兴股份</th>
+            <th>10.02%</th>
+            <th>57.71</th>
+            <th>65.93</th>
+            <th>7.44</th>
+            <th>☆-5.46%☆☆</th>
+        </th>
+        <tr>
+            <th>002175</th>
+            <th>东方智造</th>
+            <th>10.01%</th>
+            <th>444.63</th>
+            <th>92.18</th>
+            <th>8.3</th>
+            <th>☆-9.98%</th>
+        </th>
+        <tr>
+            <th>002265</th>
+            <th>建设工业</th>
+            <th>10.01%</th>
+            <th>71.42</th>
+            <th>102.5</th>
+            <th>29.0</th>
+            <th>☆-9.99%☆</th>
+        </th>
+        <tr>
+            <th>002403</th>
+            <th>爱仕达*</th>
+            <th>10.01%</th>
+            <th>74.03</th>
+            <th>63.92</th>
+            <th>22.94</th>
+            <th>-8.12%</th>
+        </th>
+        <tr>
+            <th>002858</th>
+            <th>力盛体育</th>
+            <th>10.00%</th>
+            <th>32.34</th>
+            <th>21.58</th>
+            <th>15.38</th>
+            <th>-4.48%</th>
+        </th>
+        <tr>
+            <th>002148</th>
+            <th>北纬科技</th>
+            <th>10.00%</th>
+            <th>59.6</th>
+            <th>40.68</th>
+            <th>9.28</th>
+            <th>☆☆2.84%☆☆</th>
+        </th>
+        <tr>
+            <th>002045</th>
+            <th>国光电器</th>
+            <th>10.00%</th>
+            <th>138.37</th>
+            <th>111.2</th>
+            <th>21.55</th>
+            <th>-10.00%</th>
+        </th>
+        <tr>
+            <th>002009</th>
+            <th>天奇股份</th>
+            <th>10.00%</th>
+            <th>39.43</th>
+            <th>63.28</th>
+            <th>16.34</th>
+            <th>-4.24%☆</th>
+        </th>
+        <tr>
+            <th>000520</th>
+            <th>凤凰航运</th>
+            <th>10.00%</th>
+            <th>76.51</th>
+            <th>61.03</th>
+            <th>6.24</th>
+            <th>-5.49%</th>
+        </th>
+        <tr>
+            <th>000681</th>
+            <th>视觉中国</th>
+            <th>9.99%</th>
+            <th>100.85</th>
+            <th>183.9</th>
+            <th>28.0</th>
+            <th>☆☆☆6.50%☆☆</th>
+        </th>
+        <tr>
+            <th>002799</th>
+            <th>环球印务</th>
+            <th>9.99%</th>
+            <th>21.5</th>
+            <th>31.43</th>
+            <th>10.35</th>
+            <th>-9.91%☆☆</th>
+        </th>
+        <tr>
+            <th>002576</th>
+            <th>通达动力</th>
+            <th>9.99%</th>
+            <th>19.11</th>
+            <th>26.39</th>
+            <th>16.63</th>
+            <th>☆-0.06%☆☆</th>
+        </th>
+        <tr>
+            <th>002400</th>
+            <th>省广集团</th>
+            <th>9.98%</th>
+            <th>559.06</th>
+            <th>200.2</th>
+            <th>11.99</th>
+            <th>-5.15%</th>
+        </th>
+        <tr>
+            <th>001330</th>
+            <th>博纳影业</th>
+            <th>9.97%</th>
+            <th>71.25</th>
+            <th>86.42</th>
+            <th>8.62</th>
+            <th>-3.53%</th>
+        </th>
+        <tr>
+            <th>002181</th>
+            <th>粤 传</th>
+            <th>9.97%</th>
+            <th>44.85</th>
+            <th>86.22</th>
+            <th>8.73</th>
+            <th>☆☆☆-4.28%☆☆</th>
+        </th>
+        <tr>
+            <th>000759</th>
+            <th>中百集团</th>
+            <th>9.97%</th>
+            <th>11.72</th>
+            <th>56.39</th>
+            <th>8.73</th>
+            <th>☆☆☆8.31%☆☆</th>
+        </th>
+        <tr>
+            <th>002354</th>
+            <th>天娱数科</th>
+            <th>9.96%</th>
+            <th>706.1</th>
+            <th>125.9</th>
+            <th>8.8</th>
+            <th>☆-8.47%</th>
+        </th>
+        <tr>
+            <th>000619</th>
+            <th>海螺新材</th>
+            <th>9.96%</th>
+            <th>31.37</th>
+            <th>28.76</th>
+            <th>8.37</th>
+            <th>-4.77%☆</th>
+        </th>
+        <tr>
+            <th>002235</th>
+            <th>安妮股份</th>
+            <th>9.95%</th>
+            <th>120.16</th>
+            <th>37.7</th>
+            <th>7.08</th>
+            <th>-6.58%</th>
+        </th>
+        <tr>
+            <th>002638</th>
+            <th>勤上股份</th>
+            <th>9.87%</th>
+            <th>129.08</th>
+            <th>43.51</th>
+            <th>3.4</th>
+            <th>-3.29%☆</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
