@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600333</th>
+            <th>长春燃气</th>
+            <th>10.08%</th>
+            <th>25.11</th>
+        </th>
+        <tr>
+            <th>600693</th>
+            <th>东百集团</th>
+            <th>10.06%</th>
+            <th>181.14</th>
+        </th>
+        <tr>
+            <th>603617</th>
+            <th>君禾股份</th>
+            <th>10.06%</th>
+            <th>34.53</th>
+        </th>
+        <tr>
+            <th>600778</th>
+            <th>友好集团</th>
+            <th>10.05%</th>
+            <th>50.41</th>
+        </th>
+        <tr>
+            <th>600246</th>
+            <th>万通发展</th>
+            <th>10.04%</th>
+            <th>151.37</th>
+        </th>
+        <tr>
+            <th>600186</th>
+            <th>莲花控股</th>
+            <th>10.04%</th>
+            <th>254.63</th>
+        </th>
+        <tr>
+            <th>605580</th>
+            <th>恒盛能源</th>
+            <th>10.03%</th>
+            <th>7.67</th>
+        </th>
+        <tr>
+            <th>600530</th>
+            <th>交大昂立</th>
+            <th>10.02%</th>
+            <th>91.21</th>
+        </th>
+        <tr>
+            <th>605080</th>
+            <th>浙江自然</th>
+            <th>10.02%</th>
+            <th>1.77</th>
+        </th>
+        <tr>
+            <th>600191</th>
+            <th>华资实业</th>
+            <th>10.02%</th>
+            <th>38.11</th>
+        </th>
+        <tr>
+            <th>600745</th>
+            <th>闻泰科技</th>
+            <th>10.01%</th>
+            <th>52.49</th>
+        </th>
+        <tr>
+            <th>600903</th>
+            <th>贵州燃气</th>
+            <th>10.01%</th>
+            <th>38.14</th>
+        </th>
+        <tr>
+            <th>600579</th>
+            <th>克劳斯*</th>
+            <th>10.01%</th>
+            <th>92.73</th>
+        </th>
+        <tr>
+            <th>603682</th>
+            <th>锦和商管</th>
+            <th>10.00%</th>
+            <th>48.34</th>
+        </th>
+        <tr>
+            <th>603777</th>
+            <th>来伊份*</th>
+            <th>9.99%</th>
+            <th>73.25</th>
+        </th>
+        <tr>
+            <th>603630</th>
+            <th>拉芳家化</th>
+            <th>9.98%</th>
+            <th>25.39</th>
+        </th>
+        <tr>
+            <th>600714</th>
+            <th>金瑞矿业</th>
+            <th>9.95%</th>
+            <th>14.65</th>
+        </th>
+        <tr>
+            <th>600397</th>
+            <th>安源煤业</th>
+            <th>9.90%</th>
+            <th>82.83</th>
+        </th>
+        <tr>
+            <th>601011</th>
+            <th>宝泰隆*</th>
+            <th>9.85%</th>
+            <th>204.29</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
