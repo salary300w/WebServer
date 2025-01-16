@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600490</th>
+            <th>鹏欣资源</th>
+            <th>10.13%</th>
+            <th>83.6</th>
+        </th>
+        <tr>
+            <th>600807</th>
+            <th>济高发展</th>
+            <th>10.07%</th>
+            <th>119.25</th>
+        </th>
+        <tr>
+            <th>600556</th>
+            <th>天下秀*</th>
+            <th>10.07%</th>
+            <th>205.84</th>
+        </th>
+        <tr>
+            <th>600693</th>
+            <th>东百集团</th>
+            <th>10.06%</th>
+            <th>175.21</th>
+        </th>
+        <tr>
+            <th>603118</th>
+            <th>共进股份</th>
+            <th>10.05%</th>
+            <th>130.84</th>
+        </th>
+        <tr>
+            <th>600620</th>
+            <th>天宸股份</th>
+            <th>10.04%</th>
+            <th>4.46</th>
+        </th>
+        <tr>
+            <th>605336</th>
+            <th>帅丰电器</th>
+            <th>10.04%</th>
+            <th>14.04</th>
+        </th>
+        <tr>
+            <th>600367</th>
+            <th>红星发展</th>
+            <th>10.04%</th>
+            <th>63.31</th>
+        </th>
+        <tr>
+            <th>600962</th>
+            <th>国投中鲁</th>
+            <th>10.03%</th>
+            <th>6.59</th>
+        </th>
+        <tr>
+            <th>603069</th>
+            <th>海汽集团</th>
+            <th>10.03%</th>
+            <th>9.25</th>
+        </th>
+        <tr>
+            <th>603511</th>
+            <th>爱慕股份</th>
+            <th>10.03%</th>
+            <th>13.89</th>
+        </th>
+        <tr>
+            <th>600933</th>
+            <th>爱柯迪*</th>
+            <th>10.03%</th>
+            <th>8.05</th>
+        </th>
+        <tr>
+            <th>600397</th>
+            <th>安源煤业</th>
+            <th>10.02%</th>
+            <th>107.44</th>
+        </th>
+        <tr>
+            <th>603777</th>
+            <th>来伊份*</th>
+            <th>10.02%</th>
+            <th>96.03</th>
+        </th>
+        <tr>
+            <th>603068</th>
+            <th>博通集成</th>
+            <th>10.01%</th>
+            <th>31.33</th>
+        </th>
+        <tr>
+            <th>603177</th>
+            <th>德创环保</th>
+            <th>10.01%</th>
+            <th>1.5</th>
+        </th>
+        <tr>
+            <th>605179</th>
+            <th>一鸣食品</th>
+            <th>10.01%</th>
+            <th>28.15</th>
+        </th>
+        <tr>
+            <th>603200</th>
+            <th>上海洗霸</th>
+            <th>10.00%</th>
+            <th>5.02</th>
+        </th>
+        <tr>
+            <th>600981</th>
+            <th>汇鸿集团</th>
+            <th>10.00%</th>
+            <th>131.52</th>
+        </th>
+        <tr>
+            <th>600851</th>
+            <th>海欣股份</th>
+            <th>10.00%</th>
+            <th>25.88</th>
+        </th>
+        <tr>
+            <th>601100</th>
+            <th>恒立液压</th>
+            <th>9.99%</th>
+            <th>23.66</th>
+        </th>
+        <tr>
+            <th>603518</th>
+            <th>锦泓集团</th>
+            <th>9.99%</th>
+            <th>9.3</th>
+        </th>
+        <tr>
+            <th>603808</th>
+            <th>歌力思*</th>
+            <th>9.99%</th>
+            <th>24.57</th>
+        </th>
+        <tr>
+            <th>600539</th>
+            <th>狮头股份</th>
+            <th>9.99%</th>
+            <th>16.83</th>
+        </th>
+        <tr>
+            <th>603598</th>
+            <th>引力传媒</th>
+            <th>9.98%</th>
+            <th>59.19</th>
+        </th>
+        <tr>
+            <th>600714</th>
+            <th>金瑞矿业</th>
+            <th>9.98%</th>
+            <th>4.43</th>
+        </th>
+        <tr>
+            <th>600128</th>
+            <th>苏豪弘业</th>
+            <th>9.98%</th>
+            <th>17.34</th>
+        </th>
+        <tr>
+            <th>600778</th>
+            <th>友好集团</th>
+            <th>9.96%</th>
+            <th>75.55</th>
+        </th>
+        <tr>
+            <th>600601</th>
+            <th>方正科技</th>
+            <th>9.96%</th>
+            <th>804.31</th>
+        </th>
+        <tr>
+            <th>603758</th>
+            <th>秦安股份</th>
+            <th>9.95%</th>
+            <th>5.57</th>
+        </th>
+        <tr>
+            <th>600358</th>
+            <th>国旅联合</th>
+            <th>9.90%</th>
+            <th>12.06</th>
+        </th>
+        <tr>
+            <th>600545</th>
+            <th>卓郎智能</th>
+            <th>9.89%</th>
+            <th>166.32</th>
+        </th>
+        <tr>
+            <th>600868</th>
+            <th>梅雁吉祥</th>
+            <th>9.88%</th>
+            <th>153.75</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
