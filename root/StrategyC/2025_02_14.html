@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600397</th>
+            <th>安源煤业</th>
+            <th>10.06%</th>
+            <th>41.15</th>
+        </th>
+        <tr>
+            <th>600539</th>
+            <th>狮头股份</th>
+            <th>10.06%</th>
+            <th>10.49</th>
+        </th>
+        <tr>
+            <th>600734</th>
+            <th>实达集团</th>
+            <th>10.05%</th>
+            <th>194.35</th>
+        </th>
+        <tr>
+            <th>603768</th>
+            <th>常青股份</th>
+            <th>10.04%</th>
+            <th>14.48</th>
+        </th>
+        <tr>
+            <th>603803</th>
+            <th>瑞斯康达</th>
+            <th>10.04%</th>
+            <th>108.83</th>
+        </th>
+        <tr>
+            <th>603117</th>
+            <th>万林物流</th>
+            <th>10.03%</th>
+            <th>41.96</th>
+        </th>
+        <tr>
+            <th>601116</th>
+            <th>三江购物</th>
+            <th>10.03%</th>
+            <th>44.41</th>
+        </th>
+        <tr>
+            <th>600602</th>
+            <th>云赛智联</th>
+            <th>10.03%</th>
+            <th>208.62</th>
+        </th>
+        <tr>
+            <th>603825</th>
+            <th>华扬联众</th>
+            <th>10.02%</th>
+            <th>3.4</th>
+        </th>
+        <tr>
+            <th>600421</th>
+            <th>华嵘控股</th>
+            <th>10.02%</th>
+            <th>6.87</th>
+        </th>
+        <tr>
+            <th>600498</th>
+            <th>烽火通信</th>
+            <th>10.01%</th>
+            <th>130.05</th>
+        </th>
+        <tr>
+            <th>601100</th>
+            <th>恒立液压</th>
+            <th>10.01%</th>
+            <th>22.86</th>
+        </th>
+        <tr>
+            <th>603990</th>
+            <th>麦迪科技</th>
+            <th>10.01%</th>
+            <th>73.39</th>
+        </th>
+        <tr>
+            <th>603918</th>
+            <th>金桥信息</th>
+            <th>10.01%</th>
+            <th>110.53</th>
+        </th>
+        <tr>
+            <th>603108</th>
+            <th>润达医疗</th>
+            <th>10.01%</th>
+            <th>115.08</th>
+        </th>
+        <tr>
+            <th>603956</th>
+            <th>威派格*</th>
+            <th>10.00%</th>
+            <th>21.8</th>
+        </th>
+        <tr>
+            <th>603882</th>
+            <th>金域医学</th>
+            <th>10.00%</th>
+            <th>31.95</th>
+        </th>
+        <tr>
+            <th>603881</th>
+            <th>数据港*</th>
+            <th>10.00%</th>
+            <th>104.97</th>
+        </th>
+        <tr>
+            <th>603739</th>
+            <th>蔚蓝生物</th>
+            <th>10.00%</th>
+            <th>17.27</th>
+        </th>
+        <tr>
+            <th>603039</th>
+            <th>泛微网络</th>
+            <th>10.00%</th>
+            <th>7.25</th>
+        </th>
+        <tr>
+            <th>603031</th>
+            <th>安孚科技</th>
+            <th>10.00%</th>
+            <th>15.7</th>
+        </th>
+        <tr>
+            <th>603636</th>
+            <th>南威软件</th>
+            <th>9.99%</th>
+            <th>80.75</th>
+        </th>
+        <tr>
+            <th>603258</th>
+            <th>电魂网络</th>
+            <th>9.99%</th>
+            <th>12.24</th>
+        </th>
+        <tr>
+            <th>601177</th>
+            <th>杭齿前进</th>
+            <th>9.98%</th>
+            <th>59.45</th>
+        </th>
+        <tr>
+            <th>603086</th>
+            <th>先达股份</th>
+            <th>9.98%</th>
+            <th>47.44</th>
+        </th>
+        <tr>
+            <th>603716</th>
+            <th>塞力医疗</th>
+            <th>9.98%</th>
+            <th>17.9</th>
+        </th>
+        <tr>
+            <th>603085</th>
+            <th>天成自控</th>
+            <th>9.97%</th>
+            <th>15.29</th>
+        </th>
+        <tr>
+            <th>600843</th>
+            <th>上工申贝</th>
+            <th>9.97%</th>
+            <th>172.44</th>
+        </th>
+        <tr>
+            <th>600126</th>
+            <th>杭钢股份</th>
+            <th>9.97%</th>
+            <th>802.85</th>
+        </th>
+        <tr>
+            <th>600624</th>
+            <th>复旦复华</th>
+            <th>9.96%</th>
+            <th>112.1</th>
+        </th>
+        <tr>
+            <th>000785</th>
+            <th>居然智家</th>
+            <th>10.08%</th>
+            <th>753.17</th>
+        </th>
+        <tr>
+            <th>002030</th>
+            <th>达安基因</th>
+            <th>10.07%</th>
+            <th>39.23</th>
+        </th>
+        <tr>
+            <th>002632</th>
+            <th>道明光学</th>
+            <th>10.06%</th>
+            <th>49.13</th>
+        </th>
+        <tr>
+            <th>002436</th>
+            <th>兴森科技</th>
+            <th>10.03%</th>
+            <th>144.04</th>
+        </th>
+        <tr>
+            <th>002112</th>
+            <th>三变科技</th>
+            <th>10.03%</th>
+            <th>90.14</th>
+        </th>
+        <tr>
+            <th>002211</th>
+            <th>宏达新材</th>
+            <th>10.03%</th>
+            <th>14.26</th>
+        </th>
+        <tr>
+            <th>000695</th>
+            <th>滨海能源</th>
+            <th>10.02%</th>
+            <th>9.2</th>
+        </th>
+        <tr>
+            <th>002777</th>
+            <th>久远银海</th>
+            <th>10.02%</th>
+            <th>57.82</th>
+        </th>
+        <tr>
+            <th>000710</th>
+            <th>贝瑞基因</th>
+            <th>10.02%</th>
+            <th>52.86</th>
+        </th>
+        <tr>
+            <th>000503</th>
+            <th>国新健康</th>
+            <th>10.02%</th>
+            <th>77.82</th>
+        </th>
+        <tr>
+            <th>002208</th>
+            <th>合肥城建</th>
+            <th>10.01%</th>
+            <th>74.65</th>
+        </th>
+        <tr>
+            <th>000948</th>
+            <th>南天信息</th>
+            <th>10.01%</th>
+            <th>56.6</th>
+        </th>
+        <tr>
+            <th>002254</th>
+            <th>泰和新材</th>
+            <th>10.01%</th>
+            <th>42.08</th>
+        </th>
+        <tr>
+            <th>002123</th>
+            <th>梦网科技</th>
+            <th>10.01%</th>
+            <th>96.79</th>
+        </th>
+        <tr>
+            <th>002335</th>
+            <th>科华数据</th>
+            <th>10.01%</th>
+            <th>44.06</th>
+        </th>
+        <tr>
+            <th>000032</th>
+            <th>深桑达Ａ</th>
+            <th>10.00%</th>
+            <th>48.32</th>
+        </th>
+        <tr>
+            <th>002261</th>
+            <th>拓维信息</th>
+            <th>10.00%</th>
+            <th>411.14</th>
+        </th>
+        <tr>
+            <th>002929</th>
+            <th>润建股份</th>
+            <th>10.00%</th>
+            <th>79.26</th>
+        </th>
+        <tr>
+            <th>002841</th>
+            <th>视源股份</th>
+            <th>10.00%</th>
+            <th>14.62</th>
+        </th>
+        <tr>
+            <th>002990</th>
+            <th>盛视科技</th>
+            <th>10.00%</th>
+            <th>10.42</th>
+        </th>
+        <tr>
+            <th>002095</th>
+            <th>生 意</th>
+            <th>9.99%</th>
+            <th>27.97</th>
+        </th>
+        <tr>
+            <th>000034</th>
+            <th>神州数码</th>
+            <th>9.99%</th>
+            <th>80.99</th>
+        </th>
+        <tr>
+            <th>002326</th>
+            <th>永太科技</th>
+            <th>9.99%</th>
+            <th>24.71</th>
+        </th>
+        <tr>
+            <th>000880</th>
+            <th>潍柴重机</th>
+            <th>9.99%</th>
+            <th>37.34</th>
+        </th>
+        <tr>
+            <th>002313</th>
+            <th>日海智能</th>
+            <th>9.98%</th>
+            <th>20.1</th>
+        </th>
+        <tr>
+            <th>002044</th>
+            <th>美年健康</th>
+            <th>9.98%</th>
+            <th>137.41</th>
+        </th>
+        <tr>
+            <th>002524</th>
+            <th>光正眼科</th>
+            <th>9.89%</th>
+            <th>20.89</th>
+        </th>
+        <tr>
+            <th>002622</th>
+            <th>皓宸医疗</th>
+            <th>9.86%</th>
+            <th>30.65</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
