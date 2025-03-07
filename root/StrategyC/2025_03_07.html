@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600302</th>
+            <th>标准股份</th>
+            <th>10.10%</th>
+            <th>36.38</th>
+        </th>
+        <tr>
+            <th>601956</th>
+            <th>东贝集团</th>
+            <th>10.06%</th>
+            <th>12.69</th>
+        </th>
+        <tr>
+            <th>600397</th>
+            <th>安源煤业</th>
+            <th>10.06%</th>
+            <th>46.59</th>
+        </th>
+        <tr>
+            <th>605069</th>
+            <th>正和生态</th>
+            <th>10.06%</th>
+            <th>30.13</th>
+        </th>
+        <tr>
+            <th>600361</th>
+            <th>创新新材</th>
+            <th>10.05%</th>
+            <th>132.93</th>
+        </th>
+        <tr>
+            <th>603158</th>
+            <th>腾龙股份</th>
+            <th>10.04%</th>
+            <th>27.28</th>
+        </th>
+        <tr>
+            <th>603300</th>
+            <th>海南华铁</th>
+            <th>10.03%</th>
+            <th>840.17</th>
+        </th>
+        <tr>
+            <th>600301</th>
+            <th>华锡有色</th>
+            <th>10.02%</th>
+            <th>23.94</th>
+        </th>
+        <tr>
+            <th>605303</th>
+            <th>园林股份</th>
+            <th>10.02%</th>
+            <th>8.23</th>
+        </th>
+        <tr>
+            <th>600367</th>
+            <th>红星发展</th>
+            <th>10.02%</th>
+            <th>31.85</th>
+        </th>
+        <tr>
+            <th>605118</th>
+            <th>力鼎光电</th>
+            <th>10.02%</th>
+            <th>13.08</th>
+        </th>
+        <tr>
+            <th>605208</th>
+            <th>永茂泰*</th>
+            <th>10.01%</th>
+            <th>48.85</th>
+        </th>
+        <tr>
+            <th>600588</th>
+            <th>用友网络</th>
+            <th>10.01%</th>
+            <th>353.03</th>
+        </th>
+        <tr>
+            <th>600602</th>
+            <th>云赛智联</th>
+            <th>10.00%</th>
+            <th>221.65</th>
+        </th>
+        <tr>
+            <th>603585</th>
+            <th>苏利股份</th>
+            <th>10.00%</th>
+            <th>10.49</th>
+        </th>
+        <tr>
+            <th>601020</th>
+            <th>华钰矿业</th>
+            <th>10.00%</th>
+            <th>61.19</th>
+        </th>
+        <tr>
+            <th>600961</th>
+            <th>株冶集团</th>
+            <th>10.00%</th>
+            <th>75.58</th>
+        </th>
+        <tr>
+            <th>600714</th>
+            <th>金瑞矿业</th>
+            <th>10.00%</th>
+            <th>36.35</th>
+        </th>
+        <tr>
+            <th>603048</th>
+            <th>浙江黎明</th>
+            <th>10.00%</th>
+            <th>26.93</th>
+        </th>
+        <tr>
+            <th>600860</th>
+            <th>京城股份</th>
+            <th>9.99%</th>
+            <th>34.95</th>
+        </th>
+        <tr>
+            <th>600168</th>
+            <th>武汉控股</th>
+            <th>9.93%</th>
+            <th>4.52</th>
+        </th>
+        <tr>
+            <th>600728</th>
+            <th>佳都科技</th>
+            <th>9.93%</th>
+            <th>75.47</th>
+        </th>
+        <tr>
+            <th>600228</th>
+            <th>返利科技</th>
+            <th>9.92%</th>
+            <th>88.23</th>
+        </th>
+        <tr>
+            <th>600281</th>
+            <th>华阳新材</th>
+            <th>9.92%</th>
+            <th>41.13</th>
+        </th>
+        <tr>
+            <th>000509</th>
+            <th>华塑控股</th>
+            <th>10.15%</th>
+            <th>36.6</th>
+        </th>
+        <tr>
+            <th>002162</th>
+            <th>悦心健康</th>
+            <th>10.13%</th>
+            <th>90.38</th>
+        </th>
+        <tr>
+            <th>002093</th>
+            <th>国脉科技</th>
+            <th>10.06%</th>
+            <th>14.21</th>
+        </th>
+        <tr>
+            <th>002114</th>
+            <th>罗平锌电</th>
+            <th>10.05%</th>
+            <th>21.44</th>
+        </th>
+        <tr>
+            <th>002253</th>
+            <th>川大智胜</th>
+            <th>10.04%</th>
+            <th>31.7</th>
+        </th>
+        <tr>
+            <th>000409</th>
+            <th>云鼎科技</th>
+            <th>10.04%</th>
+            <th>141.73</th>
+        </th>
+        <tr>
+            <th>002196</th>
+            <th>方正电机</th>
+            <th>10.03%</th>
+            <th>84.93</th>
+        </th>
+        <tr>
+            <th>000903</th>
+            <th>云内动力</th>
+            <th>10.03%</th>
+            <th>229.14</th>
+        </th>
+        <tr>
+            <th>002937</th>
+            <th>兴瑞科技</th>
+            <th>10.02%</th>
+            <th>14.06</th>
+        </th>
+        <tr>
+            <th>000665</th>
+            <th>湖北广电</th>
+            <th>10.02%</th>
+            <th>17.52</th>
+        </th>
+        <tr>
+            <th>001268</th>
+            <th>联合精密</th>
+            <th>10.02%</th>
+            <th>7.24</th>
+        </th>
+        <tr>
+            <th>002361</th>
+            <th>神剑股份</th>
+            <th>10.02%</th>
+            <th>107.51</th>
+        </th>
+        <tr>
+            <th>002760</th>
+            <th>凤形股份</th>
+            <th>10.02%</th>
+            <th>21.23</th>
+        </th>
+        <tr>
+            <th>002943</th>
+            <th>宇晶股份</th>
+            <th>10.01%</th>
+            <th>10.68</th>
+        </th>
+        <tr>
+            <th>001311</th>
+            <th>多利科技</th>
+            <th>10.01%</th>
+            <th>10.73</th>
+        </th>
+        <tr>
+            <th>001333</th>
+            <th>光华股份</th>
+            <th>10.01%</th>
+            <th>7.35</th>
+        </th>
+        <tr>
+            <th>003033</th>
+            <th>征和工业</th>
+            <th>10.00%</th>
+            <th>13.51</th>
+        </th>
+        <tr>
+            <th>001256</th>
+            <th>炜冈科技</th>
+            <th>10.00%</th>
+            <th>3.14</th>
+        </th>
+        <tr>
+            <th>001288</th>
+            <th>运机集团</th>
+            <th>9.99%</th>
+            <th>18.04</th>
+        </th>
+        <tr>
+            <th>001319</th>
+            <th>铭科精技</th>
+            <th>9.99%</th>
+            <th>26.52</th>
+        </th>
+        <tr>
+            <th>002755</th>
+            <th>奥赛康*</th>
+            <th>9.99%</th>
+            <th>20.36</th>
+        </th>
+        <tr>
+            <th>002757</th>
+            <th>南兴股份</th>
+            <th>9.99%</th>
+            <th>5.32</th>
+        </th>
+        <tr>
+            <th>002105</th>
+            <th>信隆健康</th>
+            <th>9.97%</th>
+            <th>65.51</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
