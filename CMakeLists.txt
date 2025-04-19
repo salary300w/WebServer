@@ -12,8 +12,7 @@ set(SOURCE_FILES
             )
 
 # 设置库名称
-set(libname CGImysqllib
-            httplib
+set(libname httplib
             loglib
             timerlib
             )
@@ -21,9 +20,8 @@ set(libname CGImysqllib
 # 添加可执行文件及其源文件
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} ${libname} pthread mysqlclient)
+target_link_libraries(${PROJECT_NAME} ${libname} pthread)
 # 添加子目录，进入到 utils 目录下执行其 CMakeLists.txt
-add_subdirectory(CGImysql)
 add_subdirectory(http)
 add_subdirectory(lock)
 add_subdirectory(log)

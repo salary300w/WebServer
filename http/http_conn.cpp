@@ -1,6 +1,5 @@
 #include "http_conn.h"
 
-#include <mysql/mysql.h>
 #include <fstream>
 
 //定义http响应的一些状态信息
