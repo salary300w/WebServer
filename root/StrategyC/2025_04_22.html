@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600308</th>
+            <th>华泰股份</th>
+            <th>10.14%</th>
+            <th>32.55</th>
+        </th>
+        <tr>
+            <th>600227</th>
+            <th>赤天化*</th>
+            <th>10.10%</th>
+            <th>73.54</th>
+        </th>
+        <tr>
+            <th>600787</th>
+            <th>中储股份</th>
+            <th>10.08%</th>
+            <th>157.8</th>
+        </th>
+        <tr>
+            <th>600278</th>
+            <th>东方创业</th>
+            <th>10.08%</th>
+            <th>36.89</th>
+        </th>
+        <tr>
+            <th>601008</th>
+            <th>连云港*</th>
+            <th>10.07%</th>
+            <th>191.77</th>
+        </th>
+        <tr>
+            <th>600876</th>
+            <th>凯盛新能</th>
+            <th>10.04%</th>
+            <th>10.75</th>
+        </th>
+        <tr>
+            <th>600866</th>
+            <th>星湖科技</th>
+            <th>10.04%</th>
+            <th>118.15</th>
+        </th>
+        <tr>
+            <th>600105</th>
+            <th>永鼎股份</th>
+            <th>10.04%</th>
+            <th>133.12</th>
+        </th>
+        <tr>
+            <th>600738</th>
+            <th>丽尚国潮</th>
+            <th>10.04%</th>
+            <th>121.23</th>
+        </th>
+        <tr>
+            <th>600644</th>
+            <th>乐山电力</th>
+            <th>10.03%</th>
+            <th>142.87</th>
+        </th>
+        <tr>
+            <th>600571</th>
+            <th>信雅达*</th>
+            <th>10.03%</th>
+            <th>72.49</th>
+        </th>
+        <tr>
+            <th>603676</th>
+            <th>卫信康*</th>
+            <th>10.03%</th>
+            <th>9.55</th>
+        </th>
+        <tr>
+            <th>603696</th>
+            <th>安记食品</th>
+            <th>10.03%</th>
+            <th>59.32</th>
+        </th>
+        <tr>
+            <th>600119</th>
+            <th>长江投资</th>
+            <th>10.03%</th>
+            <th>17.75</th>
+        </th>
+        <tr>
+            <th>601086</th>
+            <th>国芳集团</th>
+            <th>10.02%</th>
+            <th>74.88</th>
+        </th>
+        <tr>
+            <th>605033</th>
+            <th>美邦股份</th>
+            <th>10.02%</th>
+            <th>12.61</th>
+        </th>
+        <tr>
+            <th>603029</th>
+            <th>天鹅股份</th>
+            <th>10.02%</th>
+            <th>13.8</th>
+        </th>
+        <tr>
+            <th>603535</th>
+            <th>嘉诚国际</th>
+            <th>10.01%</th>
+            <th>33.09</th>
+        </th>
+        <tr>
+            <th>600865</th>
+            <th>百大集团</th>
+            <th>10.01%</th>
+            <th>20.56</th>
+        </th>
+        <tr>
+            <th>603697</th>
+            <th>有友食品</th>
+            <th>10.00%</th>
+            <th>37.18</th>
+        </th>
+        <tr>
+            <th>603351</th>
+            <th>威尔药业</th>
+            <th>10.00%</th>
+            <th>9.56</th>
+        </th>
+        <tr>
+            <th>603173</th>
+            <th>福斯达*</th>
+            <th>10.00%</th>
+            <th>4.86</th>
+        </th>
+        <tr>
+            <th>601515</th>
+            <th>东峰集团</th>
+            <th>10.00%</th>
+            <th>111.16</th>
+        </th>
+        <tr>
+            <th>603178</th>
+            <th>圣龙股份</th>
+            <th>9.99%</th>
+            <th>9.76</th>
+        </th>
+        <tr>
+            <th>603067</th>
+            <th>振华股份</th>
+            <th>9.98%</th>
+            <th>23.94</th>
+        </th>
+        <tr>
+            <th>600501</th>
+            <th>航天晨光</th>
+            <th>9.98%</th>
+            <th>27.74</th>
+        </th>
+        <tr>
+            <th>603123</th>
+            <th>翠微股份</th>
+            <th>9.98%</th>
+            <th>44.43</th>
+        </th>
+        <tr>
+            <th>600668</th>
+            <th>尖峰集团</th>
+            <th>9.97%</th>
+            <th>25.25</th>
+        </th>
+        <tr>
+            <th>603086</th>
+            <th>先达股份</th>
+            <th>9.97%</th>
+            <th>6.96</th>
+        </th>
+        <tr>
+            <th>603117</th>
+            <th>万林物流</th>
+            <th>9.97%</th>
+            <th>37.86</th>
+        </th>
+        <tr>
+            <th>603128</th>
+            <th>华贸物流</th>
+            <th>9.96%</th>
+            <th>262.42</th>
+        </th>
+        <tr>
+            <th>000632</th>
+            <th>三木集团</th>
+            <th>10.15%</th>
+            <th>22.52</th>
+        </th>
+        <tr>
+            <th>002565</th>
+            <th>顺灏股份</th>
+            <th>10.12%</th>
+            <th>101.52</th>
+        </th>
+        <tr>
+            <th>000670</th>
+            <th>盈方微*</th>
+            <th>10.06%</th>
+            <th>53.11</th>
+        </th>
+        <tr>
+            <th>002584</th>
+            <th>西陇科学</th>
+            <th>10.05%</th>
+            <th>122.78</th>
+        </th>
+        <tr>
+            <th>002910</th>
+            <th>庄园牧场</th>
+            <th>10.05%</th>
+            <th>17.29</th>
+        </th>
+        <tr>
+            <th>002317</th>
+            <th>众生药业</th>
+            <th>10.04%</th>
+            <th>64.7</th>
+        </th>
+        <tr>
+            <th>000691</th>
+            <th>亚太实业</th>
+            <th>10.04%</th>
+            <th>28.69</th>
+        </th>
+        <tr>
+            <th>002552</th>
+            <th>宝鼎科技</th>
+            <th>10.04%</th>
+            <th>13.63</th>
+        </th>
+        <tr>
+            <th>003003</th>
+            <th>天元股份</th>
+            <th>10.03%</th>
+            <th>3.09</th>
+        </th>
+        <tr>
+            <th>002907</th>
+            <th>华森制药</th>
+            <th>10.03%</th>
+            <th>10.55</th>
+        </th>
+        <tr>
+            <th>000617</th>
+            <th>中油资本</th>
+            <th>10.03%</th>
+            <th>392.37</th>
+        </th>
+        <tr>
+            <th>002672</th>
+            <th>东江环保</th>
+            <th>10.03%</th>
+            <th>8.25</th>
+        </th>
+        <tr>
+            <th>002564</th>
+            <th>天沃科技</th>
+            <th>10.02%</th>
+            <th>197.44</th>
+        </th>
+        <tr>
+            <th>002627</th>
+            <th>三峡旅游</th>
+            <th>10.02%</th>
+            <th>77.43</th>
+        </th>
+        <tr>
+            <th>002094</th>
+            <th>青岛金王</th>
+            <th>10.01%</th>
+            <th>63.76</th>
+        </th>
+        <tr>
+            <th>002165</th>
+            <th>红 宝</th>
+            <th>10.01%</th>
+            <th>320.92</th>
+        </th>
+        <tr>
+            <th>001316</th>
+            <th>润贝航科</th>
+            <th>10.01%</th>
+            <th>10.79</th>
+        </th>
+        <tr>
+            <th>002702</th>
+            <th>海欣食品</th>
+            <th>10.00%</th>
+            <th>47.46</th>
+        </th>
+        <tr>
+            <th>002678</th>
+            <th>珠江钢琴</th>
+            <th>10.00%</th>
+            <th>36.14</th>
+        </th>
+        <tr>
+            <th>001395</th>
+            <th>亚联机械</th>
+            <th>10.00%</th>
+            <th>10.96</th>
+        </th>
+        <tr>
+            <th>001212</th>
+            <th>中旗新材</th>
+            <th>10.00%</th>
+            <th>8.53</th>
+        </th>
+        <tr>
+            <th>003029</th>
+            <th>吉大正元</th>
+            <th>10.00%</th>
+            <th>9.71</th>
+        </th>
+        <tr>
+            <th>003042</th>
+            <th>中农联合</th>
+            <th>9.99%</th>
+            <th>9.07</th>
+        </th>
+        <tr>
+            <th>002915</th>
+            <th>中欣氟材</th>
+            <th>9.99%</th>
+            <th>18.0</th>
+        </th>
+        <tr>
+            <th>002549</th>
+            <th>凯美特气</th>
+            <th>9.99%</th>
+            <th>128.0</th>
+        </th>
+        <tr>
+            <th>002095</th>
+            <th>生 意</th>
+            <th>9.98%</th>
+            <th>25.79</th>
+        </th>
+        <tr>
+            <th>000965</th>
+            <th>天保基建</th>
+            <th>9.98%</th>
+            <th>221.11</th>
+        </th>
+        <tr>
+            <th>001209</th>
+            <th>洪兴股份</th>
+            <th>9.98%</th>
+            <th>6.75</th>
+        </th>
+        <tr>
+            <th>002640</th>
+            <th>跨境通*</th>
+            <th>9.97%</th>
+            <th>50.45</th>
+        </th>
+        <tr>
+            <th>002695</th>
+            <th>煌上煌*</th>
+            <th>9.97%</th>
+            <th>21.77</th>
+        </th>
+        <tr>
+            <th>002809</th>
+            <th>红墙股份</th>
+            <th>9.96%</th>
+            <th>59.93</th>
+        </th>
+        <tr>
+            <th>000957</th>
+            <th>中通客车</th>
+            <th>9.96%</th>
+            <th>47.85</th>
+        </th>
+        <tr>
+            <th>002537</th>
+            <th>海联金汇</th>
+            <th>9.96%</th>
+            <th>18.86</th>
+        </th>
+        <tr>
+            <th>002251</th>
+            <th>步步高*</th>
+            <th>9.94%</th>
+            <th>6.62</th>
+        </th>
+        <tr>
+            <th>000017</th>
+            <th>深中华A</th>
+            <th>9.93%</th>
+            <th>41.62</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
