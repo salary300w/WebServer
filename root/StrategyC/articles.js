@@ -1,4 +1,5 @@
 const articles = [,
+    { title: "2025_08_12", file: "2025_08_12.html", summary: "2025_08_12股票数据"},
     { title: "2025_08_11", file: "2025_08_11.html", summary: "2025_08_11股票数据"},
     { title: "2025_08_08", file: "2025_08_08.html", summary: "2025_08_08股票数据"},
     { title: "2025_08_07", file: "2025_08_07.html", summary: "2025_08_07股票数据"},

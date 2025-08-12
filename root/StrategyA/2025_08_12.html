@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据(更新时间:2025-08-12 15:15:09)</h1>
+<table>
+    <thead>
+        <tr>
+            <th>股票代码</th>
+            <th>股票名称</th>
+            <th>涨幅</th>
+            <th>成交量</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600984</th>
+            <th>建设机械</th>
+            <th>10.14%</th>
+            <th>91.76</th>
+        </th>
+        <tr>
+            <th>601929</th>
+            <th>吉视传媒</th>
+            <th>10.10%</th>
+            <th>551.51</th>
+        </th>
+        <tr>
+            <th>600581</th>
+            <th>八一钢铁</th>
+            <th>10.09%</th>
+            <th>265.7</th>
+        </th>
+        <tr>
+            <th>600203</th>
+            <th>福日电子</th>
+            <th>10.03%</th>
+            <th>289.09</th>
+        </th>
+        <tr>
+            <th>601137</th>
+            <th>博威合金</th>
+            <th>10.02%</th>
+            <th>105.39</th>
+        </th>
+        <tr>
+            <th>600246</th>
+            <th>万通发展</th>
+            <th>10.01%</th>
+            <th>339.26</th>
+        </th>
+        <tr>
+            <th>600053</th>
+            <th>九鼎投资</th>
+            <th>10.01%</th>
+            <th>5.28</th>
+        </th>
+        <tr>
+            <th>605298</th>
+            <th>必得科技</th>
+            <th>10.01%</th>
+            <th>4.85</th>
+        </th>
+        <tr>
+            <th>605188</th>
+            <th>国光连锁</th>
+            <th>10.01%</th>
+            <th>4.36</th>
+        </th>
+        <tr>
+            <th>603610</th>
+            <th>麒盛科技</th>
+            <th>10.01%</th>
+            <th>51.33</th>
+        </th>
+        <tr>
+            <th>600211</th>
+            <th>西藏药业</th>
+            <th>10.01%</th>
+            <th>17.5</th>
+        </th>
+        <tr>
+            <th>600619</th>
+            <th>海立股份</th>
+            <th>10.00%</th>
+            <th>169.74</th>
+        </th>
+        <tr>
+            <th>603706</th>
+            <th>东方环宇</th>
+            <th>10.00%</th>
+            <th>15.68</th>
+        </th>
+        <tr>
+            <th>603757</th>
+            <th>大元泵业</th>
+            <th>10.00%</th>
+            <th>6.15</th>
+        </th>
+        <tr>
+            <th>603023</th>
+            <th>威帝股份</th>
+            <th>10.00%</th>
+            <th>48.23</th>
+        </th>
+        <tr>
+            <th>600410</th>
+            <th>华胜天成</th>
+            <th>10.00%</th>
+            <th>409.6</th>
+        </th>
+        <tr>
+            <th>600113</th>
+            <th>浙江东日</th>
+            <th>10.00%</th>
+            <th>19.62</th>
+        </th>
+        <tr>
+            <th>603080</th>
+            <th>新疆火炬</th>
+            <th>10.00%</th>
+            <th>15.89</th>
+        </th>
+        <tr>
+            <th>603090</th>
+            <th>宏盛股份</th>
+            <th>9.99%</th>
+            <th>7.41</th>
+        </th>
+        <tr>
+            <th>605169</th>
+            <th>洪通燃气</th>
+            <th>9.98%</th>
+            <th>36.62</th>
+        </th>
+        <tr>
+            <th>600658</th>
+            <th>电子城*</th>
+            <th>9.96%</th>
+            <th>125.08</th>
+        </th>
+        <tr>
+            <th>002307</th>
+            <th>北新路桥</th>
+            <th>10.06%</th>
+            <th>122.7</th>
+        </th>
+        <tr>
+            <th>000011</th>
+            <th>深物业A</th>
+            <th>10.04%</th>
+            <th>47.94</th>
+        </th>
+        <tr>
+            <th>000014</th>
+            <th>沙河股份</th>
+            <th>10.04%</th>
+            <th>22.13</th>
+        </th>
+        <tr>
+            <th>000006</th>
+            <th>深振业Ａ</th>
+            <th>10.03%</th>
+            <th>114.38</th>
+        </th>
+        <tr>
+            <th>002052</th>
+            <th>同洲电子</th>
+            <th>10.03%</th>
+            <th>18.1</th>
+        </th>
+        <tr>
+            <th>002298</th>
+            <th>中电鑫龙</th>
+            <th>10.03%</th>
+            <th>96.4</th>
+        </th>
+        <tr>
+            <th>002176</th>
+            <th>江特电机</th>
+            <th>10.02%</th>
+            <th>385.95</th>
+        </th>
+        <tr>
+            <th>002270</th>
+            <th>华明装备</th>
+            <th>10.02%</th>
+            <th>35.52</th>
+        </th>
+        <tr>
+            <th>002328</th>
+            <th>新朋股份</th>
+            <th>10.02%</th>
+            <th>60.7</th>
+        </th>
+        <tr>
+            <th>002941</th>
+            <th>新疆交建</th>
+            <th>10.01%</th>
+            <th>7.74</th>
+        </th>
+        <tr>
+            <th>000026</th>
+            <th>飞亚达*</th>
+            <th>10.01%</th>
+            <th>56.27</th>
+        </th>
+        <tr>
+            <th>003017</th>
+            <th>大洋生物</th>
+            <th>10.00%</th>
+            <th>7.58</th>
+        </th>
+        <tr>
+            <th>002104</th>
+            <th>恒宝股份</th>
+            <th>10.00%</th>
+            <th>264.47</th>
+        </th>
+        <tr>
+            <th>002549</th>
+            <th>凯美特气</th>
+            <th>9.99%</th>
+            <th>83.4</th>
+        </th>
+        <tr>
+            <th>002148</th>
+            <th>北纬科技</th>
+            <th>9.99%</th>
+            <th>273.25</th>
+        </th>
+        <tr>
+            <th>002173</th>
+            <th>创新医疗</th>
+            <th>9.99%</th>
+            <th>159.7</th>
+        </th>
+        <tr>
+            <th>000417</th>
+            <th>合百集团</th>
+            <th>9.98%</th>
+            <th>98.02</th>
+        </th>
+        <tr>
+            <th>002670</th>
+            <th>国盛金控</th>
+            <th>9.98%</th>
+            <th>200.85</th>
+        </th>
+        <tr>
+            <th>002040</th>
+            <th>南 京</th>
+            <th>9.98%</th>
+            <th>55.0</th>
+        </th>
+        <tr>
+            <th>000561</th>
+            <th>烽火电子</th>
+            <th>9.97%</th>
+            <th>49.89</th>
+        </th>
+        <tr>
+            <th>002676</th>
+            <th>顺威股份</th>
+            <th>9.97%</th>
+            <th>65.46</th>
+        </th>
+        <tr>
+            <th>002820</th>
+            <th>桂发祥*</th>
+            <th>9.97%</th>
+            <th>55.95</th>
+        </th>
+        <tr>
+            <th>002622</th>
+            <th>皓宸医疗</th>
+            <th>9.88%</th>
+            <th>93.46</th>
+        </th>
+        <tr>
+            <th>002501</th>
+            <th>利源股份</th>
+            <th>9.80%</th>
+            <th>304.51</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
