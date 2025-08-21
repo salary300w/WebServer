@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>股票数据展示</title>
+  <link rel="icon" href="icon.png" type="image/x-icon">
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --text-color: #333;
+      --table-bg: rgba(255, 255, 255, 0.85);
+      --thead-bg: #3f72af;
+      --thead-text: #fff;
+      --row-hover: rgba(240, 244, 250, 0.8);
+    }
+
+    body.dark-mode {
+      --bg-color: #1e1e2f;
+      --text-color: #e4e4e7;
+      --table-bg: rgba(42, 42, 61, 0.85);
+      --thead-bg: #444c74;
+      --thead-text: #e4e4e7;
+      --row-hover: rgba(58, 58, 85, 0.8);
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      color: var(--text-color);
+      background: 
+        linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a18cd1 100%),
+        linear-gradient(225deg, #fbc2eb 0%, #a6c1ee 50%, #fbc2eb 100%);
+      background-blend-mode: overlay;
+      transition: background 0.4s ease, color 0.4s ease;
+      min-height: 100vh;
+    }
+
+    body.dark-mode {
+      background: 
+        linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%),
+        linear-gradient(225deg, #1c1c2b 0%, #2a2a3d 50%, #1c1c2b 100%);
+      background-blend-mode: overlay;
+    }
+
+    /* 标题部分优化 */
+    h1 {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-color);
+      margin-bottom: 20px;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    h1 small {
+      display: block;
+      font-size: 0.8em;
+      font-weight: normal;
+      margin-top: 4px;
+      color: var(--text-color);
+    }
+
+    /* 响应式表格容器 */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--table-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      transition: background 0.4s ease;
+      backdrop-filter: blur(8px);
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.05) 20px,
+        rgba(255,255,255,0.05) 40px
+      );
+      min-width: 600px;
+    }
+
+    thead {
+      background: var(--thead-bg);
+      color: var(--thead-text);
+    }
+
+    th, td {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+      transition: background 0.3s ease;
+    }
+
+    /* 小型悬浮暗黑模式按钮 */
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #87cefa, #ff7f50);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 小屏幕优化 */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
+      }
+
+      .toggle-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="toggle-btn" id="themeToggleBtn" onclick="toggleMode()">🌞</button>
+
+  <h1>
+    股票数据<br>
+    <small>更新时间:2025-08-21 14:45:19</small>
+  <h1>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>股票代码</th>
+          <th>股票名称</th>
+          <th>涨幅</th>
+          <th>量比</th>
+          <th>市值</th>
+          <th>1日涨幅</th>
+          <th>2日涨幅</th>
+          <th>次日涨幅</th>
+          <th>次日最大跌幅</th>
+          <th>次日最大涨幅</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>603618</th>
+          <th>杭电股份</th>
+          <th>10.10%</th>
+          <th>2.71</th>
+          <th>36.92 亿</th>
+          <th>2.20%</th>
+          <th>-0.90%</th>
+          <th>1.44%</th>
+          <th>-0.90%</th>
+          <th>2.17%</th>
+        </tr>
+        <tr>
+          <th>603016</th>
+          <th>新宏泰*</th>
+          <th>10.02%</th>
+          <th>0.84</th>
+          <th>50.09 亿</th>
+          <th>-5.94%</th>
+          <th>10.02%</th>
+          <th>6.99%</th>
+          <th>-2.86%</th>
+          <th>9.88%</th>
+        </tr>
+        <tr>
+          <th>600981</th>
+          <th>汇鸿集团</th>
+          <th>10.00%</th>
+          <th>1.21</th>
+          <th>61.34 亿</th>
+          <th>-7.64%</th>
+          <th>6.30%</th>
+          <th>10.04%</th>
+          <th>-0.74%</th>
+          <th>10.04%</th>
+        </tr>
+        <tr>
+          <th>600696</th>
+          <th>岩石股份</th>
+          <th>10.00%</th>
+          <th>0.43</th>
+          <th>43.82 亿</th>
+          <th>1.80%</th>
+          <th>9.08%</th>
+          <th>9.99%</th>
+          <th>-1.41%</th>
+          <th>9.99%</th>
+        </tr>
+        <tr>
+          <th>600391</th>
+          <th>航发科技</th>
+          <th>10.00%</th>
+          <th>1.69</th>
+          <th>66.21 亿</th>
+          <th>-3.21%</th>
+          <th>1.61%</th>
+          <th>2.02%</th>
+          <th>-0.64%</th>
+          <th>3.21%</th>
+        </tr>
+        <tr>
+          <th>600078</th>
+          <th>澄星股份</th>
+          <th>10.00%</th>
+          <th>1.92</th>
+          <th>41.73 亿</th>
+          <th>0.46%</th>
+          <th>5.21%</th>
+          <th>1.73%</th>
+          <th>-0.29%</th>
+          <th>5.63%</th>
+        </tr>
+        <tr>
+          <th>600571</th>
+          <th>信雅达*</th>
+          <th>9.98%</th>
+          <th>1.10</th>
+          <th>59.70 亿</th>
+          <th>-4.77%</th>
+          <th>-0.48%</th>
+          <th>2.00%</th>
+          <th>-0.96%</th>
+          <th>3.83%</th>
+        </tr>
+        <tr>
+          <th>601777</th>
+          <th>力帆科技</th>
+          <th>9.98%</th>
+          <th>1.80</th>
+          <th>259.26 亿</th>
+          <th>2.91%</th>
+          <th>9.48%</th>
+          <th>10.05%</th>
+          <th>-5.41%</th>
+          <th>10.05%</th>
+        </tr>
+        <tr>
+          <th>600416</th>
+          <th>湘电股份</th>
+          <th>9.97%</th>
+          <th>2.27</th>
+          <th>166.46 亿</th>
+          <th>-1.31%</th>
+          <th>2.57%</th>
+          <th>-0.15%</th>
+          <th>-1.59%</th>
+          <th>1.21%</th>
+        </tr>
+        <tr>
+          <th>600187</th>
+          <th>国中水务</th>
+          <th>9.94%</th>
+          <th>1.17</th>
+          <th>57.83 亿</th>
+          <th>2.74%</th>
+          <th>4.80%</th>
+          <th>9.90%</th>
+          <th>-0.76%</th>
+          <th>9.90%</th>
+        </tr>
+        <tr>
+          <th>600984</th>
+          <th>建设机械</th>
+          <th>9.93%</th>
+          <th>0.87</th>
+          <th>38.12 亿</th>
+          <th>4.19%</th>
+          <th>5.26%</th>
+          <th>-2.04%</th>
+          <th>-3.79%</th>
+          <th>3.79%</th>
+        </tr>
+        <tr>
+          <th>601279</th>
+          <th>英利汽车</th>
+          <th>9.89%</th>
+          <th>1.07</th>
+          <th>64.05 亿</th>
+          <th>-3.41%</th>
+          <th>-0.25%</th>
+          <th>2.25%</th>
+          <th>-0.25%</th>
+          <th>2.50%</th>
+        </tr>
+        <tr>
+          <th>002086</th>
+          <th>东方海洋</th>
+          <th>10.19%</th>
+          <th>2.79</th>
+          <th>20.96 亿</th>
+          <th>-3.36%</th>
+          <th>5.65%</th>
+          <th>0.82%</th>
+          <th>-4.10%</th>
+          <th>4.92%</th>
+        </tr>
+        <tr>
+          <th>002178</th>
+          <th>延华智能</th>
+          <th>10.08%</th>
+          <th>0.98</th>
+          <th>37.27 亿</th>
+          <th>-3.36%</th>
+          <th>2.32%</th>
+          <th>3.38%</th>
+          <th>-2.81%</th>
+          <th>6.00%</th>
+        </tr>
+        <tr>
+          <th>002846</th>
+          <th>英联股份</th>
+          <th>10.07%</th>
+          <th>1.66</th>
+          <th>20.78 亿</th>
+          <th>-3.78%</th>
+          <th>3.93%</th>
+          <th>-0.61%</th>
+          <th>-2.44%</th>
+          <th>2.80%</th>
+        </tr>
+        <tr>
+          <th>002647</th>
+          <th>仁东控股</th>
+          <th>10.05%</th>
+          <th>0.35</th>
+          <th>45.35 亿</th>
+          <th>-1.60%</th>
+          <th>-2.13%</th>
+          <th>4.24%</th>
+          <th>-3.34%</th>
+          <th>5.91%</th>
+        </tr>
+        <tr>
+          <th>000066</th>
+          <th>中国长城</th>
+          <th>10.05%</th>
+          <th>0.87</th>
+          <th>356.64 亿</th>
+          <th>-2.67%</th>
+          <th>0.62%</th>
+          <th>4.74%</th>
+          <th>-2.11%</th>
+          <th>7.55%</th>
+        </tr>
+        <tr>
+          <th>002093</th>
+          <th>国脉科技</th>
+          <th>10.04%</th>
+          <th>1.15</th>
+          <th>83.10 亿</th>
+          <th>-5.96%</th>
+          <th>1.00%</th>
+          <th>6.77%</th>
+          <th>-1.11%</th>
+          <th>7.76%</th>
+        </tr>
+        <tr>
+          <th>000676</th>
+          <th>智度股份</th>
+          <th>10.04%</th>
+          <th>0.08</th>
+          <th>151.49 亿</th>
+          <th>-8.54%</th>
+          <th>1.19%</th>
+          <th>2.83%</th>
+          <th>-1.09%</th>
+          <th>8.49%</th>
+        </tr>
+        <tr>
+          <th>000151</th>
+          <th>中成股份</th>
+          <th>10.02%</th>
+          <th>1.46</th>
+          <th>41.88 亿</th>
+          <th>-2.94%</th>
+          <th>5.91%</th>
+          <th>6.28%</th>
+          <th>0</th>
+          <th>8.08%</th>
+        </tr>
+        <tr>
+          <th>001289</th>
+          <th>龙源电力</th>
+          <th>10.01%</th>
+          <th>0.84</th>
+          <th>23.48 亿</th>
+          <th>-1.88%</th>
+          <th>3.42%</th>
+          <th>-0.11%</th>
+          <th>-2.34%</th>
+          <th>1.56%</th>
+        </tr>
+        <tr>
+          <th>000980</th>
+          <th>众泰汽车</th>
+          <th>10.00%</th>
+          <th>2.42</th>
+          <th>103.51 亿</th>
+          <th>-1.82%</th>
+          <th>0.46%</th>
+          <th>6.88%</th>
+          <th>-1.83%</th>
+          <th>9.63%</th>
+        </tr>
+        <tr>
+          <th>002312</th>
+          <th>川发龙蟒</th>
+          <th>9.98%</th>
+          <th>1.16</th>
+          <th>202.97 亿</th>
+          <th>1.07%</th>
+          <th>7.02%</th>
+          <th>10.01%</th>
+          <th>0</th>
+          <th>10.01%</th>
+        </tr>
+        <tr>
+          <th>000677</th>
+          <th>恒天海龙</th>
+          <th>9.98%</th>
+          <th>0.40</th>
+          <th>37.27 亿</th>
+          <th>4.54%</th>
+          <th>9.98%</th>
+          <th>10.06%</th>
+          <th>0</th>
+          <th>10.06%</th>
+        </tr>
+        <tr>
+          <th>002629</th>
+          <th>仁智股份</th>
+          <th>9.96%</th>
+          <th>1.20</th>
+          <th>8.60 亿</th>
+          <th>3.15%</th>
+          <th>3.05%</th>
+          <th>7.69%</th>
+          <th>-1.83%</th>
+          <th>9.89%</th>
+        </tr>
+        <tr>
+          <th>002685</th>
+          <th>华东重机</th>
+          <th>9.94%</th>
+          <th>0.04</th>
+          <th>74.07 亿</th>
+          <th>-6.88%</th>
+          <th>10.00%</th>
+          <th>10.01%</th>
+          <th>0</th>
+          <th>10.01%</th>
+        </tr>
+        <tr>
+          <th>002676</th>
+          <th>顺威股份</th>
+          <th>9.94%</th>
+          <th>2.18</th>
+          <th>38.24 亿</th>
+          <th>-2.71%</th>
+          <th>10.04%</th>
+          <th>9.97%</th>
+          <th>0</th>
+          <th>9.97%</th>
+        </tr>
+        <tr>
+          <th>002628</th>
+          <th>成都路桥</th>
+          <th>9.94%</th>
+          <th>0.64</th>
+          <th>40.69 亿</th>
+          <th>1.66%</th>
+          <th>0.54%</th>
+          <th>10.09%</th>
+          <th>-8.07%</th>
+          <th>10.09%</th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <script>
+    const toggleBtn = document.getElementById("themeToggleBtn");
+
+    function updateBtnIcon() {
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+      updateBtnIcon();
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    }
+
+    (function() {
+      const userPref = localStorage.getItem("theme");
+      if (userPref) {
+        if (userPref === "dark") document.body.classList.add("dark-mode");
+      } else {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.body.classList.add("dark-mode");
+        }
+      }
+      updateBtnIcon();
+    })();
+  </script>
+</body>
+</html>
