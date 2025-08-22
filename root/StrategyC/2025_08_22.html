@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>股票数据展示</title>
+  <link rel="icon" href="icon.png" type="image/x-icon">
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --text-color: #333;
+      --table-bg: rgba(255, 255, 255, 0.85);
+      --thead-bg: #3f72af;
+      --thead-text: #fff;
+      --row-hover: rgba(240, 244, 250, 0.8);
+    }
+
+    body.dark-mode {
+      --bg-color: #1e1e2f;
+      --text-color: #e4e4e7;
+      --table-bg: rgba(42, 42, 61, 0.85);
+      --thead-bg: #444c74;
+      --thead-text: #e4e4e7;
+      --row-hover: rgba(58, 58, 85, 0.8);
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      color: var(--text-color);
+      background: 
+        linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a18cd1 100%),
+        linear-gradient(225deg, #fbc2eb 0%, #a6c1ee 50%, #fbc2eb 100%);
+      background-blend-mode: overlay;
+      transition: background 0.4s ease, color 0.4s ease;
+      min-height: 100vh;
+    }
+
+    body.dark-mode {
+      background: 
+        linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%),
+        linear-gradient(225deg, #1c1c2b 0%, #2a2a3d 50%, #1c1c2b 100%);
+      background-blend-mode: overlay;
+    }
+
+    /* 标题部分优化 */
+    h1 {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-color);
+      margin-bottom: 20px;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    h1 small {
+      display: block;
+      font-size: 0.8em;
+      font-weight: normal;
+      margin-top: 4px;
+      color: var(--text-color);
+    }
+
+    /* 响应式表格容器 */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--table-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      transition: background 0.4s ease;
+      backdrop-filter: blur(8px);
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.05) 20px,
+        rgba(255,255,255,0.05) 40px
+      );
+      min-width: 600px;
+    }
+
+    thead {
+      background: var(--thead-bg);
+      color: var(--thead-text);
+    }
+
+    th, td {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+      transition: background 0.3s ease;
+    }
+
+    /* 小型悬浮暗黑模式按钮 */
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #87cefa, #ff7f50);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 小屏幕优化 */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
+      }
+
+      .toggle-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="toggle-btn" id="themeToggleBtn" onclick="toggleMode()">🌞</button>
+
+  <h1>
+    股票数据<br>
+    <small>更新时间:2025-08-22 15:10:06</small>
+  <h1>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>股票代码</th>
+          <th>股票名称</th>
+          <th>涨幅</th>
+          <th>成交量</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>600490</th>
+          <th>鹏欣资源</th>
+          <th>10.06%</th>
+          <th>199.42</th>
+        </tr>
+        <tr>
+          <th>600246</th>
+          <th>万通发展</th>
+          <th>10.05%</th>
+          <th>9.65</th>
+        </tr>
+        <tr>
+          <th>600601</th>
+          <th>方正科技</th>
+          <th>10.04%</th>
+          <th>267.95</th>
+        </tr>
+        <tr>
+          <th>600284</th>
+          <th>浦东建设</th>
+          <th>10.04%</th>
+          <th>76.61</th>
+        </tr>
+        <tr>
+          <th>600797</th>
+          <th>浙大网新</th>
+          <th>10.04%</th>
+          <th>181.25</th>
+        </tr>
+        <tr>
+          <th>600353</th>
+          <th>旭光电子</th>
+          <th>10.03%</th>
+          <th>87.4</th>
+        </tr>
+        <tr>
+          <th>601778</th>
+          <th>晶科科技</th>
+          <th>10.03%</th>
+          <th>326.64</th>
+        </tr>
+        <tr>
+          <th>600058</th>
+          <th>五矿发展</th>
+          <th>10.02%</th>
+          <th>26.66</th>
+        </tr>
+        <tr>
+          <th>603626</th>
+          <th>科森科技</th>
+          <th>10.02%</th>
+          <th>189.67</th>
+        </tr>
+        <tr>
+          <th>603716</th>
+          <th>塞力医疗</th>
+          <th>10.02%</th>
+          <th>61.43</th>
+        </tr>
+        <tr>
+          <th>600475</th>
+          <th>华光环能</th>
+          <th>10.02%</th>
+          <th>17.61</th>
+        </tr>
+        <tr>
+          <th>605028</th>
+          <th>世茂能源</th>
+          <th>10.01%</th>
+          <th>1.44</th>
+        </tr>
+        <tr>
+          <th>603031</th>
+          <th>安孚科技</th>
+          <th>10.01%</th>
+          <th>14.27</th>
+        </tr>
+        <tr>
+          <th>603171</th>
+          <th>税友股份</th>
+          <th>10.01%</th>
+          <th>6.98</th>
+        </tr>
+        <tr>
+          <th>603106</th>
+          <th>恒银科技</th>
+          <th>10.01%</th>
+          <th>42.84</th>
+        </tr>
+        <tr>
+          <th>605133</th>
+          <th>嵘泰股份</th>
+          <th>10.01%</th>
+          <th>12.17</th>
+        </tr>
+        <tr>
+          <th>601788</th>
+          <th>光大证券</th>
+          <th>10.01%</th>
+          <th>216.39</th>
+        </tr>
+        <tr>
+          <th>603986</th>
+          <th>兆易创新</th>
+          <th>10.00%</th>
+          <th>78.08</th>
+        </tr>
+        <tr>
+          <th>603227</th>
+          <th>雪峰科技</th>
+          <th>10.00%</th>
+          <th>107.06</th>
+        </tr>
+        <tr>
+          <th>603019</th>
+          <th>中科曙光</th>
+          <th>10.00%</th>
+          <th>129.9</th>
+        </tr>
+        <tr>
+          <th>600728</th>
+          <th>佳都科技</th>
+          <th>10.00%</th>
+          <th>54.3</th>
+        </tr>
+        <tr>
+          <th>600315</th>
+          <th>上海家化</th>
+          <th>10.00%</th>
+          <th>20.88</th>
+        </tr>
+        <tr>
+          <th>603256</th>
+          <th>宏和科技</th>
+          <th>9.99%</th>
+          <th>14.13</th>
+        </tr>
+        <tr>
+          <th>601208</th>
+          <th>东材科技</th>
+          <th>9.99%</th>
+          <th>85.33</th>
+        </tr>
+        <tr>
+          <th>603101</th>
+          <th>汇嘉时代</th>
+          <th>9.99%</th>
+          <th>14.87</th>
+        </tr>
+        <tr>
+          <th>605303</th>
+          <th>园林股份</th>
+          <th>9.99%</th>
+          <th>2.44</th>
+        </tr>
+        <tr>
+          <th>605255</th>
+          <th>天普股份</th>
+          <th>9.98%</th>
+          <th>0.3778</th>
+        </tr>
+        <tr>
+          <th>601059</th>
+          <th>信达证券</th>
+          <th>9.98%</th>
+          <th>144.41</th>
+        </tr>
+        <tr>
+          <th>600425</th>
+          <th>青松建化</th>
+          <th>9.98%</th>
+          <th>200.6</th>
+        </tr>
+        <tr>
+          <th>600637</th>
+          <th>东方明珠</th>
+          <th>9.98%</th>
+          <th>114.41</th>
+        </tr>
+        <tr>
+          <th>600979</th>
+          <th>广安爱众</th>
+          <th>9.94%</th>
+          <th>186.03</th>
+        </tr>
+        <tr>
+          <th>002378</th>
+          <th>章源钨业</th>
+          <th>10.05%</th>
+          <th>135.77</th>
+        </tr>
+        <tr>
+          <th>002217</th>
+          <th>合力泰*</th>
+          <th>10.04%</th>
+          <th>185.14</th>
+        </tr>
+        <tr>
+          <th>002575</th>
+          <th>群兴玩具</th>
+          <th>10.04%</th>
+          <th>126.06</th>
+        </tr>
+        <tr>
+          <th>000710</th>
+          <th>贝瑞基因</th>
+          <th>10.03%</th>
+          <th>74.99</th>
+        </tr>
+        <tr>
+          <th>000877</th>
+          <th>天山股份</th>
+          <th>10.03%</th>
+          <th>186.53</th>
+        </tr>
+        <tr>
+          <th>002871</th>
+          <th>伟隆股份</th>
+          <th>10.03%</th>
+          <th>31.15</th>
+        </tr>
+        <tr>
+          <th>002272</th>
+          <th>川润股份</th>
+          <th>10.03%</th>
+          <th>127.79</th>
+        </tr>
+        <tr>
+          <th>000617</th>
+          <th>中油资本</th>
+          <th>10.03%</th>
+          <th>727.71</th>
+        </tr>
+        <tr>
+          <th>002402</th>
+          <th>和而泰*</th>
+          <th>10.02%</th>
+          <th>175.02</th>
+        </tr>
+        <tr>
+          <th>002190</th>
+          <th>成飞集成</th>
+          <th>10.01%</th>
+          <th>97.12</th>
+        </tr>
+        <tr>
+          <th>002177</th>
+          <th>御银股份</th>
+          <th>10.01%</th>
+          <th>235.08</th>
+        </tr>
+        <tr>
+          <th>000676</th>
+          <th>智度股份</th>
+          <th>10.01%</th>
+          <th>128.64</th>
+        </tr>
+        <tr>
+          <th>000628</th>
+          <th>高新发展</th>
+          <th>10.01%</th>
+          <th>22.7</th>
+        </tr>
+        <tr>
+          <th>002080</th>
+          <th>中材科技</th>
+          <th>10.01%</th>
+          <th>59.91</th>
+        </tr>
+        <tr>
+          <th>002993</th>
+          <th>奥海科技</th>
+          <th>10.00%</th>
+          <th>13.03</th>
+        </tr>
+        <tr>
+          <th>000818</th>
+          <th>航锦科技</th>
+          <th>10.00%</th>
+          <th>87.17</th>
+        </tr>
+        <tr>
+          <th>002568</th>
+          <th>百润股份</th>
+          <th>10.00%</th>
+          <th>24.48</th>
+        </tr>
+        <tr>
+          <th>002290</th>
+          <th>禾盛新材</th>
+          <th>10.00%</th>
+          <th>14.84</th>
+        </tr>
+        <tr>
+          <th>001317</th>
+          <th>三羊马*</th>
+          <th>10.00%</th>
+          <th>7.49</th>
+        </tr>
+        <tr>
+          <th>001298</th>
+          <th>好上好*</th>
+          <th>9.99%</th>
+          <th>44.02</th>
+        </tr>
+        <tr>
+          <th>002838</th>
+          <th>道恩股份</th>
+          <th>9.99%</th>
+          <th>32.34</th>
+        </tr>
+        <tr>
+          <th>002109</th>
+          <th>兴化股份</th>
+          <th>9.97%</th>
+          <th>111.33</th>
+        </tr>
+        <tr>
+          <th>002212</th>
+          <th>天融信*</th>
+          <th>9.97%</th>
+          <th>99.38</th>
+        </tr>
+        <tr>
+          <th>002685</th>
+          <th>华东重机</th>
+          <th>9.95%</th>
+          <th>146.57</th>
+        </tr>
+        <tr>
+          <th>002692</th>
+          <th>远程股份</th>
+          <th>9.94%</th>
+          <th>67.0</th>
+        </tr>
+        <tr>
+          <th>002622</th>
+          <th>皓宸医疗</th>
+          <th>9.92%</th>
+          <th>144.24</th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <script>
+    const toggleBtn = document.getElementById("themeToggleBtn");
+
+    function updateBtnIcon() {
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+      updateBtnIcon();
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    }
+
+    (function() {
+      const userPref = localStorage.getItem("theme");
+      if (userPref) {
+        if (userPref === "dark") document.body.classList.add("dark-mode");
+      } else {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.body.classList.add("dark-mode");
+        }
+      }
+      updateBtnIcon();
+    })();
+  </script>
+</body>
+</html>
