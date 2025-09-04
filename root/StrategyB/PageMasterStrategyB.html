@@ -1,108 +1,325 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strategy-B</title>
-    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #007BFF;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-        }
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-        nav {
-            margin: 20px 0;
-        }
-        nav a {
-            margin: 0 15px;
-            color: white;
-            text-decoration: none;
-            font-size: 1.2em;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .post {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .post h2 {
-            margin: 0 0 10px;
-        }
-        .post p {
-            margin: 0;
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
-            background: #007BFF;
-            color: white;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StrategyB</title>
+  <link rel="icon" href="icon.png" type="image/x-icon">
+  <style>
+    :root {
+      --bg-color: #f9fafe;
+      --text-color: #333;
+      --card-bg: #fff;
+
+      --nav-top-bg: rgba(255,255,255,0.95);
+      --nav-top-text: #0f172a;
+
+      --nav-scrolled-bg: linear-gradient(135deg, #007BFF, #6a11cb);
+      --nav-scrolled-text: #ffffff;
+
+      --accent: #007BFF;
+      --accent-hover: #ffdd57;
+
+      --footer-bg: #007BFF;
+    }
+
+    .dark-mode {
+      --bg-color: #1e1e1e;
+      --text-color: #f0f0f0;
+      --card-bg: #2a2a2a;
+
+      --nav-top-bg: rgba(30,30,30,0.85);
+      --nav-top-text: #ffffff;
+
+      --nav-scrolled-bg: linear-gradient(135deg, #232526, #414345);
+      --nav-scrolled-text: #ffffff;
+
+      --accent: #4da3ff;
+      --accent-hover: #ffdd57;
+
+      --footer-bg: #111;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* 顶部导航 */
+    header {
+      background: var(--nav-top-bg);
+      backdrop-filter: blur(12px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      color: var(--nav-top-text);
+      transition: background 0.5s, color 0.3s, box-shadow 0.3s;
+    }
+    header.scrolled {
+      background: var(--nav-scrolled-bg);
+      color: var(--nav-scrolled-text);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .nav-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+    }
+    .nav-container::-webkit-scrollbar {
+      display: none; /* Chrome */
+    }
+
+    .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: inherit;
+      flex-shrink: 0;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    nav a {
+      margin-left: 25px;
+      text-decoration: none;
+      font-size: 1em;
+      color: inherit;
+      position: relative;
+      transition: color 0.3s;
+      white-space: nowrap;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 2px;
+      background: var(--accent-hover);
+      transition: width 0.3s;
+    }
+    nav a:hover {
+      color: var(--accent-hover);
+    }
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* 暗色模式切换按钮 */
+    #theme-toggle {
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      width: 36px;
+      height: 36px;
+      font-size: 16px;
+      cursor: pointer;
+      color: inherit;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+      margin-left: 15px;
+      flex-shrink: 0;
+    }
+    #theme-toggle:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    #theme-toggle:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* 主体容器 */
+    .container {
+      width: 95%;
+      max-width: 900px;
+      margin: 100px auto 30px;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      transition: background 0.3s;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+    section h2 {
+      font-size: 1.6em;
+      margin-bottom: 15px;
+      border-left: 5px solid var(--accent);
+      padding-left: 10px;
+      color: var(--accent);
+    }
+
+    /* 文章卡片 */
+    .post {
+      margin-bottom: 20px;
+      padding: 16px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      background: var(--card-bg);
+      transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+    }
+    .post:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .post h2 {
+      margin: 0 0 10px;
+      font-size: 1.3em;
+    }
+    .post h2 a {
+      color: var(--text-color);
+      text-decoration: none;
+    }
+    .post h2 a:hover {
+      color: var(--accent);
+    }
+    .post p {
+      margin: 0;
+      color: #666;
+      font-size: 0.95em;
+    }
+    .dark-mode .post p {
+      color: #aaa;
+    }
+
+    /* 页脚 */
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--footer-bg);
+      color: white;
+      font-size: 0.9em;
+      margin-top: 40px;
+    }
+
+    /* ===== 手机端微调 ===== */
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+        margin: 90px auto 20px;
+      }
+
+      section h2 {
+        font-size: 1.4em;
+        padding-left: 8px;
+      }
+
+      .post {
+        padding: 12px;
+      }
+
+      .post h2 {
+        font-size: 1.1em;
+      }
+
+      nav a {
+        margin-left: 15px;
+        font-size: 0.95em;
+      }
+
+      #theme-toggle {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        margin-left: 8px;
+      }
+
+      header.scrolled #theme-toggle {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>Strategy-B</h1>
-        <nav>
-            <a href="#posts">股票数据</a>
-            <a href="#contact">联系我</a>
-        </nav>
-    </header>
-
-    <div class="container">
-        <section id="posts">
-            <h2>股票数据</h2>
-            <div id="post-list"></div> <!-- 动态生成股票数据列表的位置 -->
-        </section>
-
-        <section id="contact">
-            <h2>联系我</h2>
-            <p>如果你有任何问题或建议，请通过电子邮件联系我。</p>
-        </section>
+  <header id="site-header">
+    <div class="nav-container">
+      <div class="logo">StrategyB</div>
+      <nav>
+        <a href="#posts">数据</a>
+        <a href="#contact">联系我</a>
+      </nav>
+      <button id="theme-toggle" aria-label="切换主题">🌙</button>
     </div>
+  </header>
 
-    <footer>
-        <p>&copy; 2024 Strategy-B. 保留所有权利.</p>
-    </footer>
-    <script src="articles.js"></script> <!-- 引入 JavaScript 文件 -->
-    <script>
-        const postList = document.getElementById('post-list');
+  <div class="container">
+    <section id="posts">
+      <h2>数据</h2>
+      <div id="post-list"></div>
+    </section>
 
-        articles.forEach(article => {
-            const postDiv = document.createElement('div');
-            postDiv.className = 'post';
-            postDiv.innerHTML = `
-                <h2><a href="${article.file}" style="color: inherit; text-decoration: none;">${article.title}</a></h2>
-                <p>${article.summary}</p>
-            `;
-            postList.appendChild(postDiv);
-        });
-    </script>
+    <section id="contact">
+      <h2>联系我</h2>
+      <p>如果你有任何问题或建议，请通过电子邮件1769248893@qq.com联系我。</p>
+    </section>
+  </div>
+
+  <footer>
+    <p>&copy; StrategyB. 保留所有权利.</p>
+  </footer>
+
+  <script src="SubPageList.js"></script>
+  <script>
+    const postList = document.getElementById('post-list');
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const header = document.getElementById('site-header');
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark-mode');
+      themeToggle.textContent = '☀️';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      const isDark = body.classList.contains('dark-mode');
+      themeToggle.textContent = isDark ? '☀️' : '🌙';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    const onScroll = () => {
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    };
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+
+    if (typeof articles !== 'undefined' && Array.isArray(articles)) {
+      articles.forEach(article => {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post';
+        postDiv.innerHTML = `
+          <h2><a href="${article.file}">${article.title}</a></h2>
+          <p>${article.summary}</p>
+        `;
+        postList.appendChild(postDiv);
+      });
+    }
+  </script>
 </body>
 </html>
