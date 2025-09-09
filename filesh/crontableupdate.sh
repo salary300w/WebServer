@@ -12,7 +12,7 @@ TASKS=(
 "40 11 * * 1-5 bash /root/workspace/planc.sh b"
 "53 14 * * 1-5 bash /root/workspace/planc.sh b"
 "10 15 * * 1-5 bash /root/workspace/planc.sh l"
-"20 15 * * 1-5 bash /root/workspace/planc.sh u",
+"20 15 * * 1-5 bash /root/workspace/planc.sh u"
 "30 15 * * 1-5 bash /root/workspace/planc.sh c"
 "40 15 * * 1-5 bash /root/workspace/planc.sh y"
 "05 10 * * 1-5 bash /root/workspace/plana.sh z"
