@@ -5,7 +5,7 @@ allowed_commands=("z" "b")
 
 # 检查是否有参数传入
 if [ $# -eq 0 ]; then
-    echo -e "Error:缺少参数\n脚本支持以下参数:\nz 创建今日数据\nb 筛选昨日数据\n
+    echo -e "Error:缺少参数\n脚本支持以下参数:\nz 创建今日数据\nb 筛选昨日数据\n"
     exit 1
 fi
 cd /root/workspace/stockA
