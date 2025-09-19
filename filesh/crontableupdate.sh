@@ -5,9 +5,8 @@ crontab -r 2>/dev/null
 
 # 定义新任务（可多条）
 TASKS=(
-"35,40,45,50,55 09 * * 1-5 bash /root/workspace/planb.sh z"
-"*/5 10,11,13 * * 1-5 bash /root/workspace/planb.sh z"
-"0,5,10,15,20,25,30,35,40,45,50 14 * * 1-5 bash /root/workspace/planb.sh z"
+"40,50 09 * * 1-5 bash /root/workspace/planb.sh z"
+"*/10 10,11,13,14 * * 1-5 bash /root/workspace/planb.sh z"
 "05 15 * * 1-5 bash /root/workspace/planc.sh z"
 "10 15 * * 1-5 bash /root/workspace/planc.sh b"
 "15 15 * * 1-5 bash /root/workspace/planc.sh l"
