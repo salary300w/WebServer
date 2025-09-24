@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>股票数据展示</title>
+  <link rel="icon" href="icon.png" type="image/x-icon">
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --text-color: #333;
+      --table-bg: rgba(255, 255, 255, 0.85);
+      --thead-bg: #3f72af;
+      --thead-text: #fff;
+      --row-hover: rgba(240, 244, 250, 0.8);
+    }
+
+    body.dark-mode {
+      --bg-color: #1e1e2f;
+      --text-color: #e4e4e7;
+      --table-bg: rgba(42, 42, 61, 0.85);
+      --thead-bg: #444c74;
+      --thead-text: #e4e4e7;
+      --row-hover: rgba(58, 58, 85, 0.8);
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      color: var(--text-color);
+      background: 
+        linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a18cd1 100%),
+        linear-gradient(225deg, #fbc2eb 0%, #a6c1ee 50%, #fbc2eb 100%);
+      background-blend-mode: overlay;
+      transition: background 0.4s ease, color 0.4s ease;
+      min-height: 100vh;
+    }
+
+    body.dark-mode {
+      background: 
+        linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%),
+        linear-gradient(225deg, #1c1c2b 0%, #2a2a3d 50%, #1c1c2b 100%);
+      background-blend-mode: overlay;
+    }
+
+    /* 标题部分优化 */
+    h1 {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-color);
+      margin-bottom: 20px;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    h1 small {
+      display: block;
+      font-size: 0.8em;
+      font-weight: normal;
+      margin-top: 4px;
+      color: var(--text-color);
+    }
+
+    /* 响应式表格容器 */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--table-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      transition: background 0.4s ease;
+      backdrop-filter: blur(8px);
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.05) 20px,
+        rgba(255,255,255,0.05) 40px
+      );
+      min-width: 600px;
+    }
+
+    thead {
+      background: var(--thead-bg);
+      color: var(--thead-text);
+    }
+
+    th, td {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+      transition: background 0.3s ease;
+    }
+
+    /* 小型悬浮暗黑模式按钮 */
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #87cefa, #ff7f50);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 小屏幕优化 */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
+      }
+
+      .toggle-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="toggle-btn" id="themeToggleBtn" onclick="toggleMode()">🌞</button>
+
+  <h1>
+    股票数据<br>
+    <small>更新时间:2025-09-24 15:25:04</small>
+  <h1>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>代码</th>
+          <th>名称</th>
+          <th>板块</th>
+          <th>市场</th>
+          <th>价格</th>
+          <th>涨跌幅</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>000826</th>
+          <th>启迪环境</th>
+          <th>环保行业</th>
+          <th>深市主板</th>
+          <th>2.49</th>
+          <th>10.18%</th>
+        </tr>
+        <tr>
+          <th>200037</th>
+          <th>深南电B</th>
+          <th>电力行业</th>
+          <th>---</th>
+          <th>1.88</th>
+          <th>2.17%</th>
+        </tr>
+        <tr>
+          <th>002207</th>
+          <th>准油股份</th>
+          <th>采掘行业</th>
+          <th>深市主板</th>
+          <th>8.12</th>
+          <th>10.03%</th>
+        </tr>
+        <tr>
+          <th>200530</th>
+          <th>冰山B</th>
+          <th>通用设备</th>
+          <th>---</th>
+          <th>1.75</th>
+          <th>0.57%</th>
+        </tr>
+        <tr>
+          <th>600239</th>
+          <th>云南城投</th>
+          <th>房地产服务</th>
+          <th>沪市主板</th>
+          <th>2.82</th>
+          <th>10.16%</th>
+        </tr>
+        <tr>
+          <th>002490</th>
+          <th>山东墨龙</th>
+          <th>专用设备</th>
+          <th>深市主板</th>
+          <th>6.14</th>
+          <th>10.04%</th>
+        </tr>
+        <tr>
+          <th>002418</th>
+          <th>康盛股份</th>
+          <th>家电行业</th>
+          <th>深市主板</th>
+          <th>5.03</th>
+          <th>10.07%</th>
+        </tr>
+        <tr>
+          <th>002562</th>
+          <th>兄弟科技</th>
+          <th>化学制品</th>
+          <th>深市主板</th>
+          <th>7.51</th>
+          <th>9.96%</th>
+        </tr>
+        <tr>
+          <th>600400</th>
+          <th>红豆股份</th>
+          <th>纺织服装</th>
+          <th>沪市主板</th>
+          <th>3.83</th>
+          <th>10.06%</th>
+        </tr>
+        <tr>
+          <th>000514</th>
+          <th>渝 开 发</th>
+          <th>房地产开发</th>
+          <th>深市主板</th>
+          <th>5.71</th>
+          <th>10.02%</th>
+        </tr>
+        <tr>
+          <th>600172</th>
+          <th>黄河旋风</th>
+          <th>非金属材料</th>
+          <th>沪市主板</th>
+          <th>5.24</th>
+          <th>10.08%</th>
+        </tr>
+        <tr>
+          <th>001330</th>
+          <th>博纳影业</th>
+          <th>文化传媒</th>
+          <th>深市主板</th>
+          <th>6.57</th>
+          <th>10.05%</th>
+        </tr>
+        <tr>
+          <th>600167</th>
+          <th>联美控股</th>
+          <th>公用事业</th>
+          <th>沪市主板</th>
+          <th>9.60</th>
+          <th>9.97%</th>
+        </tr>
+        <tr>
+          <th>002453</th>
+          <th>华软科技</th>
+          <th>化学制品</th>
+          <th>深市主板</th>
+          <th>8.87</th>
+          <th>10.05%</th>
+        </tr>
+        <tr>
+          <th>600126</th>
+          <th>杭钢股份</th>
+          <th>钢铁行业</th>
+          <th>沪市主板</th>
+          <th>10.43</th>
+          <th>10.02%</th>
+        </tr>
+        <tr>
+          <th>600843</th>
+          <th>上工申贝</th>
+          <th>专用设备</th>
+          <th>沪市主板</th>
+          <th>12.41</th>
+          <th>10.02%</th>
+        </tr>
+        <tr>
+          <th>001208</th>
+          <th>华菱线缆</th>
+          <th>电网设备</th>
+          <th>深市主板</th>
+          <th>14.65</th>
+          <th>9.98%</th>
+        </tr>
+        <tr>
+          <th>200539</th>
+          <th>粤电力Ｂ</th>
+          <th>电力行业</th>
+          <th>---</th>
+          <th>1.87</th>
+          <th>1.08%</th>
+        </tr>
+        <tr>
+          <th>200029</th>
+          <th>深深房Ｂ</th>
+          <th>房地产开发</th>
+          <th>---</th>
+          <th>4.86</th>
+          <th>1.67%</th>
+        </tr>
+        <tr>
+          <th>002156</th>
+          <th>通富微电</th>
+          <th>半导体</th>
+          <th>深市主板</th>
+          <th>37.72</th>
+          <th>10.00%</th>
+        </tr>
+        <tr>
+          <th>603809</th>
+          <th>豪能股份</th>
+          <th>汽车零部件</th>
+          <th>沪市主板</th>
+          <th>16.58</th>
+          <th>10.02%</th>
+        </tr>
+        <tr>
+          <th>600604</th>
+          <th>市北高新</th>
+          <th>房地产服务</th>
+          <th>沪市主板</th>
+          <th>5.84</th>
+          <th>9.98%</th>
+        </tr>
+        <tr>
+          <th>002015</th>
+          <th>协鑫能科</th>
+          <th>电力行业</th>
+          <th>深市主板</th>
+          <th>12.68</th>
+          <th>9.97%</th>
+        </tr>
+        <tr>
+          <th>000672</th>
+          <th>上峰水泥</th>
+          <th>水泥建材</th>
+          <th>深市主板</th>
+          <th>9.61</th>
+          <th>9.95%</th>
+        </tr>
+        <tr>
+          <th>600360</th>
+          <th>*ST华微</th>
+          <th>半导体</th>
+          <th>沪市主板</th>
+          <th>8.37</th>
+          <th>5.02%</th>
+        </tr>
+        <tr>
+          <th>002513</th>
+          <th>蓝丰生化</th>
+          <th>农药兽药</th>
+          <th>深市主板</th>
+          <th>7.10</th>
+          <th>10.08%</th>
+        </tr>
+        <tr>
+          <th>600637</th>
+          <th>东方明珠</th>
+          <th>文化传媒</th>
+          <th>沪市主板</th>
+          <th>9.76</th>
+          <th>10.03%</th>
+        </tr>
+        <tr>
+          <th>900917</th>
+          <th>海欣Ｂ股</th>
+          <th>化学制药</th>
+          <th>---</th>
+          <th>0.287</th>
+          <th>1.06%</th>
+        </tr>
+        <tr>
+          <th>000009</th>
+          <th>中国宝安</th>
+          <th>综合行业</th>
+          <th>深市主板</th>
+          <th>11.32</th>
+          <th>10.01%</th>
+        </tr>
+        <tr>
+          <th>300270</th>
+          <th>中威电子</th>
+          <th>计算机设备</th>
+          <th>创业板</th>
+          <th>10.80</th>
+          <th>20.00%</th>
+        </tr>
+        <tr>
+          <th>003036</th>
+          <th>泰坦股份</th>
+          <th>专用设备</th>
+          <th>深市主板</th>
+          <th>18.19</th>
+          <th>9.98%</th>
+        </tr>
+        <tr>
+          <th>603823</th>
+          <th>百合花</th>
+          <th>化学制品</th>
+          <th>沪市主板</th>
+          <th>14.38</th>
+          <th>10.02%</th>
+        </tr>
+        <tr>
+          <th>600848</th>
+          <th>上海临港</th>
+          <th>房地产开发</th>
+          <th>沪市主板</th>
+          <th>10.66</th>
+          <th>10.01%</th>
+        </tr>
+        <tr>
+          <th>600586</th>
+          <th>金晶科技</th>
+          <th>玻璃玻纤</th>
+          <th>沪市主板</th>
+          <th>5.18</th>
+          <th>4.86%</th>
+        </tr>
+        <tr>
+          <th>603931</th>
+          <th>格林达</th>
+          <th>电子化学品</th>
+          <th>沪市主板</th>
+          <th>30.51</th>
+          <th>9.99%</th>
+        </tr>
+        <tr>
+          <th>002208</th>
+          <th>合肥城建</th>
+          <th>房地产开发</th>
+          <th>深市主板</th>
+          <th>6.86</th>
+          <th>5.70%</th>
+        </tr>
+        <tr>
+          <th>000021</th>
+          <th>深科技</th>
+          <th>消费电子</th>
+          <th>深市主板</th>
+          <th>25.00</th>
+          <th>9.99%</th>
+        </tr>
+        <tr>
+          <th>603800</th>
+          <th>洪田股份</th>
+          <th>专用设备</th>
+          <th>沪市主板</th>
+          <th>52.80</th>
+          <th>10.00%</th>
+        </tr>
+        <tr>
+          <th>002295</th>
+          <th>精艺股份</th>
+          <th>有色金属</th>
+          <th>深市主板</th>
+          <th>12.27</th>
+          <th>10.04%</th>
+        </tr>
+        <tr>
+          <th>600802</th>
+          <th>福建水泥</th>
+          <th>水泥建材</th>
+          <th>沪市主板</th>
+          <th>5.39</th>
+          <th>3.06%</th>
+        </tr>
+        <tr>
+          <th>000518</th>
+          <th>*ST四环</th>
+          <th>生物制品</th>
+          <th>深市主板</th>
+          <th>2.28</th>
+          <th>1.33%</th>
+        </tr>
+        <tr>
+          <th>603116</th>
+          <th>红蜻蜓</th>
+          <th>纺织服装</th>
+          <th>沪市主板</th>
+          <th>5.87</th>
+          <th>1.73%</th>
+        </tr>
+        <tr>
+          <th>002029</th>
+          <th>七 匹 狼</th>
+          <th>纺织服装</th>
+          <th>深市主板</th>
+          <th>8.50</th>
+          <th>9.96%</th>
+        </tr>
+        <tr>
+          <th>002110</th>
+          <th>三钢闽光</th>
+          <th>钢铁行业</th>
+          <th>深市主板</th>
+          <th>4.08</th>
+          <th>1.24%</th>
+        </tr>
+        <tr>
+          <th>200771</th>
+          <th>杭汽轮Ｂ</th>
+          <th>通用设备</th>
+          <th>---</th>
+          <th>14.43</th>
+          <th>1.91%</th>
+        </tr>
+        <tr>
+          <th>002298</th>
+          <th>中电鑫龙</th>
+          <th>电网设备</th>
+          <th>深市主板</th>
+          <th>12.54</th>
+          <th>10.00%</th>
+        </tr>
+        <tr>
+          <th>002632</th>
+          <th>道明光学</th>
+          <th>塑料制品</th>
+          <th>深市主板</th>
+          <th>11.18</th>
+          <th>10.04%</th>
+        </tr>
+        <tr>
+          <th>600939</th>
+          <th>重庆建工</th>
+          <th>工程建设</th>
+          <th>沪市主板</th>
+          <th>3.37</th>
+          <th>2.43%</th>
+        </tr>
+        <tr>
+          <th>603156</th>
+          <th>养元饮品</th>
+          <th>食品饮料</th>
+          <th>沪市主板</th>
+          <th>23.25</th>
+          <th>9.98%</th>
+        </tr>
+        <tr>
+          <th>600308</th>
+          <th>华泰股份</th>
+          <th>造纸印刷</th>
+          <th>沪市主板</th>
+          <th>3.57</th>
+          <th>0.28%</th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <script>
+    const toggleBtn = document.getElementById("themeToggleBtn");
+
+    function updateBtnIcon() {
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+      updateBtnIcon();
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    }
+
+    (function() {
+      const userPref = localStorage.getItem("theme");
+      if (userPref) {
+        if (userPref === "dark") document.body.classList.add("dark-mode");
+      } else {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.body.classList.add("dark-mode");
+        }
+      }
+      updateBtnIcon();
+    })();
+  </script>
+</body>
+</html>
