@@ -20,4 +20,5 @@ elif [ "$1" == "l" ]; then
     /root/workspace/myenv/bin/python3 Gettripleboard2.py
     git add .
     git commit -m "$(date)"
+    git push
 fi

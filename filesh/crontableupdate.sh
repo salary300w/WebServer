@@ -13,8 +13,8 @@ TASKS=(
 "20 15 * * 1-5 bash /root/workspace/plana.sh z"
 "25 15 * * 1-5 bash /root/workspace/plana.sh z"
 "30 15 * * 1-5 bash /root/workspace/plana.sh b"
-"40 15 * * 1-5 bash /root/workspace/planb.sh b"
-"45 15 * * 1-5 bash /root/workspace/planb.sh l"
+"35 15 * * 1-5 bash /root/workspace/planb.sh b"
+"40 15 * * 1-5 bash /root/workspace/planb.sh l"
 "00 16 * * 1-5 bash /root/workspace/webserver.sh"
 )
 

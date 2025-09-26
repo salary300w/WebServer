@@ -18,4 +18,5 @@ elif [ "$1" == "b" ]; then
     /root/workspace/myenv/bin/python3 Yesterdaymainfund.py
     git add .
     git commit -m "$(date)"
+    git push
 fi
