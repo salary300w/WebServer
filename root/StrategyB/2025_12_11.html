@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>股票数据展示</title>
+  <link rel="icon" href="icon.png" type="image/x-icon">
+  <style>
+    :root {
+      --bg-color: #f0f4f8;
+      --text-color: #333;
+      --table-bg: rgba(255, 255, 255, 0.85);
+      --thead-bg: #3f72af;
+      --thead-text: #fff;
+      --row-hover: rgba(240, 244, 250, 0.8);
+    }
+
+    body.dark-mode {
+      --bg-color: #1e1e2f;
+      --text-color: #e4e4e7;
+      --table-bg: rgba(42, 42, 61, 0.85);
+      --thead-bg: #444c74;
+      --thead-text: #e4e4e7;
+      --row-hover: rgba(58, 58, 85, 0.8);
+    }
+
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      color: var(--text-color);
+      background: 
+        linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a18cd1 100%),
+        linear-gradient(225deg, #fbc2eb 0%, #a6c1ee 50%, #fbc2eb 100%);
+      background-blend-mode: overlay;
+      transition: background 0.4s ease, color 0.4s ease;
+      min-height: 100vh;
+    }
+
+    body.dark-mode {
+      background: 
+        linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%),
+        linear-gradient(225deg, #1c1c2b 0%, #2a2a3d 50%, #1c1c2b 100%);
+      background-blend-mode: overlay;
+    }
+
+    /* 标题部分优化 */
+    h1 {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-color);
+      margin-bottom: 20px;
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    h1 small {
+      display: block;
+      font-size: 0.8em;
+      font-weight: normal;
+      margin-top: 4px;
+      color: var(--text-color);
+    }
+
+    /* 响应式表格容器 */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--table-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      transition: background 0.4s ease;
+      backdrop-filter: blur(8px);
+      background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255,255,255,0.05) 20px,
+        rgba(255,255,255,0.05) 40px
+      );
+      min-width: 600px;
+    }
+
+    thead {
+      background: var(--thead-bg);
+      color: var(--thead-text);
+    }
+
+    th, td {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--row-hover);
+      transition: background 0.3s ease;
+    }
+
+    /* 小型悬浮暗黑模式按钮 */
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #87cefa, #ff7f50);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 小屏幕优化 */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: clamp(1.2rem, 6vw, 1.6rem);
+      }
+
+      .toggle-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      th, td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="toggle-btn" id="themeToggleBtn" onclick="toggleMode()">🌞</button>
+
+  <h1>
+    股票数据<br>
+    <small>更新时间:2025-12-12 16:21:10</small>
+  <h1>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>板块名称</th>
+          <th>涨跌幅</th>
+          <th>主力净流入</th>
+          <th>流入最大股</th>
+          <th>涨幅</th>
+          <th>市场</th>
+          <th>1日涨幅</th>
+          <th>1日最大跌幅</th>
+          <th>1日最大涨幅</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>风电设备</th>
+          <th>1.13%</th>
+          <th>12.53亿</th>
+          <th>金风科技</th>
+          <th>9.97%</th>
+          <th>深市主板</th>
+          <th>0.00%</th>
+          <th>-3.42%</th>
+          <th>-0.00%</th>
+        </tr>
+        <tr>
+          <th>电网设备</th>
+          <th>-0.06%</th>
+          <th>5.48亿</th>
+          <th>中超控股</th>
+          <th>10.02%</th>
+          <th>深市主板</th>
+          <th>9.94%</th>
+          <th>3.52%</th>
+          <th>9.94%</th>
+        </tr>
+        <tr>
+          <th>医疗服务</th>
+          <th>-1.11%</th>
+          <th>4.36亿</th>
+          <th>药明康德</th>
+          <th>0.59%</th>
+          <th>沪市主板</th>
+          <th>0.70%</th>
+          <th>-1.05%</th>
+          <th>0.80%</th>
+        </tr>
+        <tr>
+          <th>包装材料</th>
+          <th>-1.45%</th>
+          <th>2.65亿</th>
+          <th>顺灏股份</th>
+          <th>5.79%</th>
+          <th>深市主板</th>
+          <th>10.00%</th>
+          <th>2.07%</th>
+          <th>10.00%</th>
+        </tr>
+        <tr>
+          <th>通信服务</th>
+          <th>-1.55%</th>
+          <th>6415.27万</th>
+          <th>普天科技</th>
+          <th>10.00%</th>
+          <th>深市主板</th>
+          <th>-1.87%</th>
+          <th>-2.48%</th>
+          <th>1.42%</th>
+        </tr>
+        <tr>
+          <th>农药兽药</th>
+          <th>-0.92%</th>
+          <th>963.89万</th>
+          <th>回盛生物</th>
+          <th>10.81%</th>
+          <th>创业板</th>
+          <th>1.36%</th>
+          <th>-1.88%</th>
+          <th>2.35%</th>
+        </tr>
+        <tr>
+          <th>航天航空</th>
+          <th>0.09%</th>
+          <th>928.39万</th>
+          <th>中国卫星</th>
+          <th>4.73%</th>
+          <th>沪市主板</th>
+          <th>-0.95%</th>
+          <th>-2.00%</th>
+          <th>3.14%</th>
+        </tr>
+        <tr>
+          <th>公用事业</th>
+          <th>-0.59%</th>
+          <th>776.39万</th>
+          <th>百通能源</th>
+          <th>9.74%</th>
+          <th>深市主板</th>
+          <th>5.38%</th>
+          <th>-1.08%</th>
+          <th>8.24%</th>
+        </tr>
+        <tr>
+          <th>造纸印刷</th>
+          <th>-1.04%</th>
+          <th>152.00万</th>
+          <th>安妮股份</th>
+          <th>10.03%</th>
+          <th>深市主板</th>
+          <th>-5.51%</th>
+          <th>-6.76%</th>
+          <th>5.44%</th>
+        </tr>
+        <tr>
+          <th>采掘行业</th>
+          <th>-1.29%</th>
+          <th>-3184.12万</th>
+          <th>广东宏大</th>
+          <th>0.03%</th>
+          <th>深市主板</th>
+          <th>-0.36%</th>
+          <th>-1.13%</th>
+          <th>2.18%</th>
+        </tr>
+      <thead>
+        <tr>
+          <th>概念名称</th>
+          <th>涨跌幅</th>
+          <th>主力净流入</th>
+          <th>流入最大股</th>
+          <th>涨幅</th>
+          <th>市场</th>
+          <th>1日涨幅</th>
+          <th>1日最大跌幅</th>
+          <th>1日最大涨幅</th>
+        </tr>
+      </thead>
+        <tr>
+          <th>可控核聚变</th>
+          <th>1.90%</th>
+          <th>24.41亿</th>
+          <th>永鼎股份</th>
+          <th>9.98%</th>
+          <th>沪市主板</th>
+          <th>3.99%</th>
+          <th>-5.47%</th>
+          <th>5.99%</th>
+        </tr>
+        <tr>
+          <th>超导概念</th>
+          <th>1.54%</th>
+          <th>11.55亿</th>
+          <th>永鼎股份</th>
+          <th>9.98%</th>
+          <th>沪市主板</th>
+          <th>3.99%</th>
+          <th>-5.47%</th>
+          <th>5.99%</th>
+        </tr>
+        <tr>
+          <th>次新股</th>
+          <th>1.04%</th>
+          <th>10.22亿</th>
+          <th>摩尔线程-U</th>
+          <th>23.81%</th>
+          <th>科创板</th>
+          <th>-13.41%</th>
+          <th>-19.45%</th>
+          <th>-2.77%</th>
+        </tr>
+        <tr>
+          <th>氦气概念</th>
+          <th>0.08%</th>
+          <th>6.60亿</th>
+          <th>雪人集团</th>
+          <th>9.99%</th>
+          <th>深市主板</th>
+          <th>9.99%</th>
+          <th>1.03%</th>
+          <th>9.99%</th>
+        </tr>
+        <tr>
+          <th>CRO</th>
+          <th>-0.01%</th>
+          <th>5.79亿</th>
+          <th>药明康德</th>
+          <th>0.59%</th>
+          <th>沪市主板</th>
+          <th>0.70%</th>
+          <th>-1.05%</th>
+          <th>0.80%</th>
+        </tr>
+        <tr>
+          <th>注册制次新股</th>
+          <th>-0.15%</th>
+          <th>5.73亿</th>
+          <th>摩尔线程-U</th>
+          <th>23.81%</th>
+          <th>科创板</th>
+          <th>-13.41%</th>
+          <th>-19.45%</th>
+          <th>-2.77%</th>
+        </tr>
+        <tr>
+          <th>抽水蓄能</th>
+          <th>-0.32%</th>
+          <th>5.36亿</th>
+          <th>金风科技</th>
+          <th>9.97%</th>
+          <th>深市主板</th>
+          <th>0.00%</th>
+          <th>-3.42%</th>
+          <th>-0.00%</th>
+        </tr>
+        <tr>
+          <th>磁悬浮概念</th>
+          <th>-0.70%</th>
+          <th>5.34亿</th>
+          <th>永鼎股份</th>
+          <th>9.98%</th>
+          <th>沪市主板</th>
+          <th>3.99%</th>
+          <th>-5.47%</th>
+          <th>5.99%</th>
+        </tr>
+        <tr>
+          <th>冰雪经济</th>
+          <th>-1.27%</th>
+          <th>4.69亿</th>
+          <th>雪人集团</th>
+          <th>9.99%</th>
+          <th>深市主板</th>
+          <th>9.99%</th>
+          <th>1.03%</th>
+          <th>9.99%</th>
+        </tr>
+        <tr>
+          <th>麒麟电池</th>
+          <th>-1.30%</th>
+          <th>4.49亿</th>
+          <th>宁德时代</th>
+          <th>1.78%</th>
+          <th>创业板</th>
+          <th>0.72%</th>
+          <th>-0.90%</th>
+          <th>1.13%</th>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <script>
+    const toggleBtn = document.getElementById("themeToggleBtn");
+
+    function updateBtnIcon() {
+      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+      updateBtnIcon();
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    }
+
+    (function() {
+      const userPref = localStorage.getItem("theme");
+      if (userPref) {
+        if (userPref === "dark") document.body.classList.add("dark-mode");
+      } else {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          document.body.classList.add("dark-mode");
+        }
+      }
+      updateBtnIcon();
+    })();
+  </script>
+</body>
+</html>
