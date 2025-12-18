@@ -21,4 +21,6 @@ elif [ "$1" == "l" ]; then
     git add .
     git commit -m "$(date)"
     git push
+    /root/workspace/myenv/bin/python3 Backtest.py
+    cp /root/workspace/stockB/Backtest_Result.png /root/workspace/WebServer/root/StrategyB/
 fi

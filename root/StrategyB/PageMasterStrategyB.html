@@ -257,6 +257,7 @@
     <div class="nav-container">
       <div class="logo">StrategyB</div>
       <nav>
+        <a href="#backtest">回测</a>
         <a href="#posts">数据</a>
         <a href="#contact">联系我</a>
       </nav>
@@ -265,6 +266,31 @@
   </header>
 
   <div class="container">
+    <section id="backtest">
+      <h2>收益</h2>
+      <div style="
+        max-width: 100%;
+        margin: 20px auto;
+        padding: 10px;
+        text-align: center;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(8px);
+      ">
+        <img 
+          src="Backtest_Result.png" 
+          alt="回测结果图表" 
+          style="
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          "
+        >
+      </div>
+    </section>
+
     <section id="posts">
       <h2>数据</h2>
       <div id="post-list"></div>
