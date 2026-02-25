@@ -32,9 +32,9 @@ vncserver :1 -geometry 1280x800 -depth 24
 echo "      启动 ibus-daemon 服务..."
 ibus-daemon -drx
 
-echo "[6/6] 启动 NoVNC (8080端口)..."
+echo "[6/6] 启动 NoVNC (81端口)..."
 websockify -D --web=/usr/share/novnc/ 81 localhost:5901
-docker stop v2raya
+
 echo "✅ 搞定！请在本地浏览器打开:"
-echo "   http://<你的云服务器IP>:8080/vnc.html"
+echo "   http://<你的云服务器IP>:81/vnc.html"
 echo "输入你之前设置的 VNC 密码，就能看到桌面并上网。"
