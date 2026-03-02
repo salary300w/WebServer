@@ -9,354 +9,279 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-color: #f9fafe;
-      --text-color: #333;
-      --card-bg: #fff;
-
-      --nav-top-bg: rgba(255,255,255,0.95);
-      --nav-top-text: #0f172a;
-
-      --nav-scrolled-bg: linear-gradient(135deg, #007BFF, #6a11cb);
-      --nav-scrolled-text: #ffffff;
-
-      --accent: #007BFF;
-      --accent-hover: #ffdd57;
-
-      --footer-bg: #007BFF;
+      --primary-color: #f59e0b;
+      --bg-light: #f1f5f9;
+      --bg-white: #ffffff;
+      --text-dark: #0f172a;
+      --text-light: #64748b;
+      --border-color: #cbd5e1;
+      --success: #10b981;
+      --danger: #ef4444;
+      --gradient-1: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     }
-
-    .dark-mode {
-      --bg-color: #1e1e1e;
-      --text-color: #f0f0f0;
-      --card-bg: #2a2a2a;
-
-      --nav-top-bg: rgba(30,30,30,0.85);
-      --nav-top-text: #ffffff;
-
-      --nav-scrolled-bg: linear-gradient(135deg, #232526, #414345);
-      --nav-scrolled-text: #ffffff;
-
-      --accent: #4da3ff;
-      --accent-hover: #ffdd57;
-
-      --footer-bg: #111;
+    body.dark-mode {
+      --bg-light: #020617;
+      --bg-white: #0f172a;
+      --text-dark: #f8fafc;
+      --text-light: #94a3b8;
+      --border-color: #1e293b;
     }
-
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      transition: background 0.3s, color 0.3s;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    /* 顶部导航 */
-    header {
-      background: var(--nav-top-bg);
-      backdrop-filter: blur(12px);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      color: var(--nav-top-text);
-      transition: background 0.5s, color 0.3s, box-shadow 0.3s;
-    }
-    header.scrolled {
-      background: var(--nav-scrolled-bg);
-      color: var(--nav-scrolled-text);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    .nav-container {
-      max-width: 1000px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      overflow-x: auto;
-      scrollbar-width: none; /* Firefox */
-    }
-    .nav-container::-webkit-scrollbar {
-      display: none; /* Chrome */
-    }
-
-    .logo {
-      font-size: 1.5em;
-      font-weight: bold;
-      color: inherit;
-      flex-shrink: 0;
-    }
-
-    nav {
-      display: flex;
-      align-items: center;
-      flex-shrink: 0;
-    }
-
-    nav a {
-      margin-left: 25px;
-      text-decoration: none;
-      font-size: 1em;
-      color: inherit;
-      position: relative;
-      transition: color 0.3s;
-      white-space: nowrap;
-    }
-    nav a::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -4px;
-      width: 0;
-      height: 2px;
-      background: var(--accent-hover);
-      transition: width 0.3s;
-    }
-    nav a:hover {
-      color: var(--accent-hover);
-    }
-    nav a:hover::after {
-      width: 100%;
-    }
-
-    /* 暗色模式切换按钮 */
-    #theme-toggle {
-      border-radius: 50%;
-      border: 1px solid currentColor;
-      width: 36px;
-      height: 36px;
-      font-size: 16px;
-      cursor: pointer;
-      color: inherit;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
-      margin-left: 15px;
-      flex-shrink: 0;
-    }
-    #theme-toggle:hover {
-      background: rgba(0,0,0,0.05);
-    }
-    #theme-toggle:active {
-      transform: scale(0.95);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    /* 主体容器 */
-    .container {
-      width: 95%;
-      max-width: 900px;
-      margin: 100px auto 30px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      transition: all 0.3s ease;
       padding: 20px;
-      background: var(--card-bg);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .header { margin-bottom: 30px; margin-top: 20px; }
+    .header h1 { font-size: 2.5rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
+    
+    .glass-section {
+      background: var(--gradient-1);
+      color: white;
       border-radius: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-      transition: background 0.3s;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .glass-section h2 {
+      font-size: 1.6rem;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 0.5px;
+    }
+    .glass-section h2::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 24px;
+      background: var(--primary-color);
+      border-radius: 2px;
     }
 
-    section {
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 数据列表卡片风格 */
+    .post-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
       margin-bottom: 40px;
     }
-    section h2 {
-      font-size: 1.6em;
-      margin-bottom: 15px;
-      border-left: 5px solid var(--accent);
-      padding-left: 10px;
-      color: var(--accent);
-    }
-
-    /* 文章卡片 */
     .post {
-      margin-bottom: 20px;
-      padding: 16px;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      background: var(--card-bg);
-      transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+      background: var(--bg-white);
+      border: 1px solid var(--border-color);
+      padding: 20px 24px;
+      border-radius: 14px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      display: block;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .post:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-color);
     }
-    .post h2 {
-      margin: 0 0 10px;
-      font-size: 1.3em;
-    }
-    .post h2 a {
-      color: var(--text-color);
-      text-decoration: none;
-    }
-    .post h2 a:hover {
-      color: var(--accent);
+    .post h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
     }
     .post p {
-      margin: 0;
-      color: #666;
-      font-size: 0.95em;
-    }
-    .dark-mode .post p {
-      color: #aaa;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      line-height: 1.5;
     }
 
-    /* 页脚 */
-    footer {
-      text-align: center;
-      padding: 15px;
-      background: var(--footer-bg);
-      color: white;
-      font-size: 0.9em;
-      margin-top: 40px;
+    .contact-card {
+      background: var(--bg-white);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
+    .contact-card h2 { font-size: 1.3rem; margin-bottom: 15px; color: var(--text-dark); }
+    .contact-card p { color: var(--text-light); }
+    .contact-card a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
 
+    .toggle-btn {
+      position: fixed; top: 20px; right: 20px;
+      width: 45px; height: 45px; border-radius: 50%;
+      background: var(--gradient-1); color: white;
+      border: none; cursor: pointer; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      font-size: 1.2rem;
+    }
+    
     /* 图片放大效果 */
     .zoomable-image {
       cursor: pointer;
       transition: transform 0.3s ease;
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
     }
-    
-    .zoomable-image:hover {
-      transform: scale(1.02);
-    }
+    .zoomable-image:hover { transform: scale(1.01); }
     
     .image-modal {
       display: none;
       position: fixed;
       z-index: 2000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+      left: 0; top: 0; width: 100%; height: 100%;
       background-color: rgba(0, 0, 0, 0.9);
       overflow: auto;
     }
-    
     .image-modal-content {
-      display: block;
-      margin: 5% auto;
-      max-width: 90%;
-      max-height: 90%;
-      animation: zoomIn 0.5s;
+      display: block; margin: 5% auto; max-width: 90%; max-height: 90%;
+      animation: zoomIn 0.3s;
     }
-    
-    @keyframes zoomIn {
-      from {transform: scale(0)} 
-      to {transform: scale(1)}
-    }
-    
+    @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
     .close-modal {
-      position: absolute;
-      top: 20px;
-      right: 35px;
-      color: #f1f1f1;
-      font-size: 40px;
-      font-weight: bold;
-      transition: 0.3s;
-      cursor: pointer;
-    }
-    
-    .close-modal:hover,
-    .close-modal:focus {
-      color: #bbb;
-      text-decoration: none;
-      cursor: pointer;
+      position: absolute; top: 20px; right: 35px; color: #f1f1f1;
+      font-size: 40px; font-weight: bold; cursor: pointer;
     }
 
-    /* ===== 手机端微调 ===== */
+    footer { 
+      text-align: center; 
+      padding: 40px 0; 
+      color: var(--text-light); 
+      font-size: 0.85rem; 
+      border-top: 1px solid var(--border-color);
+      margin-top: 60px;
+    }
+
+    /* 平板设备优化 (768px以下) */
+    @media (max-width: 768px) {
+      body { padding: 15px; }
+      .container { max-width: 100%; margin: 0 auto; }
+      .header h1 { font-size: 2rem; margin-bottom: 20px; }
+      .glass-section { padding: 20px; margin-bottom: 25px; }
+      .glass-section h2 { font-size: 1.4rem; margin-bottom: 15px; }
+      .section-title { font-size: 1.2rem; margin-bottom: 15px; }
+      .post { padding: 16px 20px; margin-bottom: 15px; }
+      .post h3 { font-size: 1.1rem; }
+      .contact-card { padding: 20px; }
+      .toggle-btn { width: 40px; height: 40px; font-size: 16px; top: 15px; right: 15px; }
+    }
+
+    /* 手机设备优化 (480px以下) */
     @media (max-width: 480px) {
-      .container {
-        padding: 15px;
-        margin: 90px auto 20px;
+      body { padding: 12px; }
+      .container { max-width: 100%; margin: 0 auto; }
+      .header { margin-bottom: 20px; margin-top: 10px; }
+      .header h1 { font-size: 1.6rem; margin-top: 50px; margin-bottom: 15px; font-weight: 700; }
+      .glass-section { 
+        padding: 16px; 
+        margin-bottom: 20px; 
+        border-radius: 10px; 
       }
-
-      section h2 {
-        font-size: 1.4em;
-        padding-left: 8px;
+      .glass-section h2 { 
+        font-size: 1.2rem; 
+        margin-bottom: 12px; 
       }
-
-      .post {
-        padding: 12px;
+      .glass-section h2::before { 
+        width: 3px; 
+        height: 16px; 
       }
-
-      .post h2 {
-        font-size: 1.1em;
+      .section-title { 
+        font-size: 1.1rem; 
+        margin-bottom: 12px; 
       }
-
-      nav a {
-        margin-left: 15px;
-        font-size: 0.95em;
+      .post-list { gap: 12px; }
+      .post { 
+        padding: 12px 16px; 
+        margin-bottom: 0; 
+        border-radius: 10px; 
       }
-
-      #theme-toggle {
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-        margin-left: 8px;
+      .post h3 { 
+        font-size: 0.95rem; 
+        margin-bottom: 4px; 
+        font-weight: 600; 
       }
-
-      header.scrolled #theme-toggle {
-        background: rgba(255, 255, 255, 0.2);
+      .post p { 
+        font-size: 0.85rem; 
+        line-height: 1.4; 
       }
+      .contact-card { 
+        padding: 16px; 
+        border-radius: 10px; 
+        margin-bottom: 20px; 
+      }
+      .contact-card h2 { 
+        font-size: 1.1rem; 
+        margin-bottom: 10px; 
+      }
+      .contact-card p { font-size: 0.9rem; }
+      .toggle-btn { 
+        width: 36px; 
+        height: 36px; 
+        font-size: 14px; 
+        top: 12px; 
+        right: 12px; 
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
+      }
+      footer { 
+        padding: 25px 0; 
+        font-size: 0.8rem; 
+        margin-top: 30px; 
+      }
+      .zoomable-image { border-radius: 6px; }
+      .image-modal-content { margin: 10% auto; }
+      .close-modal { font-size: 32px; right: 20px; top: 15px; }
     }
   </style>
 </head>
 <body>
-  <header id="site-header">
-    <div class="nav-container">
-      <div class="logo">StrategyB</div>
-      <nav>
-        <a href="#backtest">回测</a>
-        <a href="#posts">数据</a>
-        <a href="#contact">联系我</a>
-      </nav>
-      <button id="theme-toggle" aria-label="切换主题">🌙</button>
-    </div>
-  </header>
+  <button class="toggle-btn" id="themeToggleBtn" onclick="toggleMode()">🌞</button>
 
   <div class="container">
-    <section id="backtest">
-      <h2>收益</h2>
-      <div style="
-        max-width: 100%;
-        margin: 20px auto;
-        padding: 10px;
-        text-align: center;
-        background: var(--card-bg);
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-        backdrop-filter: blur(8px);
-      ">
+    <div class="header">
+      <h1>StrategyB</h1>
+    </div>
+
+    <div class="glass-section" id="backtest">
+      <h2>📈 收益回测</h2>
+      <div style="text-align: center;">
         <img 
           src="Backtest_Result.png" 
           alt="回测结果图表" 
           class="zoomable-image"
-          style="
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-          "
         >
       </div>
-    </section>
+    </div>
 
-    <section id="posts">
-      <h2>数据</h2>
-      <div id="post-list"></div>
-    </section>
+    <div class="section-title">📂 历史数据</div>
+    <div id="post-list" class="post-list"></div>
 
-    <section id="contact">
-      <h2>联系我</h2>
-      <p>如果你有任何问题或建议，请通过电子邮件1769248893@qq.com联系我。</p>
-    </section>
+    <div class="contact-card" id="contact">
+      <h2>📮 联系我</h2>
+      <p>如果你有任何问题或建议，请通过电子邮件联系我：<a href="mailto:1769248893@qq.com">1769248893@qq.com</a></p>
+    </div>
+
+    <footer>
+      &copy; StrategyB. 保留所有权利. | 更新于 2026-03-02
+    </footer>
   </div>
 
   <!-- 图片放大模态框 -->
@@ -365,48 +290,34 @@
     <img class="image-modal-content" id="modal-image">
   </div>
 
-  <footer>
-    <p>&copy; StrategyB. 保留所有权利.</p>
-  </footer>
-
   <script src="SubPageList.js"></script>
   <script>
-    const postList = document.getElementById('post-list');
-    const themeToggle = document.getElementById('theme-toggle');
-    const body = document.body;
-    const header = document.getElementById('site-header');
-
-    if (localStorage.getItem('theme') === 'dark') {
-      body.classList.add('dark-mode');
-      themeToggle.textContent = '☀️';
+    function toggleMode() {
+      document.body.classList.toggle('dark-mode');
+      const btn = document.getElementById('themeToggleBtn');
+      btn.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '🌞';
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     }
 
-    themeToggle.addEventListener('click', () => {
-      body.classList.toggle('dark-mode');
-      const isDark = body.classList.contains('dark-mode');
-      themeToggle.textContent = isDark ? '☀️' : '🌙';
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
-
-    const onScroll = () => {
-      if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
+    (function() {
+      const btn = document.getElementById('themeToggleBtn');
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        btn.textContent = '🌙';
       }
-    };
-    window.addEventListener('scroll', onScroll);
-    onScroll();
+    })();
 
+    const postList = document.getElementById('post-list');
     if (typeof articles !== 'undefined' && Array.isArray(articles)) {
       articles.forEach(article => {
-        const postDiv = document.createElement('div');
-        postDiv.className = 'post';
-        postDiv.innerHTML = `
-          <h2><a href="${article.file}">${article.title}</a></h2>
+        const link = document.createElement('a');
+        link.href = article.file;
+        link.className = 'post';
+        link.innerHTML = `
+          <h3>${article.title}</h3>
           <p>${article.summary}</p>
         `;
-        postList.appendChild(postDiv);
+        postList.appendChild(link);
       });
     }
 
@@ -416,32 +327,23 @@
     const closeModal = document.querySelector('.close-modal');
     const zoomableImages = document.querySelectorAll('.zoomable-image');
 
-    // 点击图片放大
     zoomableImages.forEach(img => {
       img.addEventListener('click', () => {
         modal.style.display = 'block';
         modalImg.src = img.src;
-        modalImg.alt = img.alt;
       });
     });
 
-    // 点击关闭按钮关闭模态框
     closeModal.addEventListener('click', () => {
       modal.style.display = 'none';
     });
 
-    // 点击模态框背景关闭模态框
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-      }
+      if (e.target === modal) modal.style.display = 'none';
     });
 
-    // 按Esc键关闭模态框
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.style.display === 'block') {
-        modal.style.display = 'none';
-      }
+      if (e.key === 'Escape') modal.style.display = 'none';
     });
   </script>
 </body>

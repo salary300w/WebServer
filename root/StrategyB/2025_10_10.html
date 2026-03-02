@@ -3,511 +3,539 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>股票数据展示</title>
-  <link rel="icon" href="icon.png" type="image/x-icon">
+  <title>行情数据 - 2025_10_10</title>
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg-color: #f0f4f8;
-      --text-color: #333;
-      --table-bg: rgba(255, 255, 255, 0.85);
-      --thead-bg: #3f72af;
-      --thead-text: #fff;
-      --row-hover: rgba(240, 244, 250, 0.8);
+      --primary-color: #f59e0b;
+      --bg-light: #f1f5f9;
+      --bg-white: #ffffff;
+      --text-dark: #0f172a;
+      --text-light: #64748b;
+      --border-color: #cbd5e1;
+      --success: #10b981;
+      --danger: #ef4444;
+      --gradient-1: linear-gradient(135deg, #1e293b 0%, #334155 100%);
     }
-
     body.dark-mode {
-      --bg-color: #1e1e2f;
-      --text-color: #e4e4e7;
-      --table-bg: rgba(42, 42, 61, 0.85);
-      --thead-bg: #444c74;
-      --thead-text: #e4e4e7;
-      --row-hover: rgba(58, 58, 85, 0.8);
+      --bg-light: #020617;
+      --bg-white: #0f172a;
+      --text-dark: #f8fafc;
+      --text-light: #94a3b8;
+      --border-color: #1e293b;
     }
-
     body {
-      font-family: "Segoe UI", Arial, sans-serif;
-      margin: 0;
-      padding: 10px;
-      color: var(--text-color);
-      background: 
-        linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #a18cd1 100%),
-        linear-gradient(225deg, #fbc2eb 0%, #a6c1ee 50%, #fbc2eb 100%);
-      background-blend-mode: overlay;
-      transition: background 0.4s ease, color 0.4s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      transition: all 0.3s ease;
+      padding: 20px;
       min-height: 100vh;
     }
-
-    body.dark-mode {
-      background: 
-        linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%),
-        linear-gradient(225deg, #1c1c2b 0%, #2a2a3d 50%, #1c1c2b 100%);
-      background-blend-mode: overlay;
-    }
-
-    /* 标题部分优化 */
-    h1 {
-      text-align: center;
-      font-weight: bold;
-      color: var(--text-color);
-      margin-bottom: 20px;
-      font-size: clamp(1.4rem, 5vw, 2rem);
-      line-height: 1.3;
-      word-break: break-word;
-    }
-
-    h1 small {
-      display: block;
-      font-size: 0.8em;
-      font-weight: normal;
-      margin-top: 4px;
-      color: var(--text-color);
-    }
-
-    /* 响应式表格容器 */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--table-bg);
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { margin-bottom: 30px; }
+    .header h1 { font-size: 2rem; margin-bottom: 5px; color: var(--text-dark); }
+    .header p { color: var(--text-light); }
+    
+    .glass-section {
+      background: var(--gradient-1);
+      color: white;
       border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-      transition: background 0.4s ease;
-      backdrop-filter: blur(8px);
-      background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 20px,
-        rgba(255,255,255,0.05) 20px,
-        rgba(255,255,255,0.05) 40px
-      );
-      min-width: 600px;
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
-
-    thead {
-      background: var(--thead-bg);
-      color: var(--thead-text);
-    }
-
-    th, td {
-      padding: 10px 8px;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    tbody tr {
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-    }
-
-    tbody tr:last-child {
-      border-bottom: none;
-    }
-
-    tbody tr:hover {
-      background: var(--row-hover);
-      transition: background 0.3s ease;
-    }
-
-    /* 小型悬浮暗黑模式按钮 */
-    .toggle-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 48px;
-      height: 48px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #87cefa, #ff7f50);
-      color: #fff;
+    .glass-section h2 {
       font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+    .stocks-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: stretch;
+    }
+    .result-value { font-size: 1.1rem; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    .result-value.pos { color: #4ade80; }
+    .result-value.neg { color: #f87171; }
+    .stock-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      padding: 22px 28px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 380px;
+      min-width: 280px;
+    }
+    .stock-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .stock-card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.3);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    /* 核心配色方案 */
+    .card-resonance { border-left: 5px solid #ef4444; background: rgba(239, 68, 68, 0.05); }
+    .card-resonance::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+    
+    .card-sector { border-left: 5px solid #3b82f6; background: rgba(59, 130, 246, 0.05); }
+    .card-sector::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    
+    .card-concept { border-left: 5px solid #10b981; background: rgba(16, 185, 129, 0.05); }
+    .card-concept::before { background: linear-gradient(90deg, #10b981, #34d399); }
+
+    .card-result { 
+      border-left: 5px solid #8b5cf6; 
+      background: rgba(139, 92, 246, 0.1); 
+      margin-left: auto;
+      width: 100%;
+      max-width: 300px;
+      display: flex;
+      flex-direction: column;
       justify-content: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+    .card-result::before { background: linear-gradient(90deg, #8b5cf6, #d946ef); }
 
-    .toggle-btn:hover {
-      transform: scale(1.15);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    .stock-card .name { 
+      font-weight: 800; 
+      font-size: 1.35rem; 
+      margin-bottom: 18px; 
+      color: #fff;
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
+    .stock-card .stats-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .stat-pill i { margin-right: 5px; font-style: normal; opacity: 0.8; }
+    .stat-inflow { color: #2dd4bf; border-color: rgba(45, 212, 191, 0.3); }
+    .stat-change { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
 
-    /* 小屏幕优化 */
-    @media (max-width: 600px) {
-      h1 {
-        font-size: clamp(1.2rem, 6vw, 1.6rem);
+    .stock-card .reason { 
+      font-size: 0.85rem; 
+      opacity: 0.7; 
+      color: #e2e8f0;
+      margin-top: 4px;
+    }
+    .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 5px; margin-left: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-resonance { background: #ef4444; color: white; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3); }
+    .badge-position { background: #f59e0b; color: white; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3); }
+    .badge-position-full { background: #8b5cf6; color: white; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3); }
+    .badge-empty { background: rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); }
+    
+    .table-section {
+      background: var(--bg-white);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .table-header {
+      padding: 15px 20px;
+      background: rgba(148, 163, 184, 0.05);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
+    
+    .table-wrapper { 
+      overflow-x: auto; 
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      table-layout: auto;
+    }
+    thead { background: var(--gradient-1); color: white; }
+    th { 
+      padding: 16px 12px; 
+      text-align: center; /* 默认居中对齐 */
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      white-space: nowrap;
+    }
+    /* 第一列（通常是名称）靠左对齐 */
+    th:first-child, td:first-child { 
+      text-align: left; 
+      padding-left: 24px;
+      min-width: 150px;
+    }
+    td { 
+      padding: 14px 12px; 
+      border-bottom: 1px solid var(--border-color); 
+      font-size: 0.9rem;
+      white-space: nowrap;
+      text-align: center; /* 默认内容居中对齐 */
+      color: var(--text-dark);
+    }
+    tr:hover { background: rgba(245, 158, 11, 0.05); }
+    
+    .val-positive { color: var(--success); font-weight: 600; }
+    .val-negative { color: var(--danger); font-weight: 600; }
+    .val-highlight { color: var(--primary-color); font-weight: 700; }
+    .market-label { 
+      background: rgba(148, 163, 184, 0.1); 
+      padding: 4px 10px; 
+      border-radius: 20px; 
+      font-size: 0.8rem;
+      color: var(--text-light);
+      border: 1px solid var(--border-color);
+    }
+    
+    .toggle-btn {
+      position: fixed; top: 20px; right: 20px;
+      width: 45px; height: 45px; border-radius: 50%;
+      background: var(--gradient-1); color: white;
+      border: none; cursor: pointer; z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    footer { 
+      text-align: center; 
+      padding: 40px 0; 
+      color: var(--text-light); 
+      font-size: 0.85rem; 
+      border-top: 1px solid var(--border-color);
+    }
+    
+    /* 响应式设计 - 平板和手机适配 */
+    @media (max-width: 1024px) {
+      body {
+        padding: 15px;
       }
-
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      .stock-card {
+        width: 100%;
+        max-width: 480px;
+      }
+      .card-result {
+        width: 100%;
+        max-width: 480px;
+        margin-left: 0;
+        margin-top: 15px;
+      }
+      .stocks-grid {
+        gap: 15px;
+      }
+      th:first-child, td:first-child {
+        padding-left: 12px;
+        min-width: 100px;
+      }
+      th {
+        padding: 12px 8px;
+        font-size: 0.75rem;
+      }
+      td {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        max-width: 100%;
+      }
+      body {
+        padding: 10px;
+      }
+      .header {
+        margin-bottom: 20px;
+      }
+      .header h1 {
+        font-size: 1.25rem;
+        margin-bottom: 3px;
+      }
+      .header p {
+        font-size: 0.85rem;
+      }
+      .glass-section {
+        padding: 16px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+      }
+      .glass-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+      }
+      .stocks-grid {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .stock-card {
+        width: 100%;
+        padding: 16px 20px;
+        border-radius: 10px;
+      }
+      .card-result {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 12px;
+      }
+      .stock-card .name {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .stock-card .stats-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .stat-pill {
+        width: 100%;
+        justify-content: space-between;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+      }
+      .badge {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+      }
+      /* 表格响应式显示 */
+      .table-section {
+        margin-bottom: 20px;
+        border-radius: 8px;
+      }
+      .table-header {
+        padding: 12px 15px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .table-header h2 {
+        font-size: 1.05rem;
+        margin-bottom: 0;
+      }
+      .table-label {
+        font-size: 0.75rem;
+        opacity: 0.8;
+      }
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      table {
+        min-width: 100%;
+        font-size: 0.8rem;
+      }
+      th {
+        padding: 10px 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+      th:first-child, td:first-child {
+        padding-left: 8px;
+        min-width: 80px;
+        position: sticky;
+        left: 0;
+        background: var(--gradient-1);
+        z-index: 10;
+      }
+      body.dark-mode th:first-child,
+      body.dark-mode td:first-child {
+        background: var(--gradient-1);
+      }
+      td {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+      tr:hover {
+        background: rgba(245, 158, 11, 0.08);
+      }
       .toggle-btn {
         width: 40px;
         height: 40px;
+        top: 15px;
+        right: 15px;
         font-size: 1.2rem;
       }
-
-      th, td {
-        padding: 8px 6px;
-        font-size: 0.8rem;
+      footer {
+        padding: 25px 0;
+        font-size: 0.75rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 8px;
+      }
+      .header h1 {
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+      .header p {
+        font-size: 0.75rem;
+      }
+      .glass-section {
+        padding: 12px 14px;
+        margin-bottom: 15px;
+      }
+      .glass-section h2 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        gap: 5px;
+      }
+      .stock-card {
+        padding: 14px 16px;
+        border-radius: 8px;
+      }
+      .stock-card .name {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .stock-card .name span:first-child {
+        word-break: break-word;
+      }
+      .stock-card .stats-row {
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .stat-pill {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        justify-content: space-between;
+      }
+      .stat-pill i {
+        margin-right: 3px;
+      }
+      .badge {
+        font-size: 0.6rem;
+        padding: 1px 5px;
+        margin-left: 4px;
+      }
+      .result-value {
+        font-size: 1.2rem;
+        font-weight: 800;
+      }
+      .stock-card .reason {
+        font-size: 0.75rem;
+        margin-top: 6px;
+        opacity: 0.7;
+      }
+      /* 表格超小屏响应 */
+      .table-section {
+        margin-bottom: 15px;
+        border-radius: 6px;
+      }
+      .table-header {
+        padding: 10px 12px;
+        gap: 6px;
+      }
+      .table-header h2 {
+        font-size: 0.95rem;
+      }
+      .table-label {
+        font-size: 0.7rem;
+      }
+      table {
+        min-width: 100%;
+      }
+      th {
+        padding: 8px 3px;
+        font-size: 0.65rem;
+      }
+      th:first-child, td:first-child {
+        padding-left: 6px;
+        min-width: 70px;
+      }
+      td {
+        padding: 7px 3px;
+        font-size: 0.75rem;
+      }
+      .market-label {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+      }
+      .toggle-btn {
+        width: 36px;
+        height: 36px;
+        top: 10px;
+        right: 10px;
+        font-size: 1rem;
+      }
+      footer {
+        padding: 20px 0;
+        font-size: 0.7rem;
       }
     }
   </style>
 </head>
 <body>
-
   <button class="toggle-btn" id="themeToggleBtn" onclick="toggleMode()">🌞</button>
-
-  <h1>
-    股票数据<br>
-    <small>更新时间:2025-12-03 11:30:58</small>
-  <h1>
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th>板块名称</th>
-          <th>涨跌幅</th>
-          <th>主力净流入</th>
-          <th>流入最大股</th>
-          <th>涨幅</th>
-          <th>市场</th>
-          <th>1日涨幅</th>
-          <th>1日最大跌幅</th>
-          <th>1日最大涨幅</th>
-          <th>2日涨幅</th>
-          <th>2日最大跌幅</th>
-          <th>2日最大涨幅</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th>电网设备</th>
-          <th>1.20%</th>
-          <th>8.37亿</th>
-          <th>新特电气</th>
-          <th>20.03%</th>
-          <th>创业板</th>
-          <th>-3.84%</th>
-          <th>-11.90%</th>
-          <th>-2.45%</th>
-          <th>4.68%</th>
-          <th>-3.99%</th>
-          <th>9.89%</th>
-        </tr>
-        <tr>
-          <th>证券</th>
-          <th>0.42%</th>
-          <th>8.16亿</th>
-          <th>华泰证券</th>
-          <th>2.99%</th>
-          <th>沪市主板</th>
-          <th>-3.15%</th>
-          <th>-4.66%</th>
-          <th>-0.22%</th>
-          <th>-1.20%</th>
-          <th>-1.29%</th>
-          <th>3.20%</th>
-        </tr>
-        <tr>
-          <th>交运设备</th>
-          <th>0.48%</th>
-          <th>4.53亿</th>
-          <th>内蒙一机</th>
-          <th>6.03%</th>
-          <th>沪市主板</th>
-          <th>7.85%</th>
-          <th>-3.67%</th>
-          <th>8.15%</th>
-          <th>-4.01%</th>
-          <th>-4.80%</th>
-          <th>1.03%</th>
-        </tr>
-        <tr>
-          <th>水泥建材</th>
-          <th>2.62%</th>
-          <th>4.50亿</th>
-          <th>西藏天路</th>
-          <th>4.72%</th>
-          <th>沪市主板</th>
-          <th>0.39%</th>
-          <th>-4.66%</th>
-          <th>1.79%</th>
-          <th>-0.70%</th>
-          <th>-1.32%</th>
-          <th>2.79%</th>
-        </tr>
-        <tr>
-          <th>农牧饲渔</th>
-          <th>1.28%</th>
-          <th>3.44亿</th>
-          <th>牧原股份</th>
-          <th>0.42%</th>
-          <th>深市主板</th>
-          <th>-0.23%</th>
-          <th>-1.79%</th>
-          <th>1.80%</th>
-          <th>1.13%</th>
-          <th>-0.41%</th>
-          <th>2.45%</th>
-        </tr>
-        <tr>
-          <th>化纤行业</th>
-          <th>1.17%</th>
-          <th>2.67亿</th>
-          <th>神马股份</th>
-          <th>9.98%</th>
-          <th>沪市主板</th>
-          <th>-1.40%</th>
-          <th>-5.15%</th>
-          <th>-0.26%</th>
-          <th>-1.06%</th>
-          <th>-1.42%</th>
-          <th>3.54%</th>
-        </tr>
-        <tr>
-          <th>纺织服装</th>
-          <th>1.56%</th>
-          <th>2.65亿</th>
-          <th>恒辉安防</th>
-          <th>4.92%</th>
-          <th>创业板</th>
-          <th>2.78%</th>
-          <th>-4.83%</th>
-          <th>5.21%</th>
-          <th>-4.05%</th>
-          <th>-5.53%</th>
-          <th>4.10%</th>
-        </tr>
-        <tr>
-          <th>石油行业</th>
-          <th>0.97%</th>
-          <th>2.35亿</th>
-          <th>广汇能源</th>
-          <th>2.50%</th>
-          <th>沪市主板</th>
-          <th>-0.38%</th>
-          <th>-2.82%</th>
-          <th>-0.19%</th>
-          <th>0.94%</th>
-          <th>-0.94%</th>
-          <th>1.13%</th>
-        </tr>
-        <tr>
-          <th>煤炭行业</th>
-          <th>1.97%</th>
-          <th>2.28亿</th>
-          <th>中国神华</th>
-          <th>0.76%</th>
-          <th>沪市主板</th>
-          <th>0.45%</th>
-          <th>-1.63%</th>
-          <th>1.08%</th>
-          <th>1.75%</th>
-          <th>-0.68%</th>
-          <th>2.33%</th>
-        </tr>
-        <tr>
-          <th>食品饮料</th>
-          <th>1.28%</th>
-          <th>2.16亿</th>
-          <th>伊利股份</th>
-          <th>0.22%</th>
-          <th>沪市主板</th>
-          <th>-0.72%</th>
-          <th>-1.30%</th>
-          <th>-0.18%</th>
-          <th>0.51%</th>
-          <th>-0.69%</th>
-          <th>0.91%</th>
-        </tr>
-      <thead>
-        <tr>
-          <th>概念名称</th>
-          <th>涨跌幅</th>
-          <th>主力净流入</th>
-          <th>流入最大股</th>
-          <th>涨幅</th>
-          <th>市场</th>
-          <th>1日涨幅</th>
-          <th>1日最大跌幅</th>
-          <th>1日最大涨幅</th>
-          <th>2日涨幅</th>
-          <th>2日最大跌幅</th>
-          <th>2日最大涨幅</th>
-        </tr>
-      </thead>
-        <tr>
-          <th>科创板做市商</th>
-          <th>0.93%</th>
-          <th>6.99亿</th>
-          <th>华泰证券</th>
-          <th>3.04%</th>
-          <th>沪市主板</th>
-          <th>-3.15%</th>
-          <th>-4.66%</th>
-          <th>-0.22%</th>
-          <th>-1.20%</th>
-          <th>-1.29%</th>
-          <th>3.20%</th>
-        </tr>
-        <tr>
-          <th>娃哈哈概念</th>
-          <th>2.46%</th>
-          <th>4.26亿</th>
-          <th>凯美特气</th>
-          <th>10.01%</th>
-          <th>深市主板</th>
-          <th>9.98%</th>
-          <th>3.50%</th>
-          <th>9.98%</th>
-          <th>4.39%</th>
-          <th>-0.04%</th>
-          <th>9.81%</th>
-        </tr>
-        <tr>
-          <th>东北振兴</th>
-          <th>0.84%</th>
-          <th>3.73亿</th>
-          <th>联美控股</th>
-          <th>10.00%</th>
-          <th>沪市主板</th>
-          <th>-4.60%</th>
-          <th>-5.45%</th>
-          <th>0.43%</th>
-          <th>-1.79%</th>
-          <th>-2.13%</th>
-          <th>5.38%</th>
-        </tr>
-        <tr>
-          <th>化妆品概念</th>
-          <th>0.82%</th>
-          <th>3.51亿</th>
-          <th>常山药业</th>
-          <th>0.02%</th>
-          <th>创业板</th>
-          <th>-2.12%</th>
-          <th>-4.71%</th>
-          <th>-0.22%</th>
-          <th>0.14%</th>
-          <th>-0.60%</th>
-          <th>3.76%</th>
-        </tr>
-        <tr>
-          <th>氦气概念</th>
-          <th>0.64%</th>
-          <th>3.14亿</th>
-          <th>凯美特气</th>
-          <th>10.01%</th>
-          <th>深市主板</th>
-          <th>9.98%</th>
-          <th>3.50%</th>
-          <th>9.98%</th>
-          <th>4.39%</th>
-          <th>-0.04%</th>
-          <th>9.81%</th>
-        </tr>
-        <tr>
-          <th>宠物经济</th>
-          <th>0.92%</th>
-          <th>2.91亿</th>
-          <th>中宠股份</th>
-          <th>1.09%</th>
-          <th>深市主板</th>
-          <th>3.05%</th>
-          <th>-3.40%</th>
-          <th>3.27%</th>
-          <th>-5.82%</th>
-          <th>-6.83%</th>
-          <th>-2.61%</th>
-        </tr>
-        <tr>
-          <th>猪肉概念</th>
-          <th>1.35%</th>
-          <th>2.76亿</th>
-          <th>牧原股份</th>
-          <th>0.51%</th>
-          <th>深市主板</th>
-          <th>-0.23%</th>
-          <th>-1.79%</th>
-          <th>1.80%</th>
-          <th>1.13%</th>
-          <th>-0.41%</th>
-          <th>2.45%</th>
-        </tr>
-        <tr>
-          <th>广电</th>
-          <th>-0.10%</th>
-          <th>2.53亿</th>
-          <th>同洲电子</th>
-          <th>10.03%</th>
-          <th>深市主板</th>
-          <th>-3.73%</th>
-          <th>-6.86%</th>
-          <th>-0.12%</th>
-          <th>2.46%</th>
-          <th>-0.74%</th>
-          <th>8.73%</th>
-        </tr>
-        <tr>
-          <th>维生素</th>
-          <th>1.03%</th>
-          <th>2.45亿</th>
-          <th>振华股份</th>
-          <th>6.62%</th>
-          <th>沪市主板</th>
-          <th>-2.22%</th>
-          <th>-4.78%</th>
-          <th>0.74%</th>
-          <th>-9.97%</th>
-          <th>-9.97%</th>
-          <th>2.32%</th>
-        </tr>
-        <tr>
-          <th>AB股</th>
-          <th>1.18%</th>
-          <th>2.38亿</th>
-          <th>长安汽车</th>
-          <th>0.89%</th>
-          <th>深市主板</th>
-          <th>0.48%</th>
-          <th>-2.89%</th>
-          <th>0.56%</th>
-          <th>0.32%</th>
-          <th>-0.32%</th>
-          <th>2.56%</th>
-        </tr>
-      </tbody>
-    </table>
+  <div class="container">
+    <div class="header">
+      <h1>📊 行情数据</h1>
+    </div>
+    <div class="glass-section"><h2>🚀 可交易股票</h2><div class="stocks-grid">
+        <div class="stock-card" style="max-width: 450px; border-left: 5px solid rgba(255,255,255,0.2);">
+          <div class="name">
+            <span>☕ 空仓观望</span>
+            <span class="badge badge-empty">0% 仓位</span>
+          </div>
+          <div class="reason">板块资金活跃度不足。</div>
+        </div></div></div>
+    <div class="table-section"><div class="table-header"><h2>🏢 板块资金流入</h2><span class="table-label">更新时间：2026-03-02 12:40:02</span></div><div class="table-wrapper"><table><thead><tr><th>板块名称</th><th>涨跌幅</th><th>主力净流入</th><th>流入最大股</th><th>涨幅</th><th>市场</th><th>1日涨幅</th><th>1日最大跌幅</th><th>1日最大涨幅</th><th>2日涨幅</th><th>2日最大跌幅</th><th>2日最大涨幅</th></tr></thead><tbody><tr><td>电网设备</td><td class="val-positive">1.20%</td><td class="val-highlight">8.37亿</td><td class="val-highlight">新特电气</td><td class="val-positive">20.03%</td><td><span class="market-label">创业板</span></td><td class="val-negative">-3.84%</td><td class="val-negative">-11.90%</td><td class="val-negative">-2.45%</td><td class="val-positive">4.68%</td><td class="val-negative">-3.99%</td><td class="val-positive">9.89%</td></tr><tr><td>证券</td><td class="val-positive">0.42%</td><td class="val-highlight">8.16亿</td><td class="val-highlight">华泰证券</td><td class="val-positive">2.99%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-3.15%</td><td class="val-negative">-4.66%</td><td class="val-negative">-0.22%</td><td class="val-negative">-1.20%</td><td class="val-negative">-1.29%</td><td class="val-positive">3.20%</td></tr><tr><td>交运设备</td><td class="val-positive">0.48%</td><td class="val-highlight">4.53亿</td><td class="val-highlight">内蒙一机</td><td class="val-positive">6.03%</td><td><span class="market-label">沪市主板</span></td><td class="val-positive">7.85%</td><td class="val-negative">-3.67%</td><td class="val-positive">8.15%</td><td class="val-negative">-4.01%</td><td class="val-negative">-4.80%</td><td class="val-positive">1.03%</td></tr><tr><td>水泥建材</td><td class="val-positive">2.62%</td><td class="val-highlight">4.50亿</td><td class="val-highlight">西藏天路</td><td class="val-positive">4.72%</td><td><span class="market-label">沪市主板</span></td><td class="val-positive">0.39%</td><td class="val-negative">-4.66%</td><td class="val-positive">1.79%</td><td class="val-negative">-0.70%</td><td class="val-negative">-1.32%</td><td class="val-positive">2.79%</td></tr><tr><td>农牧饲渔</td><td class="val-positive">1.28%</td><td class="val-highlight">3.44亿</td><td class="val-highlight">牧原股份</td><td class="val-positive">0.42%</td><td><span class="market-label">深市主板</span></td><td class="val-negative">-0.23%</td><td class="val-negative">-1.79%</td><td class="val-positive">1.80%</td><td class="val-positive">1.13%</td><td class="val-negative">-0.41%</td><td class="val-positive">2.45%</td></tr><tr><td>化纤行业</td><td class="val-positive">1.17%</td><td class="val-highlight">2.67亿</td><td class="val-highlight">神马股份</td><td class="val-positive">9.98%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-1.40%</td><td class="val-negative">-5.15%</td><td class="val-negative">-0.26%</td><td class="val-negative">-1.06%</td><td class="val-negative">-1.42%</td><td class="val-positive">3.54%</td></tr><tr><td>纺织服装</td><td class="val-positive">1.56%</td><td class="val-highlight">2.65亿</td><td class="val-highlight">恒辉安防</td><td class="val-positive">4.92%</td><td><span class="market-label">创业板</span></td><td class="val-positive">2.78%</td><td class="val-negative">-4.83%</td><td class="val-positive">5.21%</td><td class="val-negative">-4.05%</td><td class="val-negative">-5.53%</td><td class="val-positive">4.10%</td></tr><tr><td>石油行业</td><td class="val-positive">0.97%</td><td class="val-highlight">2.35亿</td><td class="val-highlight">广汇能源</td><td class="val-positive">2.50%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-0.38%</td><td class="val-negative">-2.82%</td><td class="val-negative">-0.19%</td><td class="val-positive">0.94%</td><td class="val-negative">-0.94%</td><td class="val-positive">1.13%</td></tr><tr><td>煤炭行业</td><td class="val-positive">1.97%</td><td class="val-highlight">2.28亿</td><td class="val-highlight">中国神华</td><td class="val-positive">0.76%</td><td><span class="market-label">沪市主板</span></td><td class="val-positive">0.45%</td><td class="val-negative">-1.63%</td><td class="val-positive">1.08%</td><td class="val-positive">1.75%</td><td class="val-negative">-0.68%</td><td class="val-positive">2.33%</td></tr><tr><td>食品饮料</td><td class="val-positive">1.28%</td><td class="val-highlight">2.16亿</td><td class="val-highlight">伊利股份</td><td class="val-positive">0.22%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-0.72%</td><td class="val-negative">-1.30%</td><td class="val-negative">-0.18%</td><td class="val-positive">0.51%</td><td class="val-negative">-0.69%</td><td class="val-positive">0.91%</td></tr></tbody></table></div></div><div class="table-section"><div class="table-header"><h2>💡 概念资金流入</h2><span class="table-label">更新时间：2026-03-02 12:40:02</span></div><div class="table-wrapper"><table><thead><tr><th>概念名称</th><th>涨跌幅</th><th>主力净流入</th><th>流入最大股</th><th>涨幅</th><th>市场</th><th>1日涨幅</th><th>1日最大跌幅</th><th>1日最大涨幅</th><th>2日涨幅</th><th>2日最大跌幅</th><th>2日最大涨幅</th></tr></thead><tbody><tr><td>科创板做市商</td><td class="val-positive">0.93%</td><td class="val-highlight">6.99亿</td><td class="val-highlight">华泰证券</td><td class="val-positive">3.04%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-3.15%</td><td class="val-negative">-4.66%</td><td class="val-negative">-0.22%</td><td class="val-negative">-1.20%</td><td class="val-negative">-1.29%</td><td class="val-positive">3.20%</td></tr><tr><td>娃哈哈概念</td><td class="val-positive">2.46%</td><td class="val-highlight">4.26亿</td><td class="val-highlight">凯美特气</td><td class="val-positive">10.01%</td><td><span class="market-label">深市主板</span></td><td class="val-positive">9.98%</td><td class="val-positive">3.50%</td><td class="val-positive">9.98%</td><td class="val-positive">4.39%</td><td class="val-negative">-0.04%</td><td class="val-positive">9.81%</td></tr><tr><td>东北振兴</td><td class="val-positive">0.84%</td><td class="val-highlight">3.73亿</td><td class="val-highlight">联美控股</td><td class="val-positive">10.00%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-4.60%</td><td class="val-negative">-5.45%</td><td class="val-positive">0.43%</td><td class="val-negative">-1.79%</td><td class="val-negative">-2.13%</td><td class="val-positive">5.38%</td></tr><tr><td>化妆品概念</td><td class="val-positive">0.82%</td><td class="val-highlight">3.51亿</td><td class="val-highlight">常山药业</td><td class="val-positive">0.02%</td><td><span class="market-label">创业板</span></td><td class="val-negative">-2.12%</td><td class="val-negative">-4.71%</td><td class="val-negative">-0.22%</td><td class="val-positive">0.14%</td><td class="val-negative">-0.60%</td><td class="val-positive">3.76%</td></tr><tr><td>氦气概念</td><td class="val-positive">0.64%</td><td class="val-highlight">3.14亿</td><td class="val-highlight">凯美特气</td><td class="val-positive">10.01%</td><td><span class="market-label">深市主板</span></td><td class="val-positive">9.98%</td><td class="val-positive">3.50%</td><td class="val-positive">9.98%</td><td class="val-positive">4.39%</td><td class="val-negative">-0.04%</td><td class="val-positive">9.81%</td></tr><tr><td>宠物经济</td><td class="val-positive">0.92%</td><td class="val-highlight">2.91亿</td><td class="val-highlight">中宠股份</td><td class="val-positive">1.09%</td><td><span class="market-label">深市主板</span></td><td class="val-positive">3.05%</td><td class="val-negative">-3.40%</td><td class="val-positive">3.27%</td><td class="val-negative">-5.82%</td><td class="val-negative">-6.83%</td><td class="val-negative">-2.61%</td></tr><tr><td>猪肉概念</td><td class="val-positive">1.35%</td><td class="val-highlight">2.76亿</td><td class="val-highlight">牧原股份</td><td class="val-positive">0.51%</td><td><span class="market-label">深市主板</span></td><td class="val-negative">-0.23%</td><td class="val-negative">-1.79%</td><td class="val-positive">1.80%</td><td class="val-positive">1.13%</td><td class="val-negative">-0.41%</td><td class="val-positive">2.45%</td></tr><tr><td>广电</td><td class="val-negative">-0.10%</td><td class="val-highlight">2.53亿</td><td class="val-highlight">同洲电子</td><td class="val-positive">10.03%</td><td><span class="market-label">深市主板</span></td><td class="val-negative">-3.73%</td><td class="val-negative">-6.86%</td><td class="val-negative">-0.12%</td><td class="val-positive">2.46%</td><td class="val-negative">-0.74%</td><td class="val-positive">8.73%</td></tr><tr><td>维生素</td><td class="val-positive">1.03%</td><td class="val-highlight">2.45亿</td><td class="val-highlight">振华股份</td><td class="val-positive">6.62%</td><td><span class="market-label">沪市主板</span></td><td class="val-negative">-2.22%</td><td class="val-negative">-4.78%</td><td class="val-positive">0.74%</td><td class="val-negative">-9.97%</td><td class="val-negative">-9.97%</td><td class="val-positive">2.32%</td></tr><tr><td>AB股</td><td class="val-positive">1.18%</td><td class="val-highlight">2.38亿</td><td class="val-highlight">长安汽车</td><td class="val-positive">0.89%</td><td><span class="market-label">深市主板</span></td><td class="val-positive">0.48%</td><td class="val-negative">-2.89%</td><td class="val-positive">0.56%</td><td class="val-positive">0.32%</td><td class="val-negative">-0.32%</td><td class="val-positive">2.56%</td></tr></tbody></table></div></div>
+    <footer>
+      数据源：2025_10_10.md | 更新时间：2026-03-02 12:40:02
+    </footer>
   </div>
-
-
   <script>
-    const toggleBtn = document.getElementById("themeToggleBtn");
-
-    function updateBtnIcon() {
-      toggleBtn.textContent = document.body.classList.contains("dark-mode") ? "🌙" : "🌞";
-    }
-
     function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-      updateBtnIcon();
-      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+      document.body.classList.toggle('dark-mode');
+      const btn = document.getElementById('themeToggleBtn');
+      btn.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '🌞';
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
     }
-
     (function() {
-      const userPref = localStorage.getItem("theme");
-      if (userPref) {
-        if (userPref === "dark") document.body.classList.add("dark-mode");
-      } else {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          document.body.classList.add("dark-mode");
-        }
+      const btn = document.getElementById('themeToggleBtn');
+      if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        btn.textContent = '🌙';
       }
-      updateBtnIcon();
     })();
   </script>
 </body>

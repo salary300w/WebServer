@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票数据展示</title>
+    <link rel="icon" href="icon.png" type="image/x-icon"> <!-- 添加favicon -->
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* 设置字体 */
+            margin: 0; /* 去掉默认边距 */
+            height: 100vh; /* 高度设置为视口高度 */
+            overflow: auto; /* 去掉滚动条 */
+            background: linear-gradient(135deg, #ff7f50 25%, #87cefa 25%, #87cefa 50%, #ff7f50 50%, #ff7f50 75%, #87cefa 75%, #87cefa 100%); /* 彩色条纹背景 */
+            background-size: 50px 50px; /* 条纹的大小 */
+        }
+        .overlay {
+            position: relative; /* 相对定位以便于绝对定位的子元素 */
+            height: 100%; /* 高度设置为100% */
+            backdrop-filter: blur(10px); /* 毛玻璃特效 */
+            color: black; /* 设置文字颜色 */
+        }
+        h1 {
+            text-align: center; /* 标题居中 */
+            margin-top: 20px; /* 标题上方的间距 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px; /* 表格上方的间距 */
+            background-color: rgba(255, 255, 255, 0.8); /* 表格背景色，带透明度 */
+            border-radius: 10px; /* 表格圆角 */
+            overflow: auto; /* 防止内容溢出 */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h1>股票数据展示</h1>
+<table>
+    <thead>
+        <tr>
+            <th> 股票代码 </th>
+            <th> 股票名称 </th>
+            <th>  涨幅  </th>
+            <th> 成交量 </th>
+            <th> 市值  </th>
+            <th> 1日开盘价 </th>
+            <th>  1日涨幅   </th>
+            <th> 2日涨幅 </th>
+            <th>次日涨幅</th>
+            <th>次日最大跌幅</th>
+            <th>次日最大涨幅</th>
+        </th>
+    <thead>
+        <tr>
+            <th>600386</th>
+            <th>北巴传媒</th>
+            <th>10.11%</th>
+            <th>16.1</th>
+            <th>39.51</th>
+            <th>5.22</th>
+            <th>-6.31%☆☆</th>
+            <th>4.29%☠</th>
+            <th>-5.09%</th>
+            <th>-9.98%</th>
+            <th>0.59%</th>
+        </th>
+        <tr>
+            <th>605136</th>
+            <th>丽人丽妆</th>
+            <th>10.05%</th>
+            <th>15.39</th>
+            <th>34.76</th>
+            <th>9.31</th>
+            <th>-9.96%☆☆</th>
+            <th>10.02%</th>
+            <th>0.00%</th>
+            <th>-3.66%</th>
+            <th>8.69%</th>
+        </th>
+        <tr>
+            <th>603648</th>
+            <th>畅联股份</th>
+            <th>10.04%</th>
+            <th>9.02</th>
+            <th>38.63</th>
+            <th>11.18</th>
+            <th>-3.70%☆☆</th>
+            <th>4.88%</th>
+            <th>-4.47%</th>
+            <th>-7.87%</th>
+            <th>0</th>
+        </th>
+        <tr>
+            <th>603803</th>
+            <th>瑞斯康达</th>
+            <th>10.02%</th>
+            <th>4.72</th>
+            <th>56.85</th>
+            <th>15.0</th>
+            <th>☆☆-5.51%☆☆</th>
+            <th>10.01%</th>
+            <th>-9.99%</th>
+            <th>-9.99%</th>
+            <th>0.41%</th>
+        </th>
+        <tr>
+            <th>603057</th>
+            <th>紫燕食品</th>
+            <th>10.02%</th>
+            <th>3.5</th>
+            <th>12.33</th>
+            <th>18.99</th>
+            <th>-4.63%☆☆</th>
+            <th>3.20%</th>
+            <th>0.59%</th>
+            <th>-2.46%</th>
+            <th>1.44%</th>
+        </th>
+        <tr>
+            <th>600889</th>
+            <th>南京化纤</th>
+            <th>10.02%</th>
+            <th>47.15</th>
+            <th>75.06</th>
+            <th>21.34</th>
+            <th>-5.75%☆</th>
+            <th>10.00%</th>
+            <th>9.98%</th>
+            <th>-5.37%</th>
+            <th>9.98%</th>
+        </th>
+        <tr>
+            <th>603983</th>
+            <th>丸美生物</th>
+            <th>10.01%</th>
+            <th>2.99</th>
+            <th>136.8</th>
+            <th>36.25</th>
+            <th>-5.70%☆☆</th>
+            <th>4.21%</th>
+            <th>-0.12%</th>
+            <th>-3.23%</th>
+            <th>0.55%</th>
+        </th>
+        <tr>
+            <th>603868</th>
+            <th>飞科电器</th>
+            <th>10.00%</th>
+            <th>2.19</th>
+            <th>194.4</th>
+            <th>47.5</th>
+            <th>☆-2.96%☆</th>
+            <th>3.05%☠</th>
+            <th>3.03%</th>
+            <th>-3.68%</th>
+            <th>3.25%</th>
+        </th>
+        <tr>
+            <th>603839</th>
+            <th>安正时尚</th>
+            <th>10.00%</th>
+            <th>8.45</th>
+            <th>24.87</th>
+            <th>6.71</th>
+            <th>-7.15%☆☆</th>
+            <th>2.10%</th>
+            <th>-6.23%</th>
+            <th>-9.19%</th>
+            <th>0</th>
+        </th>
+        <tr>
+            <th>600882</th>
+            <th>妙可蓝多</th>
+            <th>9.99%</th>
+            <th>11.34</th>
+            <th>99.85</th>
+            <th>21.24</th>
+            <th>☆-6.30%☆</th>
+            <th>7.30%</th>
+            <th>-4.57%</th>
+            <th>-6.98%</th>
+            <th>0</th>
+        </th>
+        <tr>
+            <th>000670</th>
+            <th>盈方微*</th>
+            <th>10.04%</th>
+            <th>81.7</th>
+            <th>64.27</th>
+            <th>9.47</th>
+            <th>☆-3.37%☆☆</th>
+            <th>6.33%</th>
+            <th>-5.13%</th>
+            <th>-7.33%</th>
+            <th>0</th>
+        </th>
+        <tr>
+            <th>001314</th>
+            <th>亿道信息</th>
+            <th>10.00%</th>
+            <th>5.31</th>
+            <th>26.3</th>
+            <th>56.48</th>
+            <th>☆☆-3.62%☆☆</th>
+            <th>4.04%</th>
+            <th>-2.82%</th>
+            <th>-3.29%</th>
+            <th>4.48%</th>
+        </th>
+        <tr>
+            <th>002210</th>
+            <th>飞马国际</th>
+            <th>9.92%</th>
+            <th>172.58</th>
+            <th>68.93</th>
+            <th>2.77</th>
+            <th>-6.50%☆</th>
+            <th>10.04%</th>
+            <th>1.05%</th>
+            <th>-3.16%</th>
+            <th>6.67%</th>
+        </th>
+    </tbody>
+<table>
+
+</body>
+</html>
