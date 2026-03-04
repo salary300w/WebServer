@@ -59,6 +59,15 @@
       gap: 12px;
       letter-spacing: 0.5px;
     }
+    .glass-section h2 a {
+      color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .glass-section h2 a:hover { text-decoration: underline; }
     .glass-section h2::before {
       content: "";
       display: inline-block;
@@ -261,7 +270,7 @@
     </div>
 
     <div class="glass-section" id="backtest">
-      <h2>📈 收益回测</h2>
+      <h2><a href="Backtest_Result.html" target="_blank" rel="noopener noreferrer">📈 收益回测</a></h2>
       <div style="text-align: center;">
         <img 
           src="Backtest_Result.png" 
