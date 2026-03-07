@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>龙虾监控</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        :root {
+            --bg-color: #0d0f14;
+            --card-bg: #1a1c23;
+            --text-main: #f0f0f2;
+            --text-sub: #8f93a2;
+            --purple: #818cf8;
+            --blue: #60a5fa;
+            --green: #34d399;
+            --orange: #fbbf24;
+            --dark-border: rgba(255, 255, 255, 0.05);
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; }
+        
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .logo-box {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+        .nav-title { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
+        .nav-status {
+            background-color: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: 20px;
+            font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 6px;
+        }
+        .nav-status::before { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--green); }
+
+        .container { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; }
+        .card { background-color: var(--card-bg); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .card-title { color: var(--text-sub); font-size: 14px; font-weight: 500; }
+        .icon-box {
+            width: 32px; height: 32px; background-color: rgba(255,255,255,0.05);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .progress-row { margin-bottom: 24px; }
+        .progress-row:last-child { margin-bottom: 0; }
+        .p-header { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 12px; font-weight: 500; }
+        .p-value { font-variant-numeric: tabular-nums; color: var(--text-sub); }
+        .p-bar-bg { height: 6px; background-color: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+        .p-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+        .uptime-card { display: flex; flex-direction: column; }
+        .uptime-val { font-size: 38px; font-weight: 700; margin: 8px 0 12px 0; font-variant-numeric: tabular-nums; }
+        .uptime-sub { color: var(--text-sub); font-size: 14px; }
+
+        .info-row { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--dark-border); font-size: 15px; }
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-label { color: var(--text-sub); }
+        .info-val { font-weight: 500; text-align: right;}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="nav-left">
+            <div class="logo-box">🦐</div>
+            <div class="nav-title">龙虾监控</div>
+        </div>
+        <div class="nav-status">在线</div>
+    </div>
+
+    <div class="container">
+        <!-- 系统资源 -->
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">系统资源</span>
+                <span class="icon-box">📊</span>
+            </div>
+            
+            <div class="progress-row">
+                <div class="p-header">
+                    <span>CPU</span><span class="p-value" id="cpu-v">--%</span>
+                </div>
+                <div class="p-bar-bg"><div class="p-bar" id="cpu-b" style="width:0%; background-color:#818cf8;"></div></div>
+            </div>
+
+            <div class="progress-row">
+                <div class="p-header">
+                    <span>内存</span><span class="p-value" id="mem-v">--%</span>
+                </div>
+                <div class="p-bar-bg"><div class="p-bar" id="mem-b" style="width:0%; background-color:#34d399;"></div></div>
+            </div>
+
+            <div class="progress-row">
+                <div class="p-header">
+                    <span>磁盘</span><span class="p-value" id="disk-v">--%</span>
+                </div>
+                <div class="p-bar-bg"><div class="p-bar" id="disk-b" style="width:0%; background-color:#fbbf24;"></div></div>
+            </div>
+        </div>
+
+        <!-- 运行时间 -->
+        <div class="card uptime-card">
+            <div class="card-header" style="margin-bottom:0;">
+                <span class="card-title">运行时间</span>
+                <span class="icon-box">⏱️</span>
+            </div>
+            <div class="uptime-val" id="uptime-v">--h --m</div>
+            <div class="uptime-sub">已在线</div>
+        </div>
+
+        <!-- 主机信息 -->
+        <div class="card">
+            <div class="card-header" style="margin-bottom:8px;">
+                <span class="card-title">主机信息</span>
+                <span class="icon-box">🖥️</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">主机名</span>
+                <span class="info-val" id="host-v">获取中...</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">系统</span>
+                <span class="info-val" id="os-v">获取中...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function safePercent(val) {
+            let num = parseFloat(val);
+            if (isNaN(num)) return 0;
+            return num;
+        }
+
+        function updateData() {
+            fetch('sys_data.json?t=' + Date.now())
+                .then(r => r.json())
+                .then(d => {
+                    let cpuP = safePercent(d.cpu);
+                    document.getElementById('cpu-v').innerText = cpuP + '%';
+                    document.getElementById('cpu-b').style.width = cpuP + '%';
+
+                    let memP = safePercent(d.memory);
+                    document.getElementById('mem-v').innerText = memP + '%';
+                    document.getElementById('mem-b').style.width = memP + '%';
+
+                    let diskP = safePercent(d.disk);
+                    document.getElementById('disk-v').innerText = diskP + '%';
+                    document.getElementById('disk-b').style.width = diskP + '%';
+
+                    if(d.uptime) document.getElementById('uptime-v').innerText = d.uptime;
+                    if(d.hostname) document.getElementById('host-v').innerText = d.hostname;
+                    if(d.os) document.getElementById('os-v').innerText = d.os;
+                })
+                .catch(e => console.error(e));
+        }
+
+        updateData();
+        setInterval(updateData, 3000);
+    </script>
+</body>
+</html>

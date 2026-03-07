@@ -13,13 +13,13 @@ cd /root/workspace/stockB
 # $0 是脚本名
 # $1, $2, ... 是位置参数
 if [ "$1" == "1" ]; then
-    /root/workspace/myenv/bin/python3 Getfundflow0.py
+    python3 Getfundflow0.py
 elif [ "$1" == "2" ]; then
-    /root/workspace/myenv/bin/python3 Getfundflow1.py
+    python3 Getfundflow1.py
 elif [ "$1" == "3" ]; then
-    /root/workspace/myenv/bin/python3 Getfundflow2.py
+    python3 Getfundflow2.py
     git add .
     git commit -m "$(date)"
     git push
-    /root/workspace/myenv/bin/python3 Backtest.py
+    python3 Backtest.py
 fi

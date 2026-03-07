@@ -18,3 +18,6 @@ for job in "${TASKS[@]}"; do
 done
 
 echo "新的 crontab 已更新"
+
+# 系统监控脚本 - 服务器启动时自动运行
+(crontab -l 2>/dev/null; echo "@reboot /bin/bash /root/workspace/WebServer/sys_monitor.sh > /dev/null 2>&1") | crontab -
