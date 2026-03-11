@@ -178,29 +178,53 @@
     table { 
       width: 100%; 
       border-collapse: collapse; 
-      table-layout: auto;
+      table-layout: fixed; /* 强制固定布局以实现跨表格对齐 */
     }
     thead { background: var(--gradient-1); color: white; }
     th { 
       padding: 16px 12px; 
-      text-align: center; /* 默认居中对齐 */
+      text-align: center; 
       font-size: 0.85rem; 
       font-weight: 600; 
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    /* 第一列（通常是名称）靠左对齐 */
+    /* 第一列（名称列）宽度 */
     th:first-child, td:first-child { 
       text-align: left; 
       padding-left: 24px;
+      width: 35%; /* 使用百分比，确保不同屏幕下的适应性 */
       min-width: 150px;
+    }
+    /* 资金流入列宽度 */
+    th:nth-child(3), td:nth-child(3) {
+      width: 20%;
+      min-width: 100px;
     }
     td { 
       padding: 14px 12px; 
       border-bottom: 1px solid var(--border-color); 
       font-size: 0.9rem;
       white-space: nowrap;
-      text-align: center; /* 默认内容居中对齐 */
+      text-align: center; 
       color: var(--text-dark);
+      /* 移除强制截断，允许在 table-wrapper 中滚动 */
+    }
+
+    /* 移动端特殊修复 */
+    @media (max-width: 768px) {
+      table {
+        table-layout: auto; /* 手机端恢复自动布局，允许横向滚动 */
+      }
+      th:first-child, td:first-child {
+        width: auto;
+        min-width: 120px;
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background: var(--bg-white); /* 确保滚动时侧边固定列背景不透明 */
+      }
     }
     tr:hover { background: rgba(245, 158, 11, 0.05); }
     
@@ -524,9 +548,9 @@
                 <div class="stat-pill stat-change"><i>📈</i> 4.6%</div>
               </div>
             </div></div></div>
-    <div class="table-section"><div class="table-header"><h2>🏢 板块资金流入</h2><span class="table-label">更新时间：2026-03-10 14:50:14</span></div><div class="table-wrapper"><table><thead><tr><th>板块名称</th><th>涨跌幅</th><th>主力净流入</th><th>流入最大股</th><th>涨幅</th><th>市场</th></tr></thead><tbody><tr><td>通信设备</td><td class="val-positive">4.48%</td><td class="val-highlight">60.49亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>半导体</td><td class="val-positive">3.65%</td><td class="val-highlight">44.83亿</td><td class="val-highlight">兆易创新</td><td class="val-positive">3.43%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>元件</td><td class="val-positive">5.59%</td><td class="val-highlight">28.27亿</td><td class="val-highlight">胜宏科技</td><td class="val-positive">6.87%</td><td><span class="market-label">创业板</span></td></tr><tr><td>消费电子</td><td class="val-positive">3.01%</td><td class="val-highlight">25.42亿</td><td class="val-highlight">立讯精密</td><td class="val-positive">6.26%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>光伏设备</td><td class="val-positive">1.57%</td><td class="val-highlight">21.00亿</td><td class="val-highlight">晶科能源</td><td class="val-positive">11.02%</td><td><span class="market-label">科创板</span></td></tr><tr><td>军工电子Ⅱ</td><td class="val-positive">2.51%</td><td class="val-highlight">14.31亿</td><td class="val-highlight">航天发展</td><td class="val-positive">4.64%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>玻璃玻纤</td><td class="val-positive">2.18%</td><td class="val-highlight">13.37亿</td><td class="val-highlight">宏和科技</td><td class="val-positive">6.28%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>通用设备</td><td class="val-positive">2.82%</td><td class="val-highlight">13.34亿</td><td class="val-highlight">黄河旋风</td><td class="val-positive">10.04%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>电池</td><td class="val-positive">2.14%</td><td class="val-highlight">12.25亿</td><td class="val-highlight">宁德时代</td><td class="val-positive">5.12%</td><td><span class="market-label">创业板</span></td></tr><tr><td>汽车零部件</td><td class="val-positive">2.45%</td><td class="val-highlight">11.82亿</td><td class="val-highlight">飞龙股份</td><td class="val-positive">9.99%</td><td><span class="market-label">深市主板</span></td></tr></tbody></table></div></div><div class="table-section"><div class="table-header"><h2>💡 概念资金流入</h2><span class="table-label">更新时间：2026-03-10 14:50:14</span></div><div class="table-wrapper"><table><thead><tr><th>概念名称</th><th>涨跌幅</th><th>主力净流入</th><th>流入最大股</th><th>涨幅</th><th>市场</th></tr></thead><tbody><tr><td>5G概念</td><td class="val-positive">3.34%</td><td class="val-highlight">139.05亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>百元股</td><td class="val-positive">3.89%</td><td class="val-highlight">116.23亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>新能源车</td><td class="val-positive">2.50%</td><td class="val-highlight">89.28亿</td><td class="val-highlight">胜宏科技</td><td class="val-positive">6.87%</td><td><span class="market-label">创业板</span></td></tr><tr><td>CPO概念</td><td class="val-positive">6.70%</td><td class="val-highlight">73.83亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>光通信模块</td><td class="val-positive">5.63%</td><td class="val-highlight">70.87亿</td><td class="val-highlight">光迅科技</td><td class="val-positive">10.00%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>国产芯片</td><td class="val-positive">2.69%</td><td class="val-highlight">69.92亿</td><td class="val-highlight">航天发展</td><td class="val-positive">4.64%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>半导体概念</td><td class="val-positive">3.18%</td><td class="val-highlight">68.47亿</td><td class="val-highlight">中天科技</td><td class="val-positive">6.29%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>基金重仓</td><td class="val-positive">3.47%</td><td class="val-highlight">64.81亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>深证100R</td><td class="val-positive">1.56%</td><td class="val-highlight">58.40亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>PCB</td><td class="val-positive">4.71%</td><td class="val-highlight">52.03亿</td><td class="val-highlight">胜宏科技</td><td class="val-positive">6.87%</td><td><span class="market-label">创业板</span></td></tr></tbody></table></div></div>
+    <div class="table-section"><div class="table-header"><h2>🏢 板块资金流入</h2><span class="table-label">更新时间：2026-03-11 11:19:04</span></div><div class="table-wrapper"><table><thead><tr><th>板块名称</th><th>涨跌幅</th><th>主力净流入</th><th>流入最大股</th><th>涨幅</th><th>市场</th></tr></thead><tbody><tr><td>通信设备</td><td class="val-positive">4.48%</td><td class="val-highlight">60.49亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>半导体</td><td class="val-positive">3.65%</td><td class="val-highlight">44.83亿</td><td class="val-highlight">兆易创新</td><td class="val-positive">3.43%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>元件</td><td class="val-positive">5.59%</td><td class="val-highlight">28.27亿</td><td class="val-highlight">胜宏科技</td><td class="val-positive">6.87%</td><td><span class="market-label">创业板</span></td></tr><tr><td>消费电子</td><td class="val-positive">3.01%</td><td class="val-highlight">25.42亿</td><td class="val-highlight">立讯精密</td><td class="val-positive">6.26%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>光伏设备</td><td class="val-positive">1.57%</td><td class="val-highlight">21.00亿</td><td class="val-highlight">晶科能源</td><td class="val-positive">11.02%</td><td><span class="market-label">科创板</span></td></tr><tr><td>军工电子Ⅱ</td><td class="val-positive">2.51%</td><td class="val-highlight">14.31亿</td><td class="val-highlight">航天发展</td><td class="val-positive">4.64%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>玻璃玻纤</td><td class="val-positive">2.18%</td><td class="val-highlight">13.37亿</td><td class="val-highlight">宏和科技</td><td class="val-positive">6.28%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>通用设备</td><td class="val-positive">2.82%</td><td class="val-highlight">13.34亿</td><td class="val-highlight">黄河旋风</td><td class="val-positive">10.04%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>电池</td><td class="val-positive">2.14%</td><td class="val-highlight">12.25亿</td><td class="val-highlight">宁德时代</td><td class="val-positive">5.12%</td><td><span class="market-label">创业板</span></td></tr><tr><td>汽车零部件</td><td class="val-positive">2.45%</td><td class="val-highlight">11.82亿</td><td class="val-highlight">飞龙股份</td><td class="val-positive">9.99%</td><td><span class="market-label">深市主板</span></td></tr></tbody></table></div></div><div class="table-section"><div class="table-header"><h2>💡 概念资金流入</h2><span class="table-label">更新时间：2026-03-11 11:19:04</span></div><div class="table-wrapper"><table><thead><tr><th>概念名称</th><th>涨跌幅</th><th>主力净流入</th><th>流入最大股</th><th>涨幅</th><th>市场</th></tr></thead><tbody><tr><td>5G概念</td><td class="val-positive">3.34%</td><td class="val-highlight">139.05亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>百元股</td><td class="val-positive">3.89%</td><td class="val-highlight">116.23亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>新能源车</td><td class="val-positive">2.50%</td><td class="val-highlight">89.28亿</td><td class="val-highlight">胜宏科技</td><td class="val-positive">6.87%</td><td><span class="market-label">创业板</span></td></tr><tr><td>CPO概念</td><td class="val-positive">6.70%</td><td class="val-highlight">73.83亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>光通信模块</td><td class="val-positive">5.63%</td><td class="val-highlight">70.87亿</td><td class="val-highlight">光迅科技</td><td class="val-positive">10.00%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>国产芯片</td><td class="val-positive">2.69%</td><td class="val-highlight">69.92亿</td><td class="val-highlight">航天发展</td><td class="val-positive">4.64%</td><td><span class="market-label">深市主板</span></td></tr><tr><td>半导体概念</td><td class="val-positive">3.18%</td><td class="val-highlight">68.47亿</td><td class="val-highlight">中天科技</td><td class="val-positive">6.29%</td><td><span class="market-label">沪市主板</span></td></tr><tr><td>基金重仓</td><td class="val-positive">3.47%</td><td class="val-highlight">64.81亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>深证100R</td><td class="val-positive">1.56%</td><td class="val-highlight">58.40亿</td><td class="val-highlight">天孚通信</td><td class="val-positive">10.73%</td><td><span class="market-label">创业板</span></td></tr><tr><td>PCB</td><td class="val-positive">4.71%</td><td class="val-highlight">52.03亿</td><td class="val-highlight">胜宏科技</td><td class="val-positive">6.87%</td><td><span class="market-label">创业板</span></td></tr></tbody></table></div></div>
     <footer>
-      数据源：2026_03_10.md | 更新时间：2026-03-10 14:50:14
+      数据源：2026_03_10.md | 更新时间：2026-03-11 11:19:04
     </footer>
   </div>
   <script>
