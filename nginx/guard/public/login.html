@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShrimpGuard - 安全验证</title>
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+        }
+        body {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, sans-serif;
+            display: flex; align-items: center; justify-content: center;
+            height: 100vh;
+        }
+        .login-card {
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            width: 90%; max-width: 360px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        .logo { font-size: 3rem; margin-bottom: 1rem; }
+        h2 { margin: 0 0 1.5rem 0; font-weight: 700; color: var(--primary); }
+        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        input {
+            width: 100%; padding: 0.75rem 1rem;
+            background: #0f172a; border: 1px solid #334155;
+            border-radius: 0.5rem; color: white; font-size: 1rem;
+            box-sizing: border-box; outline: none; transition: border-color 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
+        button {
+            width: 100%; padding: 0.75rem; border: none;
+            background: var(--primary); color: white;
+            font-size: 1rem; font-weight: 600; border-radius: 0.5rem;
+            cursor: pointer; transition: transform 0.1s, background 0.2s;
+        }
+        button:active { transform: scale(0.98); }
+        .error { color: #ef4444; margin-top: 1rem; font-size: 0.9rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="login-card" id="card">
+        <div class="logo">🦐</div>
+        <h2>虾卫士</h2>
+        <form action="/shrimp-guard/do-login" method="POST">
+            <div class="input-group">
+                <input type="password" name="password" placeholder="请输入访问密钥" autofocus required>
+            </div>
+            <button type="submit">立即授权</button>
+        </form>
+        <div class="error" id="errorHint">密钥无效，请重新尝试</div>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            document.getElementById('errorHint').style.display = 'block';
+            const card = document.getElementById('card');
+            card.style.animation = 'shake 0.4s ease-in-out';
+        }
+    </script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</body>
+</html>
