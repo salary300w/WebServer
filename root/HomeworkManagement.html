@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <title>智能作业管理系统</title>
+    <style>
+        :root {
+            --not-submitted: #FFFFE0;
+            --need-correction: #98FB98;
+            --passed: #3399ff;
+            --full-mark: #FF1493;
+            --primary: #007bff;
+            --danger: #ff4444;
+            --setting-bg: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 10px;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-top: 70px;
+            padding-bottom: 80px;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #f8f9fa;
+            padding: 8px;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selector-group {
+            margin: 0;
+            min-width: 0;
+
+        }
+
+
+        #class-select {
+            flex: 1;
+        }
+
+        #assignment-select {
+
+
+           width: 100%;
+       }
+
+        .quick-add-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        select {
+            padding: 8px;
+            border-radius: 6px;
+            flex: 1;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            min-width: 0;
+        }
+
+        @media (max-width: 480px) {
+            .top-bar {
+                padding: 6px;
+                gap: 4px;
+            }
+
+            .quick-add-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            select {
+                padding: 6px;
+                font-size: 12px;
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin: 15px 0;
+        }
+
+        .student-item {
+            padding: 12px 5px;
+            text-align: center;
+            background: #ffffff;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .status-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .status-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 300px;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .status-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 10px;
+
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.1s;
+        }
+
+        .status-btn:active {
+            transform: scale(0.98);
+        }
+
+        .setting-fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .fab-main {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .fab-menu {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: var(--setting-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            min-width: 160px;
+            overflow: hidden;
+        }
+
+        .fab-menu.show {
+            display: flex;
+            animation: menuSlide 0.3s ease;
+        }
+
+        @keyframes menuSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-item {
+            padding: 12px 16px;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-item:hover {
+            background: #f5f5f5;
+        }
+
+        .menu-item.danger {
+            color: var(--danger);
+        }
+
+        .not-submitted { background-color: var(--not-submitted) !important; }
+        .need-correction { background-color: var(--need-correction) !important; }
+        .passed { background-color: var(--passed) !important; }
+        .full-mark { background-color: var(--full-mark) !important; }
+
+        .notice {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        @media (max-width: 480px) {
+       .quick-add-btn {
+           width: 36px;
+           height: 36px;
+           font-size: 18px;
+       }
+
+   }
+
+         .swipe-indicator {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 24px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    .swipe-prev { left: 15px; }
+    .swipe-next { right: 15px; }
+    .swipe-active { opacity: 0.3; }
+    .quick-add-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    }
+
+
+
+    </style>
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?272119dae6cce7e3ded69c4a57f828d1";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+</head>
+<body>
+<div class="top-bar">
+    <button class="quick-add-btn" onclick="showUnpassedList()"
+            id="listBtn" style="display: none; margin-left:5px; background: #6c757d;">
+        📜
+    </button>
+
+    <div class="selector-group">
+        <select id="class-select" onchange="loadClass()">
+            <option value="">选择班级</option>
+        </select>
+    </div>
+
+    <div class="selector-group">
+        <select id="assignment-select" onchange="loadAssignment()">
+            <option value="">选择作业</option>
+        </select>
+
+    </div>
+    <div id="check-mode-text" style="display: none;  text-align: center; font-weight: bold;">🔥排雷模式💣</div>
+    <button class="quick-add-btn" onclick="handleEditAssignment()"
+            style="margin-left: 5px; background: #32CD32; display: none;"
+            id="editAssignmentBtn">✏️</button>
+
+    <button class="quick-add-btn" onclick="handleCreateAssignment()">➕</button>
+    <button class="mode-toggle-btn" style="background: #ffc107;margin-left: 5px;width: 36px;
+            height: 36px;border-radius:6px;border-style:none" onclick="toggleMode()">💣</button>
+</div>
+
+<div class="container">
+    <div id="student-grid" class="grid"></div>
+
+    <div id="status-modal" class="status-modal" onclick="handleModalClick(event)">
+        <div class="status-panel">
+            <div class="name-container">
+                <h3 id="student-name" style="margin: 0; text-align: center;"></h3>
+                <h4 id="assignment-name" style="margin: 0 0 15px; text-align: center; color: #666;"></h4>
+            </div>
+            <button class="status-btn not-submitted" onclick="changeStatus('not-submitted')">未过关</button>
+            <button class="status-btn need-correction" onclick="changeStatus('need-correction')">合格</button>
+            <button class="status-btn passed" onclick="changeStatus('passed')">良好</button>
+            <button class="status-btn full-mark" onclick="changeStatus('full-mark')">优秀</button>
+        </div>
+    </div>
+</div>
+
+<div class="setting-fab">
+    <div class="fab-main" onclick="toggleFabMenu()">⚙️</div>
+    <div class="fab-menu" id="fabMenu">
+        <div class="menu-item" onclick="handleCreateClass()">🏠新建班级</div>
+        <div class="menu-item" onclick="handleCreateAssignment()">📝 新建作业</div>
+        <div class="menu-item" onclick="handleAddStudent()">👨 添加学生</div>
+        <div class="menu-item danger" onclick="handleDeleteStudent()">❌ 删除学生</div>
+        <div class="menu-item danger" onclick="deleteCurrentClass()">🗑️ 删除班级</div>
+        <div class="menu-item danger" onclick="deleteCurrentAssignment()">📚 删除作业</div>
+        <div class="menu-item danger" onclick="clearAllData()">💣 清除数据</div>
+        <div class="menu-item" onclick="exportData()">📤 导出数据</div>
+        <div class="menu-item" onclick="showRanking()">🏆 排行榜</div>
+        <div class="menu-item" onclick="showSuggestions()">💡 使用建议</div>
+    </div>
+</div>
+<div class="swipe-indicator swipe-prev">←</div>
+<div class="swipe-indicator swipe-next">→</div>
+
+
+<script>
+    const store = {
+        classes: [], // 班级列表结构：{ id, name, students: [], assignments: [] }
+        records: {}  // 状态记录结构：{ "班级ID|作业ID|学生ID": 状态 }
+    };
+
+    let current = {
+        classId: null,
+        assignmentId: null,
+        studentId: null
+    };
+    // 定义 currentMode 变量
+    let currentMode = 'register';
+
+    function initSampleData() {
+        if (store.classes.length === 0) {
+            store.classes.push({
+                id: "C-sample",
+                name: "示例班级",
+                students: Array.from({length: 55}, (_, i) => ({
+                    id: `S-sample-${i}`,
+                    name: `${i+1}号👨‍🎓`
+                })),
+                assignments: [{
+                    id: "A-sample",
+                    name: "示例作业",
+                    created: new Date().toISOString()
+                }]
+            });
+        }
+    }
+
+    function init() {
+        const savedData = localStorage.getItem('hwSystem');
+        if (savedData) {
+            try {
+                Object.assign(store, JSON.parse(savedData));
+                document.getElementById('assignment-select').addEventListener('change', function() {
+        document.getElementById('editAssignmentBtn').style.display = this.value ? 'block' : 'none';
+                });
+            } catch {
+                localStorage.removeItem('hwSystem');
+            }
+        }
+
+        initSampleData();
+        saveToLocal();
+
+        current.classId = store.classes[0]?.id;
+        current.assignmentId = store.classes[0]?.assignments[0]?.id;
+
+        renderClassSelect();
+        loadClass(current.classId);
+        initAssignmentSelect();
+        renderStudents();
+         addSwipeHandler();
+
+    }
+    // 添加滑动处理逻辑
+    function addSwipeHandler() {
+        const container = document.querySelector('.container');
+        const prevIndicator = document.querySelector('.swipe-prev');
+        const nextIndicator = document.querySelector('.swipe-next');
+        let touchStartX = 0;
+        const swipeThreshold = 50; // 滑动距离阈值
+        let isSwiping = false;
+
+        // 确保容器可触摸
+        container.style.touchAction = 'pan-y';
+
+        container.addEventListener('touchstart', e => {
+            if (e.touches.length !== 1) return; // 确保单指操作
+            touchStartX = e.touches[0].clientX;
+            isSwiping = true;
+        }, { passive: true });
+
+        container.addEventListener('touchmove', e => {
+            if (!isSwiping || e.touches.length !== 1) return;
+
+            const deltaX = e.touches[0].clientX - touchStartX;
+            const absDeltaX = Math.abs(deltaX);
+
+            if (absDeltaX > 30) {
+                // 添加滑动指示器动画
+                prevIndicator.style.transition = 'opacity 0.2s ease';
+                nextIndicator.style.transition = 'opacity 0.2s ease';
+                prevIndicator.style.opacity = deltaX > 0 ? '0.3' : '0';
+                nextIndicator.style.opacity = deltaX < 0 ? '0.3' : '0';
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchend', e => {
+            if (!isSwiping || e.changedTouches.length !== 1) return;
+            isSwiping = false;
+
+            // 重置指示器状态
+            prevIndicator.style.transition = 'opacity 0.3s ease';
+            nextIndicator.style.transition = 'opacity 0.3s ease';
+            prevIndicator.style.opacity = '0';
+            nextIndicator.style.opacity = '0';
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const deltaX = touchEndX - touchStartX;
+
+            // 增加滑动距离判断
+            if (Math.abs(deltaX) > swipeThreshold) {
+                if (deltaX > 0) {
+                    switchAssignment('prev');
+                } else {
+                    switchAssignment('next');
+                }
+            }
+        }, { passive: true });
+
+    }
+
+    // 作业切换核心逻辑
+    function switchAssignment(direction) {
+        if (!current.classId) return;
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        if (!cls || cls.assignments.length < 2) return;
+
+        const sortedAssignments = cls.assignments
+            .slice()
+            .sort((a, b) => new Date(b.created) - new Date(a.created));
+
+        const currentIndex = sortedAssignments.findIndex(a => a.id === current.assignmentId);
+        if (currentIndex === -1) return;
+
+        let newIndex = currentIndex;
+        if (direction === 'prev' && currentIndex > 0) {
+            newIndex--;
+        } else if (direction === 'next' && currentIndex < sortedAssignments.length - 1) {
+            newIndex++;
+        } else {
+            return;
+        }
+
+        // 添加切换动画
+        const grid = document.getElementById('student-grid');
+        grid.style.transition = 'opacity 0.3s ease';
+        grid.style.opacity = '0';
+
+        setTimeout(() => {
+            current.assignmentId = sortedAssignments[newIndex].id;
+            // 更新assignment-select
+            document.getElementById('assignment-select').value = current.assignmentId;
+            loadAssignment(current.assignmentId);
+            grid.style.opacity = '1';
+        }, 300);
+    }
+
+
+    // 保存到本地
+    function saveToLocal() {
+        localStorage.setItem('hwSystem', JSON.stringify(store));
+    }
+
+    // 班级操作
+    function handleCreateClass() {
+        const name = prompt('请输入班级名称：');
+        if (!name) return;
+
+        const newClass = {
+            id: `C${Date.now()}`,
+            name,
+            students: [],
+            assignments: []
+        };
+
+        store.classes.push(newClass);
+        saveToLocal();
+        renderClassSelect();
+        loadClass(newClass.id);
+        handleAddStudent();
+    }
+
+    //删除班级
+
+    function deleteCurrentClass() {
+        // 创建班级选择对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 80%;
+            max-width: 300px;
+        `;
+
+        // 构建选择列表
+        const select = document.createElement('select');
+        select.style.cssText = 'width: 100%; padding: 10px; margin: 10px 0;';
+        select.innerHTML = '<option value="">请选择要删除的班级</option>';
+        store.classes.forEach(cls => {
+            select.innerHTML += `<option value="${cls.id}">${cls.name}</option>`;
+        });
+
+        // 操作按钮容器
+        const btnGroup = document.createElement('div');
+        btnGroup.style.cssText = 'display: flex; gap: 10px; margin-top: 15px;';
+
+        // 确认按钮
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = '删除';
+        confirmBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 取消按钮
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '取消';
+        cancelBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: #ddd;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 组装对话框
+        dialog.innerHTML = '<h3 style="margin: 0 0 15px; text-align: center;">删除班级</h3>';
+        dialog.appendChild(select);
+        btnGroup.appendChild(cancelBtn);
+        btnGroup.appendChild(confirmBtn);
+        dialog.appendChild(btnGroup);
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        // 事件处理
+        cancelBtn.onclick = () => {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        };
+
+        confirmBtn.onclick = async () => {
+            if (!select.value) return alert('请先选择班级');
+
+            // 二次确认
+            const cls = store.classes.find(c => c.id === select.value);
+            if (!confirm(`确定要删除【${cls.name}】班级吗？此操作不可逆！`)) return;
+
+            // 删除关联记录
+            Object.keys(store.records).forEach(key => {
+                if (key.startsWith(select.value)) delete store.records[key];
+            });
+
+            // 删除班级
+            store.classes = store.classes.filter(c => c.id !== select.value);
+
+            // 清除当前选中状态
+            if (current.classId === select.value) {
+                current.classId = null;
+                current.assignmentId = null;
+            }
+
+            // 更新界面
+            saveToLocal();
+            renderClassSelect();
+            renderAssignmentSelect();
+            renderStudents();
+
+            // 关闭对话框
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+            alert(`班级【${cls.name}】已删除`);
+        };
+    }
+
+
+
+
+
+    // 作业操作
+
+    function handleCreateAssignment() {
+        if (!current.classId) return alert('请先选择班级');
+
+        // 生成默认作业名称（示例：3月16日作业）
+        const now = new Date();
+        const defaultName = `${now.getMonth() + 1}月${now.getDate()}日`;
+
+        // 使用带默认值的提示框
+        const name = prompt('请输入作业名称：', defaultName);
+        if (!name) return;
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        const newAssignment = {
+            id: `A${Date.now()}`,
+            name,
+            created: now.toISOString() // 使用已经创建的日期对象
+        };
+
+        cls.assignments.push(newAssignment);
+        saveToLocal();
+        current.assignmentId = newAssignment.id;
+        renderAssignmentSelect();
+        loadAssignment(newAssignment.id);
+    }
+
+    //删除作业
+
+
+    function deleteCurrentAssignment() {
+        // 检查当前是否选择了班级
+        if (!current.classId) return alert('请先选择班级');
+
+        // 创建作业选择对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 80%;
+            max-width: 300px;
+        `;
+
+        // 构建选择列表
+        const select = document.createElement('select');
+        select.style.cssText = 'width: 100%; padding: 10px; margin: 10px 0;';
+        select.innerHTML = '<option value="">请选择要删除的作业</option>';
+
+        const currentClass = store.classes.find(c => c.id === current.classId);
+        currentClass.assignments.forEach(assignment => {
+            select.innerHTML += `<option value="${assignment.id}">${assignment.name}</option>`;
+        });
+
+        // 操作按钮容器
+        const btnGroup = document.createElement('div');
+        btnGroup.style.cssText = 'display: flex; gap: 10px; margin-top: 15px;';
+
+        // 确认按钮
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = '删除';
+        confirmBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 取消按钮
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '取消';
+        cancelBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: #ddd;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 组装对话框
+        dialog.innerHTML = '<h3 style="margin: 0 0 15px; text-align: center;">删除作业</h3>';
+        dialog.appendChild(select);
+        btnGroup.appendChild(cancelBtn);
+        btnGroup.appendChild(confirmBtn);
+        dialog.appendChild(btnGroup);
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        // 事件处理
+        cancelBtn.onclick = () => {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        };
+
+        confirmBtn.onclick = async () => {
+            if (!select.value) return alert('请先选择作业');
+
+            const assignment = currentClass.assignments.find(a => a.id === select.value);
+            if (!confirm(`确定要删除【${assignment.name}】作业吗？此操作不可逆！`)) return;
+
+            // 删除关联记录
+            Object.keys(store.records).forEach(key => {
+                if (key.includes(select.value)) delete store.records[key];
+            });
+
+            // 删除作业
+            currentClass.assignments = currentClass.assignments.filter(a => a.id !== select.value);
+
+            // 清除当前选中状态
+            if (current.assignmentId === select.value) {
+                current.assignmentId = null;
+            }
+
+            // 更新界面
+            saveToLocal();
+            renderAssignmentSelect();
+            renderStudents();
+
+            // 关闭对话框
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+            alert(`作业【${assignment.name}】已删除`);
+        };
+    }
+
+
+
+
+
+
+    // 学生管理
+
+
+
+    function handleAddStudent() {
+        if (!current.classId) return alert('请先选择班级');
+
+        // 创建对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 80%;
+            max-width: 400px;
+        `;
+
+        // 创建文本域
+        const textarea = document.createElement('textarea');
+        textarea.style.cssText = `
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: vertical;
+        `;
+        textarea.placeholder = '请输入学生姓名，每个姓名一行\n示例：\n张三\n李 四\n王五';
+
+        // 创建按钮容器
+        const btnGroup = document.createElement('div');
+        btnGroup.style.cssText = 'display: flex; gap: 10px; margin-top: 15px;';
+
+        // 确认按钮
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = '确认添加';
+        confirmBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 取消按钮
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '取消';
+        cancelBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: #ddd;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 组装对话框
+        dialog.innerHTML = '<h3 style="margin: 0 0 15px; text-align: center;">添加学生</h3>';
+        dialog.appendChild(textarea);
+        btnGroup.appendChild(cancelBtn);
+        btnGroup.appendChild(confirmBtn);
+        dialog.appendChild(btnGroup);
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        // 事件处理
+        const cleanup = () => {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        };
+
+        cancelBtn.onclick = cleanup;
+
+        confirmBtn.onclick = () => {
+            const names = textarea.value.split('\n')
+                .map(name => name.trim())
+                .filter(name => name);
+
+            if (names.length === 0) {
+                alert('请输入至少一个学生姓名');
+                return;
+            }
+
+            const cls = store.classes.find(c => c.id === current.classId);
+            const startNumber = cls.students.length + 1;
+
+            names.forEach((name, index) => {
+                cls.students.push({
+                    id: `S${Date.now()}${startNumber + index}`,
+                    name: `${startNumber + index}${name}`
+                });
+            });
+
+            saveToLocal();
+            renderStudents();
+            cleanup();
+        };
+    }
+    // 修改导出数据函数，确保XLSX库已加载
+    function exportData() {
+        if (!current.classId) return alert('请先选择班级');
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        if (!cls) return;
+
+        // 检查XLSX库是否存在
+        if (!window.XLSX) {
+            return alert('导出功能依赖XLSX库，请确保已加载。');
+        }
+
+        // 创建数据表
+        const data = cls.students.map(student => {
+            const studentData = {
+                '学生姓名': student.name,
+                '总分': 0
+            };
+
+            cls.assignments.forEach(assignment => {
+                const statusKey = `${current.classId}|${assignment.id}|${student.id}`;
+                const status = store.records[statusKey] || 'not-submitted';
+                studentData[assignment.name] = getStatusText(status);
+
+                // 计算总分
+                if (status === 'need-correction') studentData['总分'] += 1;
+                else if (status === 'passed') studentData['总分'] += 2;
+                else if (status === 'full-mark') studentData['总分'] += 3;
+            });
+
+            return studentData;
+        });
+
+        // 创建XLS文件
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, cls.name);
+        XLSX.writeFile(wb, `${cls.name}_数据导出.xlsx`);
+    }
+
+    // 修改排行榜关闭逻辑
+    window.closeRanking = () => {
+        const dialog = document.querySelector('.ranking-dialog');
+        const overlay = document.querySelector('.ranking-overlay');
+        if (dialog && overlay) {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        }
+    };
+
+    // 修改排行榜显示函数，添加关闭事件
+    function showRanking() {
+        if (!current.classId) return alert('请先选择班级');
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        if (!cls) return;
+
+        // 计算每个学生的总分
+        const ranking = cls.students.map(student => {
+            let totalScore = 0;
+
+            cls.assignments.forEach(assignment => {
+                const statusKey = `${current.classId}|${assignment.id}|${student.id}`;
+                const status = store.records[statusKey] || 'not-submitted';
+
+                if (status === 'need-correction') totalScore += 1;
+                else if (status === 'passed') totalScore += 2;
+                else if (status === 'full-mark') totalScore += 3;
+            });
+
+            return {
+                name: student.name,
+                score: totalScore
+            };
+        }).sort((a, b) => b.score - a.score);
+
+        // 创建排行榜对话框
+        const dialog = document.createElement('div');
+        dialog.className = 'ranking-dialog';
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.className = 'ranking-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        // 添加点击关闭事件
+        overlay.onclick = closeRanking;
+
+        // 创建排行榜内容
+        dialog.innerHTML = `
+            <h3 style="margin: 0 0 15px; text-align: center; color: #333;">${cls.name} 排行榜</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                ${ranking.map((student, index) => `
+                    <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                        <div style="width: 30px; text-align: center; font-weight: bold; color: #666;">
+                            ${index + 1}
+                        </div>
+                        <div style="flex: 1; margin-left: 10px; color: #333;">
+                            ${student.name}
+                        </div>
+                        <div style="font-weight: bold; color: #007bff;">
+                            ${student.score} ⭐️
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="closeRanking()"
+                    style="margin-top: 15px; width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                关闭
+            </button>
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+    }
+
+    // 新增：排行榜功能
+    function showRanking() {
+        if (!current.classId) return alert('请先选择班级');
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        if (!cls) return;
+
+        // 计算每个学生的总分
+        const ranking = cls.students.map(student => {
+            let totalScore = 0;
+
+            cls.assignments.forEach(assignment => {
+                const statusKey = `${current.classId}|${assignment.id}|${student.id}`;
+                const status = store.records[statusKey] || 'not-submitted';
+
+                if (status === 'need-correction') totalScore += 1;
+                else if (status === 'passed') totalScore += 2;
+                else if (status === 'full-mark') totalScore += 3;
+            });
+
+            return {
+                name: student.name,
+                score: totalScore
+            };
+        }).sort((a, b) => b.score - a.score); // 按分数从高到低排序
+
+        // 创建排行榜对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        // 创建排行榜内容
+        dialog.innerHTML = `
+            <h3 style="margin: 0 0 15px; text-align: center; color: #333;">${cls.name} 排行榜</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                ${ranking.map((student, index) => `
+                    <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; align-items: center;">
+                        <div style="width: 30px; text-align: center; font-weight: bold; color: #666;">
+                            ${index + 1}
+                        </div>
+                        <div style="flex: 1; margin-left: 10px; color: #333;">
+                            ${student.name}
+                        </div>
+                        <div style="font-weight: bold; color: #007bff;">
+                            ${student.score} ⭐️
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="closeRanking()"
+                    style="margin-top: 15px; width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                关闭
+            </button>
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        // 点击遮罩层关闭排行榜
+        overlay.onclick = closeRanking;
+
+        // 全局关闭排行榜函数
+        window.closeRanking = () => {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        };
+    }
+
+    function handleDeleteStudent() {
+        if (!current.classId) return alert('请先选择班级');
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        if (!cls || cls.students.length === 0) return alert('当前班级没有学生');
+
+        // 创建对话框
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 80%;
+            max-width: 400px;
+        `;
+
+        // 创建多选框容器
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.style.cssText = 'max-height: 300px; overflow-y: auto; margin: 10px 0;';
+
+        // 添加学生复选框
+        cls.students.forEach(student => {
+            const label = document.createElement('label');
+            label.style.cssText = 'display: block; padding: 8px; border-bottom: 1px solid #eee;';
+            label.innerHTML = `
+                <input type="checkbox" value="${student.id}" style="margin-right: 8px;">
+                ${student.name}
+            `;
+            checkboxContainer.appendChild(label);
+        });
+
+        // 创建按钮容器
+        const btnGroup = document.createElement('div');
+        btnGroup.style.cssText = 'display: flex; gap: 10px; margin-top: 15px;';
+
+        // 确认按钮
+        const confirmBtn = document.createElement('button');
+        confirmBtn.textContent = '删除';
+        confirmBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 取消按钮
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = '取消';
+        cancelBtn.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: #ddd;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        `;
+
+        // 组装对话框
+        dialog.innerHTML = '<h3 style="margin: 0 0 15px; text-align: center;">删除学生</h3>';
+        dialog.appendChild(checkboxContainer);
+        btnGroup.appendChild(cancelBtn);
+        btnGroup.appendChild(confirmBtn);
+        dialog.appendChild(btnGroup);
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        // 事件处理
+        cancelBtn.onclick = () => {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        };
+
+        confirmBtn.onclick = () => {
+            const selectedStudents = Array.from(checkboxContainer.querySelectorAll('input:checked'))
+                .map(input => input.value);
+
+            if (selectedStudents.length === 0) {
+                alert('请选择要删除的学生');
+                return;
+            }
+
+            if (!confirm(`确定要删除${selectedStudents.length}名学生吗？此操作不可逆！`)) return;
+
+            // 删除学生
+            cls.students = cls.students.filter(student => !selectedStudents.includes(student.id));
+
+            // 删除关联记录
+            Object.keys(store.records).forEach(key => {
+                if (selectedStudents.some(studentId => key.endsWith(studentId))) {
+                    delete store.records[key];
+                }
+            });
+
+            saveToLocal();
+            renderStudents();
+
+            // 关闭对话框
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+            alert('学生删除成功');
+        };
+    }
+
+    // 状态管理
+    function changeStatus(status) {
+        const key = `${current.classId}|${current.assignmentId}|${current.studentId}`;
+        store.records[key] = status;
+        saveToLocal();
+        closeStatusModal();
+        renderStudents();
+    }
+
+    // 界面交互
+    function toggleFabMenu() {
+        document.getElementById('fabMenu').classList.toggle('show');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.setting-fab')) {
+            document.getElementById('fabMenu').classList.remove('show');
+        }
+    });
+
+    function handleModalClick(event) {
+        if (event.target === document.getElementById('status-modal')) {
+            closeStatusModal();
+        }
+    }
+
+    function closeStatusModal() {
+        document.getElementById('status-modal').style.display = 'none';
+    }
+
+    function clearAllData() {
+        if (confirm('确定要清除所有数据吗？此操作不可逆！')) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // 渲染逻辑
+    function renderClassSelect() {
+        const select = document.getElementById('class-select');
+        select.innerHTML = '<option value="">选择班级</option>';
+        store.classes.forEach(c => {
+            const selected = c.id === current.classId ? 'selected' : '';
+            select.innerHTML += `<option value="${c.id}" ${selected}>${c.name}</option>`;
+        });
+    }
+
+
+
+
+
+    function renderAssignmentSelect() {
+        const select = document.getElementById('assignment-select');
+        select.innerHTML = '<option value="">选择作业</option>';
+
+        if (current.classId) {
+            const cls = store.classes.find(c => c.id === current.classId);
+            // 添加排序逻辑
+            cls?.assignments
+                .slice() // 创建副本避免修改原数组
+                .sort((a, b) => new Date(b.created) - new Date(a.created)) // 按创建时间倒序
+                .forEach(a => {
+                    const selected = a.id === current.assignmentId ? 'selected' : '';
+                    select.innerHTML += `<option value="${a.id}" ${selected}>${a.name}</option>`;
+                });
+        }
+    }
+
+
+    function loadClass(classId) {
+        current.classId = classId || document.getElementById('class-select').value;
+        current.assignmentId = null;
+        initAssignmentSelect();
+        renderStudents();
+    }
+
+    function loadAssignment(assignmentId) {
+        current.assignmentId = assignmentId || document.getElementById('assignment-select').value;
+        renderStudents();
+    }
+
+    function initAssignmentSelect() {
+        renderAssignmentSelect();
+        if (current.classId) {
+            const cls = store.classes.find(c => c.id === current.classId);
+            if (cls?.assignments?.length > 0) {
+                current.assignmentId = cls.assignments[0].id;
+                document.getElementById('assignment-select').value = current.assignmentId;
+            }
+        }
+    }
+//点击学生卡片函数
+    function renderStudents() {
+        const grid = document.getElementById('student-grid');
+        grid.innerHTML = '';
+
+        if (!current.classId || !current.assignmentId) {
+            grid.innerHTML = '<div class="notice">请先选择班级和作业</div>';
+            return;
+        }
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        const assignment = cls?.assignments?.find(a => a.id === current.assignmentId);
+
+        if (!cls || !assignment) {
+            grid.innerHTML = '<div class="notice">数据异常，请刷新页面</div>';
+            return;
+        }
+
+        cls.students.forEach(student => {
+            let statusText = '';
+            let status = 'not-submitted'; // 默认状态
+
+            if (currentMode === 'check') {
+                // 计算学生所有作业未过关的数量
+                let notSubmittedCount = 0;
+                cls.assignments.forEach(assignment => {
+                    const statusKey = `${current.classId}|${assignment.id}|${student.id}`;
+                    const currentStatus = store.records[statusKey] || 'not-submitted';
+                    if (currentStatus === 'not-submitted') {
+                        notSubmittedCount++;
+                    }
+                });
+
+                // 只在未过关数量大于0时显示学生卡片
+                if (notSubmittedCount === 0) return;
+
+                statusText = notSubmittedCount > 0 ? `<span style="color: red; font-weight: bold;">${notSubmittedCount}</span> 💣` : '全部通过';
+
+            } else {
+                const statusKey = `${current.classId}|${current.assignmentId}|${student.id}`;
+                status = store.records[statusKey] || 'not-submitted';
+                statusText = getStatusText(status);
+            }
+
+            const div = document.createElement('div');
+            div.className = `student-item ${currentMode === 'check' ? 'white' : status}`;
+            div.innerHTML = `
+                <div class="student-name">${student.name}</div>
+                <div class="status-indicator">${statusText}</div>
+            `;
+
+            div.onclick = () => {
+                current.studentId = student.id;
+                if (currentMode === 'check') {
+                    showUnpassedAssignments(student);
+                } else {
+                    document.getElementById('status-modal').style.display = 'flex';
+                    document.getElementById('student-name').textContent = student.name; // 设置学生姓名
+                    document.getElementById('assignment-name').textContent = assignment.name; // 设置作业名称
+                }
+            };
+            grid.appendChild(div);
+        });
+    }
+
+    function changeAssignmentStatus(assignmentId, status) {
+        const key = `${current.classId}|${assignmentId}|${current.studentId}`;
+        store.records[key] = status;
+        saveToLocal();
+        closeUnpassedAssignments(); // 关闭未过关作业弹窗
+        renderStudents(); // 同步渲染学生卡片
+    }
+
+    function showUnpassedAssignments(student) {
+        const dialog = document.createElement('div');
+        dialog.className = 'unpassed-assignments-dialog';
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'unpassed-assignments-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        const cls = store.classes.find(c => c.id === current.classId);
+        const unpassedAssignments = cls.assignments.filter(assignment => {
+            const statusKey = `${current.classId}|${assignment.id}|${student.id}`;
+            const status = store.records[statusKey] || 'not-submitted';
+            return status === 'not-submitted';
+        });
+
+        dialog.innerHTML = `
+            <h3 style="margin: 0 0 15px; text-align: center; color: #333;">${student.name} 未过关作业</h3>
+            <div id="unpassed-assignments" style="max-height: 300px; overflow-y: auto;">
+                ${unpassedAssignments.length > 0 ? unpassedAssignments.map(assignment => `
+                    <div class="assignment-item" data-assignment-id="${assignment.id}">
+                        <div style="flex: 1; margin-left: 10px; color: #333;">
+                            ${assignment.name}
+                        </div>
+                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                            <button onclick="changeAssignmentStatus('${assignment.id}', 'need-correction')" style="padding: 5px 10px; background: #98FB98; color: white; border: none; border-radius: 4px; cursor: pointer;">合格</button>
+                            <button onclick="changeAssignmentStatus('${assignment.id}', 'passed')" style="padding: 5px 10px; background: #3399ff; color: white; border: none; border-radius: 4px; cursor: pointer;">良好</button>
+                            <button onclick="changeAssignmentStatus('${assignment.id}', 'full-mark')" style="padding: 5px 10px; background: #FF1493; color: white; border: none; border-radius: 4px; cursor: pointer;">优秀</button>
+                        </div>
+                    </div>
+                `).join('') : '<div style="text-align: center; color: #666;">暂无未过关作业</div>'}
+            </div>
+            <button onclick="closeUnpassedAssignments()"
+                    style="margin-top: 15px; width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                关闭
+            </button>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        overlay.onclick = closeUnpassedAssignments;
+
+        addSwipeHandlerToAssignments();
+    }
+
+    function closeUnpassedAssignments() {
+        const dialog = document.querySelector('.unpassed-assignments-dialog'); // 使用正确的类名查找
+        const overlay = document.querySelector('.unpassed-assignments-overlay'); // 使用正确的类名查找
+        if (dialog && overlay) {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        }
+    }
+
+    function addSwipeHandlerToAssignments() {
+        const container = document.getElementById('unpassed-assignments');
+        let touchStartX = 0;
+        const swipeThreshold = 50; // 滑动距离阈值
+        let isSwiping = false;
+
+        container.addEventListener('touchstart', e => {
+            if (e.touches.length !== 1) return; // 确保单指操作
+            touchStartX = e.touches[0].clientX;
+            isSwiping = true;
+        }, { passive: true });
+
+        container.addEventListener('touchmove', e => {
+            if (!isSwiping || e.touches.length !== 1) return;
+
+            const deltaX = e.touches[0].clientX - touchStartX;
+            const absDeltaX = Math.abs(deltaX);
+
+            if (absDeltaX > 30) {
+                // 添加滑动指示器动画
+                const swipeIndicators = container.querySelectorAll('.swipe-indicator');
+                swipeIndicators.forEach(indicator => {
+                    indicator.style.transition = 'opacity 0.2s ease';
+                    indicator.style.opacity = deltaX < 0 ? '0.3' : '0';
+                });
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchend', e => {
+            if (!isSwiping || e.changedTouches.length !== 1) return;
+            isSwiping = false;
+
+            // 重置指示器状态
+            const swipeIndicators = container.querySelectorAll('.swipe-indicator');
+            swipeIndicators.forEach(indicator => {
+                indicator.style.transition = 'opacity 0.3s ease';
+                indicator.style.opacity = '0';
+            });
+
+            const touchEndX = e.changedTouches[0].clientX;
+            const deltaX = touchEndX - touchStartX;
+
+            // 增加滑动距离判断
+            if (Math.abs(deltaX) > swipeThreshold) {
+                if (deltaX < 0) {
+                    const target = e.target.closest('.assignment-item');
+                    if (target) {
+                        const assignmentId = target.getAttribute('data-assignment-id');
+                        changeAssignmentStatus(assignmentId, 'need-correction');
+                    }
+                }
+            }
+        }, { passive: true });
+    }
+
+    // 添加辅助函数来确定状态的优先级
+    function getStatusPriority(status) {
+        return {
+            'not-submitted': 1,
+            'need-correction': 2,
+            'passed': 3,
+            'full-mark': 4
+        }[status] || 0;
+    }
+
+    function getStatusText(status) {
+        return {
+            'not-submitted': '未过关',
+            'need-correction': '⭐',
+            'passed': '⭐️⭐️',
+            'full-mark': '⭐️⭐️⭐️'
+        }[status] || '';
+    }
+
+
+
+    function toggleMode() {
+        currentMode = currentMode === 'register' ? 'check' : 'register';
+        document.querySelector('.mode-toggle-btn').textContent = currentMode === 'register' ? '💣' : '🔙';
+
+        // 控制按钮显示清单
+        document.getElementById('listBtn').style.display = currentMode === 'check' ? 'block' : 'none';
+
+        // 获取选择器组和文本显示元素
+        const selectorGroups = document.querySelectorAll('.selector-group');
+        const checkModeText = document.getElementById('check-mode-text');
+
+        if (currentMode === 'check') {
+            // 隐藏选择器组，显示文本
+            selectorGroups.forEach(group => group.style.display = 'none');
+            if (!checkModeText) {
+                const textElement = document.createElement('div');
+                textElement.id = 'check-mode-text';
+                textElement.style.flex = '1';
+                textElement.style.textAlign = 'center';
+                textElement.style.fontWeight = 'bold';
+                textElement.textContent = '消灭炸弹🔥→💣→🎇';
+                document.querySelector('.top-bar').appendChild(textElement);
+            } else {
+                checkModeText.style.display = 'block';
+            }
+        } else {
+            // 显示选择器组，隐藏文本
+            selectorGroups.forEach(group => group.style.display = 'block');
+            if (checkModeText) {
+                checkModeText.style.display = 'none';
+            }
+        }
+
+        renderStudents();
+    }
+ // 新增：显示使用建议的富文本弹窗
+    function showSuggestions() {
+        const dialog = document.createElement('div');
+        dialog.className = 'suggestions-dialog';
+        dialog.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            width: 85%;
+            max-width: 500px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'suggestions-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        `;
+
+        dialog.innerHTML = `
+            <h3 style="margin: 0 0 15px; text-align: center; color: #333;">使用建议</h3>
+            <div style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                <p><strong>1. 班级管理</strong></p>
+                <ul>
+                    <li>新建班级后，请及时添加学生信息</li>
+                    <li>删除班级会同时删除所有相关数据</li>
+                </ul>
+
+                <p><strong>2. 作业管理</strong></p>
+                <ul>
+                    <li>＋号添加作业，建议使用日期+内容命名</li>
+                    <li>删除作业会同时删除所有相关记录</li>
+                </ul>
+
+                <p><strong>3. 学生管理</strong></p>
+                <ul>
+                    <li>支持批量添加学生，每个学生一行</li>
+                    <li>删除学生时会同步删除相关记录</li>
+                </ul>
+
+                <p><strong>4. 状态管理</strong></p>
+                <ul>
+                    <li>点击学生卡片可修改作业状态</li>
+                    <li>支持左右滑动切换作业</li>
+                </ul>
+                <p><strong>5.排雷模式 </strong></p>
+                <ul>
+                    <li>点击🔍切换到排雷模式，点📝图标能返回</li>
+                    <li>显示数字表示作业欠账，点击可快速切换状态</li>
+                </ul>
+                <p><strong>6.使用环境 </strong></p>
+                <ul>
+                    <li>数据储存在本地，不支持跨设备同步</li>
+                    <li>使用同一个浏览器即可</li>
+                </ul>
+            </div>
+            <button onclick="closeSuggestions()"
+                    style="margin-top: 15px; width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                关闭
+            </button>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(dialog);
+
+        overlay.onclick = closeSuggestions;
+    }
+
+    // 新增：关闭使用建议弹窗
+    function closeSuggestions() {
+        const dialog = document.querySelector('.suggestions-dialog');
+        const overlay = document.querySelector('.suggestions-overlay');
+        if (dialog && overlay) {
+            document.body.removeChild(dialog);
+            document.body.removeChild(overlay);
+        }
+    }
+
+    // 显示/隐藏编辑按钮
+document.getElementById('assignment-select').addEventListener('change', function() {
+    const editBtn = document.getElementById('editAssignmentBtn');
+    editBtn.style.display = this.value ? 'block' : 'none';
+});
+
+// 修改作业名称功能
+function handleEditAssignment() {
+    if (!current.classId || !current.assignmentId) return;
+
+    const cls = store.classes.find(c => c.id === current.classId);
+    const assignment = cls.assignments.find(a => a.id === current.assignmentId);
+
+    const newName = prompt('请输入新的作业名称：', assignment.name);
+    if (!newName || newName === assignment.name) return;
+
+    // 更新作业名称
+    assignment.name = newName;
+
+    // 更新所有相关记录
+    Object.keys(store.records).forEach(key => {
+        if (key.includes(current.assignmentId)) {
+            const newKey = key.replace(current.assignmentId, assignment.id);
+            store.records[newKey] = store.records[key];
+            delete store.records[key];
+        }
+    });
+
+    saveToLocal();
+    renderAssignmentSelect();
+    loadAssignment(current.assignmentId);
+    renderStudents();
+}
+
+// 新增：显示未过关清单功能
+function showUnpassedList() {
+    if (!current.classId) return alert('请先选择班级');
+
+    const cls = store.classes.find(c => c.id === current.classId);
+    if (!cls) return;
+
+    // 创建对话框
+    const dialog = document.createElement('div');
+    dialog.className = 'unpassed-list-dialog';
+    dialog.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 16px;
+        width: 85%;
+        max-width: 500px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    `;
+
+    // 创建遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'unpassed-list-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 999;
+    `;
+
+    // 生成清单内容
+    const listContent = cls.students
+        .map(student => {
+            const unpassed = cls.assignments.filter(a => {
+                const key = `${current.classId}|${a.id}|${student.id}`;
+                return (store.records[key] || 'not-submitted') === 'not-submitted';
+            });
+
+            return unpassed.length > 0 ? `
+                <div class="student-entry" style="padding: 10px; border-bottom: 1px solid #eee;">
+                    <div style="font-weight: 500; color: #333;">${student.name}</div>
+                    <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                        ${unpassed.map(a => `◾️${a.name}`).join(' ')}
+                    </div>
+                </div>
+            ` : null;
+        })
+        .filter(Boolean)
+        .join('');
+
+    dialog.innerHTML = `
+        <h3 style="margin:0 0 15px; text-align:center; color: #333;">未过关作业清单</h3>
+        <div style="max-height: 400px; overflow-y: auto;">
+            ${listContent || '<div style="text-align:center; color:#666; padding:20px;">🎉 所有学生均已完成作业！</div>'}
+        </div>
+        ${listContent ? `
+            <button onclick="copyListContent()"
+                    style="margin-top:15px; width:100%; padding:10px;
+                           background: var(--primary); color:white; border:none;
+                           border-radius:8px; cursor:pointer;">
+                一键复制
+            </button>
+        ` : ''}
+        <button onclick="closeUnpassedList()"
+                style="margin-top:10px; width:100%; padding:10px;
+                       background: #ddd; border:none;
+                       border-radius:8px; cursor:pointer;">
+            关闭
+        </button>
+    `;
+
+    // 添加到页面
+    document.body.appendChild(overlay);
+    document.body.appendChild(dialog);
+
+    // 点击遮罩层关闭
+    overlay.onclick = closeUnpassedList;
+}
+
+// 新增：关闭清单功能
+function closeUnpassedList() {
+    const dialog = document.querySelector('.unpassed-list-dialog');
+    const overlay = document.querySelector('.unpassed-list-overlay');
+    if (dialog && overlay) {
+        document.body.removeChild(dialog);
+        document.body.removeChild(overlay);
+    }
+}
+
+// 新增：复制清单内容
+function copyListContent() {
+    const entries = Array.from(document.querySelectorAll('.student-entry'));
+    if (entries.length === 0) {
+        alert("没有需要复制的未过关记录");
+        return;
+    }
+
+    const text = entries.map(entry => {
+        const name = entry.querySelector('div:first-child').textContent;
+        const assignments = entry.querySelector('div:last-child').textContent
+            .replace(/\s+/g, ' ')   // 合并连续空格
+            .replace(/◾️ /g, '◾️'); // 移除项目符号后的空格
+
+        return `${name}：\n${assignments}`; // 学生姓名和作业内容换行
+    }).join('\n\n');  // 两个换行符创建空行间隔
+
+    navigator.clipboard.writeText(text)
+        .then(() => alert("已复制到剪贴板"))
+        .catch(() => alert("复制失败，请手动选择内容"));
+}
+
+
+    // 初始化
+    init();
+</script>
+</body>
+</html>
