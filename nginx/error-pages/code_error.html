@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeServer 链路中断</title>
+    <style>
+        :root {
+            --term-green: #4ade80;
+            --term-bg: #0f172a;
+        }
+        body {
+            background-color: var(--term-bg);
+            color: var(--term-green);
+            font-family: 'Fira Code', 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: left;
+            border-left: 2px solid var(--term-green);
+            padding-left: 20px;
+            max-width: 600px;
+        }
+        .glitch {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+        .code {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.2rem;
+            background: var(--term-green);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        a {
+            color: var(--term-bg);
+            background: var(--term-green);
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        a:hover {
+            opacity: 0.8;
+            box-shadow: 0 0 15px var(--term-green);
+        }
+        .shrimp-tail {
+            font-size: 0.8rem;
+            margin-top: 3rem;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glitch">ERROR: TRANSMISSION_FAILURE_1006</div>
+        <div class="code">
+            > system.connection.status = "LOST"<br>
+            > proxy_handshake: failed_to_stabilize<br>
+            > reason: CodeServer backend is currently unreachable...<br>
+            <span class="cursor"></span>
+        </div>
+        <div>
+            <a href="/">⚡ 尝试重连或返回根目录</a>
+        </div>
+        <div class="shrimp-tail">
+            -- 由 虾卫士(ShrimpGuard) 安保系统监控维护 --
+        </div>
+    </div>
+</body>
+</html>

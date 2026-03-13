@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V2rayA — 连接中断</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #080c10;
+            color: #c9d1d9;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        /* 全球网络连线背景 */
+        canvas {
+            position: fixed;
+            inset: 0;
+            opacity: 0.3;
+        }
+        .card {
+            position: relative;
+            z-index: 10;
+            max-width: 540px;
+            width: 90%;
+            background: rgba(13,17,23,0.85);
+            border: 1px solid rgba(34,211,238,0.15);
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(34,211,238,0.05), inset 0 0 40px rgba(0,0,0,0.3);
+        }
+        .top-bar {
+            background: rgba(34,211,238,0.05);
+            border-bottom: 1px solid rgba(34,211,238,0.1);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            color: #22d3ee;
+        }
+        .top-bar-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            box-shadow: 0 0 6px #ef4444;
+        }
+        .main-content {
+            padding: 32px 28px;
+        }
+        .logo-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .v2-icon {
+            width: 48px; height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 20px rgba(34,211,238,0.3);
+        }
+        .v2-name { font-size: 1.4rem; font-weight: 700; color: #f0f9ff; }
+        .v2-sub { font-size: 0.72rem; color: #22d3ee; letter-spacing: 2px; }
+        /* 路由表样式 */
+        .route-table {
+            border: 1px solid rgba(34,211,238,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .route-header {
+            background: rgba(34,211,238,0.05);
+            padding: 8px 14px;
+            font-size: 0.68rem;
+            color: #22d3ee;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(34,211,238,0.1);
+        }
+        .route-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            padding: 10px 14px;
+            font-size: 0.78rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            gap: 8px;
+        }
+        .route-row:last-child { border-bottom: none; }
+        .route-name { color: #94a3b8; }
+        .route-port { color: #22d3ee; }
+        .status-ok { color: #10b981; }
+        .status-err {
+            color: #ef4444;
+            animation: blink-err 1.5s infinite;
+        }
+        @keyframes blink-err {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .alert-box {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 24px;
+        }
+        .alert-title {
+            color: #f87171;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .alert-msg {
+            color: #94a3b8;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            font-family: system-ui, sans-serif;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            font-family: system-ui, sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+            color: #080c10;
+        }
+        .btn-primary:hover { box-shadow: 0 4px 20px rgba(34,211,238,0.4); transform: translateY(-1px); }
+        .btn-secondary {
+            background: rgba(34,211,238,0.08);
+            border: 1px solid rgba(34,211,238,0.2);
+            color: #22d3ee;
+        }
+        .btn-secondary:hover { background: rgba(34,211,238,0.15); }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.65rem;
+            color: #1e293b;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="net"></canvas>
+    <div class="card">
+        <div class="top-bar">
+            <div class="top-bar-dot"></div>
+            V2RAYA DASHBOARD · TUNNEL ERROR
+        </div>
+        <div class="main-content">
+            <div class="logo-row">
+                <div class="v2-icon">🌐</div>
+                <div>
+                    <div class="v2-name">V2rayA</div>
+                    <div class="v2-sub">WEB PROXY MANAGER</div>
+                </div>
+            </div>
+            <div class="route-table">
+                <div class="route-header">PROXY ROUTING TABLE</div>
+                <div class="route-row">
+                    <span class="route-name">v2rayA WebUI</span>
+                    <span class="route-port">WebUI</span>
+                    <span class="status-err">✗ DOWN</span>
+                </div>
+                <div class="route-row">
+                    <span class="route-name">Backend Core</span>
+                    <span class="route-port">Core</span>
+                    <span class="status-err">✗ UNREACHABLE</span>
+                </div>
+                <div class="route-row">
+                    <span class="route-name">Nginx Proxy</span>
+                    <span class="route-port">Proxy</span>
+                    <span class="status-ok">✓ RUNNING</span>
+                </div>
+            </div>
+            <div class="alert-box">
+                <div class="alert-title">⚠ TUNNEL FAILURE</div>
+                <div class="alert-msg">V2rayA 控制面板后端服务（:2017）无法建立连接。代理隧道可能已中断，请检查 v2raya 服务状态或重启后端。</div>
+            </div>
+            <div class="btn-row">
+                <a href="/" class="btn btn-primary">↩ 返回主页</a>
+                <a href="javascript:location.reload()" class="btn btn-secondary">⟳ 刷新重试</a>
+            </div>
+        </div>
+        <div class="footer">— 由 虾卫士(ShrimpGuard) 安保系统监控维护 —</div>
+    </div>
+    <script>
+        // 网络节点动画背景
+        const canvas = document.getElementById('net');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const nodes = Array.from({length: 40}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: (Math.random() - 0.5) * 0.4,
+        }));
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            nodes.forEach(n => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+            });
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i+1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(34,211,238,${0.4 * (1 - d/120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.stroke();
+                    }
+                }
+                ctx.beginPath();
+                ctx.arc(nodes[i].x, nodes[i].y, 2, 0, Math.PI*2);
+                ctx.fillStyle = '#22d3ee';
+                ctx.fill();
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票历史数据 — 服务中断</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #060d0d;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        canvas {
+            position: fixed;
+            inset: 0;
+        }
+        .card {
+            position: relative;
+            z-index: 10;
+            max-width: 540px;
+            width: 92%;
+            background: rgba(6,13,13,0.9);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 14px;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(16,185,129,0.06);
+        }
+        .top-ticker {
+            background: #000;
+            border-bottom: 1px solid #111;
+            padding: 6px 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-track {
+            display: inline-block;
+            animation: ticker 20s linear infinite;
+        }
+        .ticker-item {
+            display: inline-block;
+            margin: 0 24px;
+            font-size: 0.72rem;
+            font-family: 'Courier New', monospace;
+        }
+        .up { color: #10b981; }
+        .down { color: #ef4444; }
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .main {
+            padding: 28px 28px 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .stock-icon {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+        .stock-name { font-size: 1.1rem; font-weight: 700; color: #f0fdf4; }
+        .stock-sub { font-size: 0.7rem; color: #6b7280; margin-top: 2px; }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.72rem;
+            color: #f87171;
+            font-weight: 600;
+        }
+        .blink { animation: blink 1.2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        /* 模拟迷你K线图 */
+        .mini-chart {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .chart-label {
+            font-size: 0.65rem;
+            color: #4b5563;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .kline-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 60px;
+        }
+        .kline-bar {
+            flex: 1;
+            border-radius: 2px 2px 0 0;
+            position: relative;
+            min-width: 8px;
+        }
+        .k-up { background: #10b981; }
+        .k-down { background: #ef4444; }
+        .k-err {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(239,68,68,0.15),
+                rgba(239,68,68,0.15) 3px,
+                transparent 3px,
+                transparent 7px
+            );
+            border: 1px dashed rgba(239,68,68,0.3);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        .chart-error-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6,13,13,0.6);
+            border-radius: 8px;
+        }
+        .chart-error-text {
+            font-size: 0.72rem;
+            color: #ef4444;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        /* 数据指标 */
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .metric {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .metric-label { font-size: 0.62rem; color: #4b5563; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+        .metric-value { font-size: 0.9rem; font-family: 'Courier New', monospace; font-weight: 700; }
+        .metric-value.err { color: #ef4444; font-size: 0.75rem; }
+        .error-msg {
+            background: rgba(239,68,68,0.06);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .error-msg strong { color: #f87171; }
+        .btn-row { display: flex; gap: 10px; }
+        .btn {
+            flex: 1;
+            padding: 10px 0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.2);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(16,185,129,0.35); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #94a3b8;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.07); }
+        .footer { text-align: center; margin-top: 18px; font-size: 0.65rem; color: #1a2626; }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div class="card">
+        <!-- 滚动行情栏 -->
+        <div class="top-ticker">
+            <div class="ticker-track">
+                <span class="ticker-item up">沪深300 ▲ 3,921.55 +1.23%</span>
+                <span class="ticker-item down">上证指数 ▼ 3,285.10 -0.45%</span>
+                <span class="ticker-item up">深证成指 ▲ 10,421.88 +0.78%</span>
+                <span class="ticker-item up">创业板 ▲ 2,087.33 +1.56%</span>
+                <span class="ticker-item down">恒生指数 ▼ 19,623.40 -0.32%</span>
+                <span class="ticker-item up">标普500 ▲ 5,123.69 +0.61%</span>
+                <!-- 重复以滚动 -->
+                <span class="ticker-item up">沪深300 ▲ 3,921.55 +1.23%</span>
+                <span class="ticker-item down">上证指数 ▼ 3,285.10 -0.45%</span>
+                <span class="ticker-item up">深证成指 ▲ 10,421.88 +0.78%</span>
+                <span class="ticker-item up">创业板 ▲ 2,087.33 +1.56%</span>
+                <span class="ticker-item down">恒生指数 ▼ 19,623.40 -0.32%</span>
+                <span class="ticker-item up">标普500 ▲ 5,123.69 +0.61%</span>
+            </div>
+        </div>
+        <div class="main">
+            <div class="header">
+                <div class="logo-area">
+                    <div class="stock-icon">📈</div>
+                    <div>
+                        <div class="stock-name">股票历史数据</div>
+                        <div class="stock-sub">Stock History · SSL</div>
+                    </div>
+                </div>
+                <div class="status-pill">
+                    <span class="blink">●</span> 数据中断
+                </div>
+            </div>
+            <!-- K线图区域 -->
+            <div class="mini-chart">
+                <div class="chart-label">K线图 · 历史数据加载失败</div>
+                <div class="kline-row">
+                    <div class="kline-bar k-down" style="height:55%"></div>
+                    <div class="kline-bar k-up" style="height:70%"></div>
+                    <div class="kline-bar k-up" style="height:80%"></div>
+                    <div class="kline-bar k-down" style="height:65%"></div>
+                    <div class="kline-bar k-up" style="height:90%"></div>
+                    <div class="kline-bar k-up" style="height:75%"></div>
+                    <div class="kline-bar k-down" style="height:50%"></div>
+                    <div class="kline-bar k-err" style="height:60%"></div>
+                    <div class="kline-bar k-err" style="height:60%"></div>
+                    <div class="kline-bar k-err" style="height:60%"></div>
+                    <div class="kline-bar k-err" style="height:60%"></div>
+                </div>
+                <div class="chart-error-overlay">
+                    <div class="chart-error-text">⚠ DATA_FEED_INTERRUPTED</div>
+                </div>
+            </div>
+            <!-- 数据指标 -->
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">Service</div>
+                    <div class="metric-value" style="color:#10b981">Stock</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Mode</div>
+                    <div class="metric-value" style="color:#10b981">SSL</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Status</div>
+                    <div class="metric-value err">5xx ERR</div>
+                </div>
+            </div>
+            <div class="error-msg">
+                <strong>数据源连接失败：</strong>股票历史数据服务后端暂时无法响应，历史 K 线及行情数据无法加载。服务可能正在重启，请稍后再试。
+            </div>
+            <div class="btn-row">
+                <a href="javascript:location.reload()" class="btn btn-primary">⟳ 刷新重试</a>
+                <a href="/" class="btn btn-secondary">↩ 返回首页</a>
+            </div>
+            <div class="footer">— 由 虾卫士(ShrimpGuard) 安保系统监控维护 —</div>
+        </div>
+    </div>
+    <script>
+        // 动态涨跌走势背景
+        const canvas = document.getElementById('bg');
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resize();
+        window.addEventListener('resize', resize);
+        const lines = Array.from({length: 3}, (_, i) => {
+            const isUp = i % 2 === 0;
+            return {
+                points: Array.from({length: 60}, (_, j) => ({
+                    x: (j / 59) * window.innerWidth,
+                    y: window.innerHeight * (0.3 + i * 0.2) + (Math.random() - 0.5) * 60
+                })),
+                color: isUp ? '#10b981' : '#ef4444',
+                alpha: 0.06 + i * 0.02
+            };
+        });
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            lines.forEach(line => {
+                // 微微移动
+                line.points.forEach(p => { p.y += (Math.random() - 0.5) * 0.5; });
+                ctx.beginPath();
+                ctx.moveTo(line.points[0].x, line.points[0].y);
+                line.points.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.strokeStyle = line.color;
+                ctx.globalAlpha = line.alpha;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+    </script>
+</body>
+</html>

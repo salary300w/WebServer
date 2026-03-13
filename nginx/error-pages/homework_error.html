@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业管理系统 — 服务中断</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #f0f4ff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        /* 漂浮的学习元素 */
+        .float-item {
+            position: fixed;
+            font-size: 1.8rem;
+            opacity: 0.08;
+            animation: float-around linear infinite;
+            user-select: none;
+        }
+        @keyframes float-around {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-120px) rotate(360deg); }
+        }
+        .card {
+            position: relative;
+            z-index: 10;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(99,102,241,0.12);
+            max-width: 480px;
+            width: 90%;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            padding: 28px 32px 24px;
+            color: white;
+        }
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .hw-icon {
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+        .hw-title { font-size: 1.2rem; font-weight: 700; }
+        .hw-sub { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+        /* 模拟作业列表 */
+        .task-list {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
+            font-size: 0.78rem;
+            opacity: 0.7;
+        }
+        .task-check {
+            width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .task-check.done {
+            background: rgba(255,255,255,0.4);
+            border-color: transparent;
+        }
+        .card-body {
+            padding: 28px 32px;
+        }
+        .error-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #ef4444;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .error-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        h2 { font-size: 1.35rem; font-weight: 700; color: #1e1b4b; margin-bottom: 10px; }
+        p { font-size: 0.9rem; color: #6b7280; line-height: 1.7; margin-bottom: 24px; }
+        .deadline-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .deadline-icon { font-size: 1.3rem; }
+        .deadline-text { font-size: 0.82rem; color: #92400e; line-height: 1.5; }
+        .btn-row { display: flex; gap: 10px; }
+        .btn {
+            flex: 1;
+            padding: 11px 0;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            box-shadow: 0 4px 14px rgba(99,102,241,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.68rem;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <!-- 漂浮学习元素 -->
+    <div class="float-item" style="left:5%; animation-duration:14s; animation-delay:0s;">📚</div>
+    <div class="float-item" style="left:20%; animation-duration:18s; animation-delay:-6s;">✏️</div>
+    <div class="float-item" style="left:45%; animation-duration:12s; animation-delay:-3s;">📝</div>
+    <div class="float-item" style="left:65%; animation-duration:16s; animation-delay:-9s;">📐</div>
+    <div class="float-item" style="left:80%; animation-duration:20s; animation-delay:-2s;">🎓</div>
+    <div class="float-item" style="left:90%; animation-duration:11s; animation-delay:-7s;">📖</div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="header-top">
+                <div class="hw-icon">📋</div>
+                <div>
+                    <div class="hw-title">作业管理系统</div>
+                    <div class="hw-sub">HomeworkManagement</div>
+                </div>
+            </div>
+            <div class="task-list">
+                <div class="task-item"><div class="task-check done"></div>数学作业 — 已提交</div>
+                <div class="task-item"><div class="task-check done"></div>英语作文 — 已批改</div>
+                <div class="task-item"><div class="task-check"></div>物理实验报告 — 加载中...</div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="error-badge">
+                <div class="error-dot"></div>
+                系统暂时离线
+            </div>
+            <h2>作业系统服务中断</h2>
+            <p>作业管理系统后端暂时无法响应，可能正在维护或重启中。你的作业数据是安全的，请稍后再试。</p>
+            <div class="deadline-box">
+                <div class="deadline-icon">⏰</div>
+                <div class="deadline-text">别急！系统恢复后即可正常提交。若有紧急截止作业，请联系老师。</div>
+            </div>
+            <div class="btn-row">
+                <a href="javascript:location.reload()" class="btn btn-primary">⟳ 刷新重试</a>
+                <a href="/" class="btn btn-secondary">↩ 返回首页</a>
+            </div>
+            <div class="footer">— 由 虾卫士(ShrimpGuard) 安保系统监控维护 —</div>
+        </div>
+    </div>
+</body>
+</html>
