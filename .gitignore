@@ -2,4 +2,5 @@
 build
 root/StrategyB/Backtest_Result.png
 root/StrategyB/Backtest_Result.html
+root/StrategyB/Transaction_Record.html
 root/sys_data.json
