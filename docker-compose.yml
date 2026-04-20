@@ -13,10 +13,10 @@ services:
             - "86:86"
             - "8080:8080"
         volumes:
-            - '/root/workspace/WebServer/root:/usr/share/nginx/html:ro'
-            - '/root/workspace/WebServer/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro'
-            - '/root/workspace/WebServer/nginx/error-pages:/usr/share/nginx/error-pages:ro'
-            - '/etc/nginx/ssl/:/etc/nginx/ssl/:ro'
+            - '/home/lighthouse/workspace/WebServer/root:/usr/share/nginx/html:ro'
+            - '/home/lighthouse/workspace/WebServer/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro'
+            - '/home/lighthouse/workspace/WebServer/nginx/error-pages:/usr/share/nginx/error-pages:ro'
+            - '/home/lighthouse/workspace/WebServer/nginx/ssl:/etc/nginx/ssl/:ro'
         extra_hosts:
             - "host.docker.internal:host-gateway"
         networks:
@@ -27,7 +27,7 @@ services:
         container_name: guard
         restart: 'unless-stopped'
         volumes:
-            - '/root/workspace/WebServer/nginx/guard/config.json:/app/config.json'
+            - '/home/lighthouse/workspace/WebServer/nginx/guard/config.json:/app/config.json'
         networks:
             - shrimp-net
 

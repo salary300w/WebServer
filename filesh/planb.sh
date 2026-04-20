@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
     echo -e "Error:缺少参数\n脚本支持以下参数:\n1 创建今日数据\n2 筛选昨日数据\n3 筛选前日数据,并提交推送至远程仓库\n"
     exit 1
 fi
-cd /root/workspace/stockB
+cd /home/lighthouse/workspace/stockB
 
 # $0 是脚本名
 # $1, $2, ... 是位置参数
