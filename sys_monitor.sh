@@ -1,5 +1,6 @@
 #!/bin/bash
-TARGET="./root/sys_data.json"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TARGET="${SCRIPT_DIR}/root/sys_data.json"
 
 HOST_NAME=$(hostname)
 OS_NAME=$(grep -E "^PRETTY_NAME" /etc/os-release | cut -d= -f2 | tr -d '"')
