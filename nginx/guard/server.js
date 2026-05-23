@@ -37,7 +37,7 @@ app.post('/do-login', (req, res) => {
     
     if (password === config.password) {
         res.cookie('shrimp_auth', config.token_secret, { 
-            maxAge: 86400000, 
+            maxAge: 604800000, 
             httpOnly: true, 
             path: '/',
             sameSite: 'Lax'
