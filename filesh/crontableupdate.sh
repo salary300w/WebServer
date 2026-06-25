@@ -5,11 +5,13 @@ crontab -r 2>/dev/null
 
 # 定义新任务（可多条）
 TASKS=(
-"40,50 09,10,13,14 * * 1-5 bash /root/workspace/planb.sh 1"
-"35 11 * * 1-5 bash /root/workspace/planb.sh 1"
-"05 15 * * 1-5 bash /root/workspace/planb.sh 2"
-"10 15 * * 1-5 bash /root/workspace/planb.sh 3"
-"15 15 * * 1-5 bash /root/workspace/webserver.sh"
+"00 5 * * * python /home/lighthouse/workspace/sxy.py"
+"40,50 09,10,13,14 * * 1-5 bash /home/lighthouse/workspace/planb.sh 1"
+"35 11 * * 1-5 bash /home/lighthouse/workspace/planb.sh 1"
+"40 11 * * 1-5 bash /home/lighthouse/workspace/planb.sh mid"
+"05 15 * * 1-5 bash /home/lighthouse/workspace/planb.sh 2"
+"10 15 * * 1-5 bash /home/lighthouse/workspace/planb.sh 3"
+"15 15 * * 1-5 bash /home/lighthouse/workspace/webserver.sh"
 )
 
 # 逐条写入
@@ -20,4 +22,4 @@ done
 echo "新的 crontab 已更新"
 
 # 系统监控脚本 - 服务器启动时自动运行
-(crontab -l 2>/dev/null; echo "@reboot /bin/bash /root/workspace/WebServer/sys_monitor.sh > /dev/null 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "@reboot /bin/bash /home/lighthouse/workspace/WebServer/sys_monitor.sh > /dev/null 2>&1") | crontab -

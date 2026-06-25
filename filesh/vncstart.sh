@@ -9,7 +9,7 @@ vncserver -kill :1 >/dev/null 2>&1 || true
 vncserver -kill :2 >/dev/null 2>&1 || true
 
 echo "[2/6] 清理旧的 X11 授权文件..."
-rm -rf /tmp/.X* ~/.Xauthority
+sudo rm -rf /tmp/.X* ~/.Xauthority
 touch ~/.Xauthority
 
 echo "[3/6] 安装桌面环境和依赖..."
@@ -43,7 +43,7 @@ echo "      启动 ibus-daemon 服务..."
 ibus-daemon -drx
 
 echo "[7/7] 启动 NoVNC (5900端口)..."
-websockify -D --web=/usr/share/novnc/ 5900 localhost:5901
+sudo websockify -D --web=/usr/share/novnc/ 5900 localhost:5901
 
 echo "✅ 搞定！请在本地浏览器打开:"
 echo "   https://<你的云服务器IP>:81/vnc.html"
