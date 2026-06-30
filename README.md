@@ -1,191 +1,214 @@
-# 选股数据 Web 服务器
+# ShrimpGuard 选股数据 Web 服务器
 
 ## 项目概述
 
-这是一个展示股票市场数据分析结果的Web服务器项目，提供三大选股策略模块的每日分析报告：
-- **StrategyA**: 主力资金流入排行个股数据（每日更新，共234个分析报告）
-- **StrategyB**: 板块、概念主力资金流入数据
-- **StrategyC**: 沪深主板连板数据
+基于 **Nginx + Docker** 的 A 股市场数据分析仪表盘，提供三大选股策略的每日更新 HTML 报告，同时作为多后端服务的 **反向代理网关**。
 
-## 项目特点
+- **StrategyA**：个股主力资金流入排行（2024‑10 ~ 2025‑03，已归档）
+- **StrategyB**：板块、概念主力资金流入分析（持续更新中）
+- **StrategyC**：沪深主板连板数据追踪（2024‑10 ~ 2025‑06，已归档）
 
-1. **实时数据展示**：每日更新的股票市场分析报告
-2. **响应式设计**：支持桌面和移动设备访问
-3. **暗色模式**：提供舒适的夜间浏览体验
-4. **缓存优化**：智能缓存控制确保数据实时性
-5. **自动化部署**：支持脚本自动化更新和部署
+| 服务 | 端口 | 说明 |
+|------|------|------|
+| 选股主站 | 8080 (HTTPS) | 三大策略报告，由 ShrimpGuard 密码保护 |
+| 作业管理 | 80 (HTTP) | 作业提交追踪工具（无认证） |
+| NoVNC | 81 (HTTPS) | 远程桌面，基于 VNC + websockify |
+| OpenClaw | 82 (HTTPS) | 反向代理游戏服务 |
+| code-server | 83 (HTTPS) | VS Code Web 版 |
+| antigravity | 84 (HTTPS) | 反向代理 antigravity 服务 |
+| NextChat | 85 (HTTPS) | ChatGPT Web UI |
+| v2raya | 86 (HTTPS) | VPN / 代理客户端 Web 管理面板 |
+
+所有 HTTPS 服务使用自签名证书。
+
+---
 
 ## 技术架构
 
-### 前端技术
-- **HTML5/CSS3**: 现代网页标准，响应式布局
-- **JavaScript**: 动态内容加载和交互
-- **CSS变量**: 支持主题切换（亮色/暗色模式）
+### 容器化
+- **docker‑compose.yml** 管理两个容器：
+  - `nginx` — 官方 nginx 镜像，映射端口 80~86 + 8080，挂载配置、SSL 证书、站点根目录、错误页面
+  - `guard` — Node.js 授权网关（ShrimpGuard），运行在 3000 端口，和 nginx 共用 `shrimp‑net` 桥接网络
 
-### 服务器技术
-- **Nginx**: 高性能Web服务器
-- **反向代理**: 支持后端服务代理（如OpenClaw服务）
+### 前端
+- 纯 **HTML5 / CSS3 / JavaScript**，无框架依赖
+- CSS 自定义属性实现 **亮/暗主题切换**
+- 响应式布局支持桌面和移动端
+- **反菱 UI**（glassmorphism）设计风格（2026 年新版报告）
 
-### 部署与运维
-- **Shell脚本**: 自动化部署和更新
-- **Git版本控制**: 代码管理和同步
-- **Cron任务**: 定时数据更新
+### 后端代理 / 网关
+- **Nginx**：静态文件服务 + 反向代理 + SSL 终端
+- **ShrimpGuard**（node:20‑alpine）：密码认证守卫，通过 `auth_request` 验证 Cookie 令牌避免重复登录
+- **Shell 脚本**：数据流水线编排 + VNC 管理 + 版本控制
+
+### 自动化流水线
+- **Crontab** 驱动整条数据流程：
+  - 交易时段（9:40~14:50 工作日）多次调用 `planb.sh` 抓取板块资金流向
+  - 11:35~11:40 盘中数据刷新
+  - 15:15 收盘后最终过滤 + 回测 + git 提交推送
+- 每日 15:15 自动 `git commit -m "$(date)"` + `git push`
+
+---
 
 ## 项目结构
 
 ```
 WebServer/
-├── root/                          # 网站根目录
-│   ├── index.html                 # 首页 - 策略导航页面
-│   ├── SubPageList.js             # 子页面列表管理脚本
-│   ├── 50x.html                   # 服务器错误页面
-│   ├── icon.png                   # 网站图标
-│   ├── StrategyA/                 # 个股资金流入策略（234个分析报告）
-│   │   ├── 2024_10_23.html        # 每日分析报告（按日期命名）
-│   │   ├── 2024_10_24.html
-│   │   ├── ...                    # 更多分析报告
-│   │   └── 2025_03_19.html        # 最新分析报告
-│   ├── StrategyB/                 # 板块资金流入策略
-│   └── StrategyC/                 # 连板数据策略
-├── filesh/                        # 自动化脚本目录
-│   ├── webserver.sh               # Web服务器部署脚本
-│   ├── crontableupdate.sh         # Cron任务更新脚本
-│   ├── planb.sh                   # 备用计划脚本
-│   ├── planc.sh                   # 应急计划脚本
-│   ├── vncstart.sh                # VNC服务器启动脚本
-│   └── vncstop.sh                 # VNC服务器停止脚本
-├── nginx/                         # Nginx配置目录
-│   └── default.conf               # Nginx服务器配置
-├── .git/                          # Git版本控制目录
-├── .gitignore                     # Git忽略文件配置
-└── README.md                      # 项目说明文档
+├── docker-compose.yml               # Docker Compose 编排（nginx + guard）
+├── .gitignore                       # Git 忽略规则
+├── README.md                        # 本文件
+├── GoogleAccount.md                 # Google 账号凭据（VNC / Chrome 自动化用）
+│
+├── root/                            # Web 站点根目录（nginx 挂载）
+│   ├── index.html                   # 主入口页面，展示策略导航卡片
+│   ├── SubPageList.js               # 文章列表数据（仅 StrategyB 活跃）
+│   ├── sys_status.html              # 系统监控仪表盘（CPU/内存/磁盘/运行时间）
+│   ├── sys_data.json                # 实时系统指标，每 3s 由 sys_monitor.sh 写入
+│   ├── icon.png                     # 网站图标
+│   ├── HomeworkManagement.html      # 作业管理工具（基于 XLSX.js 的 Excel 处理）
+│   ├── StrategyA/                   # 个股主力资金流入策略
+│   │   ├── PageMasterStrategyA.html # StrategyA 主索引页
+│   │   └── YYYY_MM_DD.html          # 每日分析报告（2024‑10 ~ 2025‑03）
+│   ├── StrategyB/                   # 板块概念主力资金流入策略
+│   │   ├── PageMasterStrategyB.html # StrategyB 主索引页
+│   │   ├── SubPageList.js           # 策略 B 文章列表（60+ 条目）
+│   │   ├── Backtest_Result.html     # 回测结果页
+│   │   ├── Backtest_Result.png      # 回测图表
+│   │   ├── Transaction_Record.html  # 交易记录
+│   │   └── YYYY_MM_DD.html          # 每日分析报告（2024‑10 ~ 至今）
+│   └── StrategyC/                   # 沪深主板连板数据策略
+│       ├── PageMasterStrategyC.html # StrategyC 主索引页
+│       └── YYYY_MM_DD.html          # 每日分析报告（2024‑10 ~ 2025‑06）
+│
+├── nginx/                           # Nginx 配置与辅助服务
+│   ├── default.conf                 # Nginx 主配置 —— 7 个 server block
+│   ├── ssl/
+│   │   ├── atm.crt                  # 自签名 SSL 证书
+│   │   └── atm.key                  # 私钥
+│   ├── error-pages/                 # 各服务自定义 50x 错误页面
+│   │   ├── antigravity_error.html
+│   │   ├── code_error.html
+│   │   ├── homework_error.html
+│   │   ├── nextchat_error.html
+│   │   ├── novnc_error.html
+│   │   ├── openclaw_error.html
+│   │   ├── stock_error.html
+│   │   └── v2raya_error.html
+│   └── guard/                       # ShrimpGuard 授权网关
+│       ├── Dockerfile               # 基于 node:20-alpine 构建
+│       ├── package.json             # express + cookie-parser
+│       ├── config.json              # 密码 & 令牌密钥配置
+│       ├── server.js                # Node.js 认证服务器
+│       └── public/login.html        # 登录页面（"ShrimpGuard" / "Shrimp Guardian"）
+│
+├── filesh/                          # 自动化 Shell 脚本
+│   ├── webserver.sh                 # git add/commit/push，信息为当日日期
+│   ├── crontableupdate.sh           # 更新系统 crontab（数据任务 + sys_monitor）
+│   ├── planb.sh                     # StrategyB 数据流水线
+│   ├── planc.sh                     # StrategyC 数据流水线
+│   ├── vncstart.sh                  # 安装配置 VNC + NoVNC（XFCE，端口 5900/5901）
+│   └── vncstop.sh                   # 启动 v2raya 容器后重启服务器
+│
+├── sys_monitor.sh                   # 持续采集 CPU/内存/磁盘/运行时间（每 3s）
+├── sys_monitor_start.sh             # 后台启动系统监控脚本（nohup）
+└── restart_monitor.sh               # 杀死并重启系统监控脚本
 ```
-
-## Nginx配置说明
-
-项目使用Nginx作为Web服务器，主要配置包括：
-
-1. **静态文件服务**：提供HTML、CSS、JS等静态资源
-2. **反向代理**：支持将特定路径（如`/openclaw/`）代理到后端服务
-3. **错误页面**：自定义50x错误页面
-4. **缓存控制**：通过HTTP头控制浏览器缓存行为
-
-## 自动化脚本功能
-
-### webserver.sh
-- 自动提交代码更改到Git仓库
-- 使用当前日期作为提交信息
-- 推送到远程仓库
-
-### crontableupdate.sh
-- 更新系统的Cron定时任务
-- 确保数据更新任务按时执行
-
-### VNC相关脚本
-- `vncstart.sh`: 启动VNC远程桌面服务
-- `vncstop.sh`: 停止VNC远程桌面服务
-
-## 缓存控制机制
-
-### HTML文件缓存控制
-- 在所有HTML文件的`<head>`部分添加缓存控制meta标签
-- 确保浏览器每次都从服务器获取最新内容
-
-### 缓存控制头
-```html
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-```
-
-## 数据更新流程
-
-1. **数据生成**：每日生成新的分析报告HTML文件
-2. **文件存储**：按策略分类存储到相应目录
-3. **自动提交**：通过脚本自动提交到Git仓库
-4. **服务器更新**：Web服务器自动拉取最新文件
-5. **用户访问**：用户通过浏览器访问最新数据
-
-## 维护说明
-
-### 添加新的分析报告
-1. 将生成的HTML文件放入对应的策略目录（StrategyA/B/C）
-2. 文件命名格式：`YYYY_MM_DD.html`
-3. 运行部署脚本更新服务器
-
-### 更新网站配置
-1. 修改`root/index.html`更新首页内容
-2. 修改`nginx/default.conf`更新服务器配置
-3. 重启Nginx服务使配置生效
-
-### 备份与恢复
-- 项目使用Git进行版本控制，可通过Git进行备份和恢复
-- 重要数据文件应定期备份到安全位置
-
-## 故障排除
-
-### 常见问题
-1. **页面无法访问**：检查Nginx服务状态和端口占用
-2. **页面显示旧内容**：清除浏览器缓存或强制刷新（Ctrl+F5）
-3. **脚本执行失败**：检查脚本权限和执行环境
-
-### 日志查看
-```bash
-# 查看Nginx错误日志
-tail -f /var/log/nginx/error.log
-
-# 查看Nginx访问日志
-tail -f /var/log/nginx/access.log
-```
-
-## 性能优化建议
-
-1. **CDN加速**：考虑使用CDN加速静态资源
-2. **图片优化**：压缩网站图标和图片资源
-3. **代码压缩**：压缩HTML、CSS、JS文件
-4. **浏览器缓存**：合理设置静态资源缓存时间
-
-## 安全注意事项
-
-1. **文件权限**：确保Web目录有正确的文件权限
-2. **Nginx配置**：定期更新Nginx安全配置
-3. **脚本安全**：避免在脚本中硬编码敏感信息
-4. **访问控制**：考虑添加基本的访问认证
-
-## 联系方式
-
-如果有任何问题或建议，请通过电子邮件 1769248893@qq.com 联系我们。
 
 ---
 
-**最后更新**: 2026年3月3日  
-**数据规模**: StrategyA包含234个分析报告（2024年10月23日 - 2025年3月19日）  
-**项目状态**: 正常运行，每日更新
-│   ├── StrategyB/         # 板块资金流入策略
-│   └── StrategyC/         # 连板数据策略
-├── filesh/                # 脚本文件目录
-├── nginx.conf             # Nginx配置文件
-├── Dockerfile             # Docker构建文件
-└── README.md              # 项目说明文档
+## ShrimpGuard 认证机制
+
+网关模块 `nginx/guard/` 基于 Node.js / Express 实现轻量密码认证：
+
+1. 用户访问 HTTPS 选股主站（端口 8080），Nginx 通过 `auth_request` 向 guard 发送子请求验证 Cookie
+2. 未认证 → HTTP 401 → Nginx 内部重定向至登录页 `login.html`
+3. 登录页 POST 密码 → guard 校验 → 设置 `shrimp_auth` 令牌 Cookie（7 天有效，httpOnly）
+4. 此后子请求均返回 200，Nginx 放行访问站点内容
+
+**默认密码**：`cdk991014`
+
+---
+
+## 数据流水线
+
+| 时间（工作日） | 脚本 | 动作 |
+|---------------|------|------|
+| 9:40 / 11:25 / 13:00 / 14:00 / 14:50 | `planb.sh 1` | 获取当日板块资金流向 |
+| 11:35 ~ 11:40 | `planb.sh mid` | 获取盘中数据 |
+| 14:00 | `planb.sh 2` | 过滤数据 |
+| 15:05 ~ 15:15 | `planb.sh 3` | 最终过滤 + 回测 + git 推送 |
+| 15:15 | `webserver.sh` | 提交所有更改并推送远程仓库 |
+
+策略 A / C 的生成脚本位于 `/home/lighthouse/workspace/stockB/` 和 `stockC/`，不在本仓库中。
+
+---
+
+## 运维与维护
+
+### Docker 部署
+```bash
+docker compose up -d       # 启动所有服务
+docker compose stop        # 停止服务
+docker compose restart     # 重启服务
 ```
 
-## 缓存控制说明
+### Nginx 配置修改后生效
+```bash
+docker compose exec nginx nginx -s reload
+```
 
-### 缓存控制头详解
-- `Cache-Control: no-cache, no-store, must-revalidate` - 告诉浏览器不要缓存，每次都重新验证
-- `Pragma: no-cache` - 兼容HTTP/1.0
-- `Expires: 0` - 设置过期时间为立即过期
+### 日志查看
+```bash
+docker compose logs -f nginx      # Nginx 日志
+docker compose logs -f guard      # 网关日志
+```
 
-### 静态资源缓存
-- JS、CSS、图片等静态资源设置了1小时的缓存时间
-- 这平衡了性能和新鲜度，既保证了页面加载速度，又确保了资源会定期更新
+### 登录容器
+```bash
+docker compose exec nginx sh
+docker compose exec guard sh
+```
 
-## 注意事项
+### 系统监控
+- `sys_status.html` 提供实时 Web 仪表盘（自动每 3s 刷新数据）
+- 运行 `bash restart_monitor.sh` 重启监控进程
 
-1. 当添加新的HTML文件时，无需任何特殊操作，浏览器会自动获取最新版本
-2. 对于静态资源（JS、CSS、图片），修改后最多需要1小时才能在所有用户浏览器中生效
-3. 如果需要立即更新静态资源，可以修改文件名或在URL后添加版本参数（如 `script.js?v=1.1`）
+### 更新 Crontab
+```bash
+bash filesh/crontableupdate.sh
+```
+
+---
+
+## 安全注意事项
+
+- HTTPS 使用自签名证书，浏览器访问会提示不安全，可点击"高级 → 继续前往"
+- 密码和令牌密钥存储在 `nginx/guard/config.json` 中
+- Google 账号凭据记录在 `GoogleAccount.md`（未纳入版本控制忽略）
+- `sys_data.json` 已被 `.gitignore` 排除，避免实时数据被提交
+- 前端页面均已添加 `no-cache` 头，防止浏览器缓存旧版本
+
+---
+
+## 故障排除
+
+| 现象 | 排查方法 |
+|------|----------|
+| 页面无法访问 | `docker compose ps` 检查容器状态 |
+| Nginx 配置错误 | `docker compose exec nginx nginx -t` |
+| 页面显示旧内容 | 强制刷新（Ctrl+F5）或清除浏览器缓存 |
+| 脚本执行失败 | 检查执行权限 `chmod +x filesh/*.sh` |
+| 数据未更新 | 检查 crontab: `crontab -l` |
+
+---
 
 ## 联系方式
 
-如果有任何问题或建议，请通过电子邮件1769248893@qq.com联系我们。
+如有问题或建议，请联系：**1769248893@qq.com**
+
+---
+
+> **最后更新**：2026‑06‑30  
+> **项目状态**：正常运行，每日更新  
+> **部署环境**：腾讯云 Lighthouse（Ubuntu 22.04）  
+> **数据规模**：StrategyA 236 篇 / StrategyB 320+ 篇（持续更新） / StrategyC 322 篇
