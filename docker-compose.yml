@@ -1,4 +1,3 @@
-version: '3'
 services:
     Nginx:
         restart: 'unless-stopped'
@@ -29,6 +28,7 @@ services:
         restart: 'unless-stopped'
         volumes:
             - '/home/lighthouse/workspace/WebServer/nginx/guard/config.json:/app/config.json'
+            - '/home/lighthouse/workspace/WebServer/nginx/guard/server.js:/app/server.js'
         networks:
             - shrimp-net
 
