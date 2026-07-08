@@ -126,6 +126,104 @@ app.get('/api/status', (req, res) => {
     }
 });
 
+// === Hermes 信息 API ===
+
+function calcElapsed(startTicks) {
+    const clkTck = 100;
+    try {
+        const uptimeSec = parseFloat(fs.readFileSync('/host/proc/uptime', 'utf8').split(' ')[0]);
+        const runningSec = uptimeSec - (startTicks / clkTck);
+        if (runningSec < 0) return '刚刚';
+        const d = Math.floor(runningSec / 86400);
+        const h = Math.floor((runningSec % 86400) / 3600);
+        const m = Math.floor((runningSec % 3600) / 60);
+        return d > 0 ? d + '天' + h + '小时' : h + '小时' + m + '分钟';
+    } catch (e) { return '--'; }
+}
+
+app.get('/api/hermes/info', (req, res) => {
+    const HOME = '/hostroot/home/lighthouse/.hermes';
+    try {
+        // 1. Config
+        let model = 'unknown', provider = 'unknown';
+        try {
+            const cfg = fs.readFileSync(HOME + '/config.yaml', 'utf8');
+            const mm = cfg.match(/^\s{2}default:\s*(\S+)/m);
+            const pm = cfg.match(/^\s{2}provider:\s*(\S+)/m);
+            if (mm) model = mm[1];
+            if (pm) provider = pm[1];
+        } catch (e) {}
+
+        // 2. Gateway process
+        let gatewayRunning = false, gatewayUptime = '--';
+        try {
+            const pidData = JSON.parse(fs.readFileSync(HOME + '/gateway.pid', 'utf8'));
+            const pid = pidData.pid;
+            const procStat = fs.readFileSync('/hostroot/proc/' + pid + '/stat', 'utf8');
+            const closeParen = procStat.lastIndexOf(')');
+            if (closeParen !== -1) {
+                const after = procStat.substring(closeParen + 2).split(' ');
+                const startTicks = parseInt(after[19]);
+                gatewayUptime = calcElapsed(startTicks);
+                gatewayRunning = true;
+            }
+        } catch (e) {}
+
+        // 3. Skills
+        let skillCount = 0;
+        let skillCategories = [];
+        try {
+            const cats = fs.readdirSync(HOME + '/skills/');
+            skillCategories = cats.filter(c => !c.startsWith('.')).sort();
+            for (const cat of skillCategories) {
+                const dir = HOME + '/skills/' + cat;
+                const items = fs.readdirSync(dir);
+                for (const item of items) {
+                    const sp = dir + '/' + item;
+                    if (fs.statSync(sp).isDirectory() && fs.existsSync(sp + '/SKILL.md')) {
+                        skillCount++;
+                    }
+                }
+            }
+        } catch (e) {}
+
+        // 4. Memory store
+        let memoryChars = 0, memoryLimit = 2200;
+        let userChars = 0, userLimit = 1375;
+        try {
+            const memPath = HOME + '/memories/MEMORY.md';
+            if (fs.existsSync(memPath))
+                memoryChars = fs.readFileSync(memPath, 'utf8').replace(/\n/g, '').length;
+            const usrPath = HOME + '/memories/USER.md';
+            if (fs.existsSync(usrPath))
+                userChars = fs.readFileSync(usrPath, 'utf8').replace(/\n/g, '').length;
+        } catch (e) {}
+
+        // 5. Cron jobs
+        let cronCount = 0;
+        try {
+            const jobFile = HOME + '/cron/jobs.json';
+            if (fs.existsSync(jobFile)) {
+                const raw = fs.readFileSync(jobFile, 'utf8');
+                const jobs = JSON.parse(raw);
+                cronCount = Array.isArray(jobs) ? jobs.length : 0;
+            }
+        } catch (e) {}
+
+        res.json({
+            model, provider,
+            gatewayRunning, gatewayUptime,
+            skillCount, skillCategories,
+            memoryChars, memoryLimit, userChars, userLimit,
+            cronCount,
+            profile: 'default'
+        });
+    } catch (err) {
+        console.error('采集 Hermes 信息失败:', err);
+        res.status(500).json({ error: '采集失败' });
+    }
+});
+
 app.listen(port, () => {
-    console.log(`虾卫士 (读本子模式) 正在 3000 端口值班...`);
+    console.log(`虾卫士 (读本子模式) 正在 ${port} 端口值班...`);
 });

@@ -1,162 +1,483 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <title>龙虾监控</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        :root {
-            --bg-color: #0d0f14;
-            --card-bg: #1a1c23;
-            --text-main: #f0f0f2;
-            --text-sub: #8f93a2;
-            --purple: #818cf8;
-            --blue: #60a5fa;
-            --green: #34d399;
-            --orange: #fbbf24;
-            --dark-border: rgba(255, 255, 255, 0.05);
-        }
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; }
-        
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; }
-        .nav-left { display: flex; align-items: center; gap: 12px; }
-        .logo-box {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, #a855f7, #6366f1);
-            border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
-        }
-        .nav-title { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
-        .nav-status {
-            background-color: rgba(255,255,255,0.06); padding: 6px 14px; border-radius: 20px;
-            font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 6px;
-        }
-        .nav-status::before { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--green); }
+<meta charset="utf-8">
+<title>Hermes 状态</title>
+<link rel="icon" type="image/x-icon" href="/hermes_icon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .container { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; margin: 0 auto; }
-        .card { background-color: var(--card-bg); border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .card-title { color: var(--text-sub); font-size: 14px; font-weight: 500; }
-        .icon-box {
-            width: 32px; height: 32px; background-color: rgba(255,255,255,0.05);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px;
-        }
-        .progress-row { margin-bottom: 24px; }
-        .progress-row:last-child { margin-bottom: 0; }
-        .p-header { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 12px; font-weight: 500; }
-        .p-value { font-variant-numeric: tabular-nums; color: var(--text-sub); }
-        .p-bar-bg { height: 6px; background-color: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-        .p-bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+  :root {
+    --bg-deep: #010102;
+    --bg-page: #08090a;
+    --bg-panel: #0f1011;
+    --bg-surface: #191a1b;
+    --bg-secondary: #28282c;
+    --bg-card: rgba(255,255,255,0.02);
+    --bg-card-hover: rgba(255,255,255,0.04);
+    --border-subtle: rgba(255,255,255,0.05);
+    --border-default: rgba(255,255,255,0.08);
+    --text-primary: #f7f8f8;
+    --text-secondary: #d0d6e0;
+    --text-tertiary: #8a8f98;
+    --text-quaternary: #62666d;
+    --accent: #7170ff;
+    --accent-hover: #828fff;
+    --brand-bg: #5e6ad2;
+    --green: #27a644;
+    --emerald: #10b981;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow-card: 0 0 0 1px rgba(0,0,0,0.2);
+    --shadow-inset: inset 0 0 12px 0 rgba(0,0,0,0.2);
+    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
 
-        .uptime-card { display: flex; flex-direction: column; }
-        .uptime-val { font-size: 38px; font-weight: 700; margin: 8px 0 12px 0; font-variant-numeric: tabular-nums; }
-        .uptime-sub { color: var(--text-sub); font-size: 14px; }
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
-        .info-row { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--dark-border); font-size: 15px; }
-        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
-        .info-label { color: var(--text-sub); }
-        .info-val { font-weight: 500; text-align: right;}
-    </style>
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.5;
+    font-feature-settings: 'cv01', 'ss03';
+  }
+
+  /* ── Navbar ── */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav-left { display: flex; align-items: center; gap: 12px; }
+  .logo-box {
+    width: 32px; height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.2s;
+  }
+  .logo-box:hover { opacity: 0.8; }
+  .logo-box img { border-radius: 4px; }
+  .nav-title {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.165px;
+    color: var(--text-primary);
+  }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    padding: 4px 10px;
+    border: 1px solid var(--border-default);
+    border-radius: 9999px;
+    background: var(--bg-card);
+  }
+  .nav-status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 6px rgba(16,185,129,0.4);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .nav-refresh {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-quaternary);
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  /* ── Container ── */
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(255,255,255,0.12);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    letter-spacing: -0.13px;
+    text-transform: uppercase;
+  }
+  .card-icon {
+    width: 28px; height: 28px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+  }
+
+  /* ── Gauge Grid ── */
+  .gauge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 560px) {
+    .gauge-grid { grid-template-columns: 1fr; gap: 16px; }
+  }
+  .gauge-item { display: flex; flex-direction: column; gap: 10px; }
+  .gauge-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: -0.13px;
+  }
+  .gauge-value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .gauge-track {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .gauge-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.4s ease;
+    width: 0%;
+  }
+  .gauge-fill.low { background: var(--emerald); }
+  .gauge-fill.mid { background: var(--orange); }
+  .gauge-fill.high { background: var(--red); }
+
+  /* ── System meta row ── */
+  .sys-meta { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-subtle); }
+  .meta-row { display: flex; gap: 24px; flex-wrap: wrap; }
+  .meta-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .meta-k { font-size: 10px; font-weight: 500; color: var(--text-quaternary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta-v { font-size: 13px; font-weight: 500; color: var(--text-secondary); font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ── Skeleton loading ── */
+  .skeleton {
+    display: inline-block;
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 3px;
+    color: transparent !important;
+    user-select: none;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Transition on first load ── */
+  .card { opacity: 0; transform: translateY(8px); animation: fade-up 0.4s ease forwards; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.14s; }
+  @keyframes fade-up {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Agent status stat grid ── */
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  }
+  @media (max-width: 480px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; }
+  .stat-label {
+    font-size: 11px; font-weight: 500; color: var(--text-quaternary);
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .stat-value {
+    font-size: 14px; font-weight: 500; color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    word-break: break-all;
+  }
+  .stat-value .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-sans);
+    font-size: 12px; font-weight: 500;
+    padding: 2px 10px; border-radius: 9999px;
+  }
+  .badge.online {
+    background: rgba(16,185,129,0.15); color: var(--emerald);
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+  .badge.offline {
+    background: rgba(239,68,68,0.15); color: var(--red);
+    border: 1px solid rgba(239,68,68,0.25);
+  }
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%; display: inline-block;
+  }
+  .badge.online .badge-dot { background: var(--emerald); }
+  .badge.offline .badge-dot { background: var(--red); }
+
+  /* ── Row with side number ── */
+  .row-num {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border-subtle);
+  }
+  .row-num:last-child { border-bottom: none; padding-bottom: 0; }
+  .row-num-label { font-size: 13px; color: var(--text-tertiary); }
+  .row-num-val {
+    font-family: var(--font-mono); font-size: 15px; font-weight: 500;
+    color: var(--text-primary); font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-quaternary);
+    padding: 24px 0 8px;
+    letter-spacing: 0.3px;
+  }
+</style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="nav-left">
-            <div class="logo-box">🦐</div>
-            <div class="nav-title">龙虾监控</div>
+
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="logo-box"><img src="/hermes_logo.png" width="24" height="24" alt="H"></div>
+      <span class="nav-title">Hermes 状态</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-refresh" id="refresh-time">--:--:--</span>
+      <span class="nav-status">
+        <span class="nav-status-dot"></span>
+        在线
+      </span>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- 系统资源 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">系统资源</span>
+        <span class="card-icon">📊</span>
+      </div>
+      <div class="gauge-grid">
+        <div class="gauge-item">
+          <div class="gauge-label">
+            <span>CPU</span>
+            <span class="gauge-value" id="cpu-v">--%</span>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill low" id="cpu-b"></div></div>
         </div>
-        <div class="nav-status">在线</div>
+        <div class="gauge-item">
+          <div class="gauge-label">
+            <span>内存</span>
+            <span class="gauge-value" id="mem-v">--%</span>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill low" id="mem-b"></div></div>
+        </div>
+        <div class="gauge-item">
+          <div class="gauge-label">
+            <span>磁盘</span>
+            <span class="gauge-value" id="disk-v">--%</span>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill low" id="disk-b"></div></div>
+        </div>
+      </div>
+      <div class="sys-meta">
+        <div class="meta-row">
+          <span class="meta-item"><span class="meta-k">运行时间</span><span class="meta-v" id="uptime-v">--h --m</span></span>
+          <span class="meta-item"><span class="meta-k">系统</span><span class="meta-v" id="os-v">--</span></span>
+        </div>
+      </div>
     </div>
 
-    <div class="container">
-        <!-- 系统资源 -->
-        <div class="card">
-            <div class="card-header">
-                <span class="card-title">系统资源</span>
-                <span class="icon-box">📊</span>
-            </div>
-            
-            <div class="progress-row">
-                <div class="p-header">
-                    <span>CPU</span><span class="p-value" id="cpu-v">--%</span>
-                </div>
-                <div class="p-bar-bg"><div class="p-bar" id="cpu-b" style="width:0%; background-color:#818cf8;"></div></div>
-            </div>
-
-            <div class="progress-row">
-                <div class="p-header">
-                    <span>内存</span><span class="p-value" id="mem-v">--%</span>
-                </div>
-                <div class="p-bar-bg"><div class="p-bar" id="mem-b" style="width:0%; background-color:#34d399;"></div></div>
-            </div>
-
-            <div class="progress-row">
-                <div class="p-header">
-                    <span>磁盘</span><span class="p-value" id="disk-v">--%</span>
-                </div>
-                <div class="p-bar-bg"><div class="p-bar" id="disk-b" style="width:0%; background-color:#fbbf24;"></div></div>
-            </div>
+    <!-- Hermes Agent 状态 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Agent 状态</span>
+        <span class="card-icon">⚡</span>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <span class="stat-label">状态</span>
+          <span class="stat-value" id="gw-status"><span class="badge offline"><span class="badge-dot"></span>检测中...</span></span>
         </div>
-
-        <!-- 运行时间 -->
-        <div class="card uptime-card">
-            <div class="card-header" style="margin-bottom:0;">
-                <span class="card-title">运行时间</span>
-                <span class="icon-box">⏱️</span>
-            </div>
-            <div class="uptime-val" id="uptime-v">--h --m</div>
-            <div class="uptime-sub">已在线</div>
+        <div class="stat-item">
+          <span class="stat-label">运行时长</span>
+          <span class="stat-value" id="gw-uptime">--</span>
         </div>
-
-        <!-- 主机信息 -->
-        <div class="card">
-            <div class="card-header" style="margin-bottom:8px;">
-                <span class="card-title">主机信息</span>
-                <span class="icon-box">🖥️</span>
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">主机名</span>
-                <span class="info-val" id="host-v">获取中...</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">系统</span>
-                <span class="info-val" id="os-v">获取中...</span>
-            </div>
+        <div class="stat-item">
+          <span class="stat-label">模型</span>
+          <span class="stat-value" id="hermes-model">--</span>
         </div>
+        <div class="stat-item">
+          <span class="stat-label">提供商</span>
+          <span class="stat-value" id="hermes-provider">--</span>
+        </div>
+      </div>
     </div>
 
-    <script>
-        function safePercent(val) {
-            let num = parseFloat(val);
-            if (isNaN(num)) return 0;
-            return num;
+    <!-- 技能 & 内存 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">技能 & 内存</span>
+        <span class="card-icon">🧠</span>
+      </div>
+      <div class="row-num">
+        <span class="row-num-label">技能数</span>
+        <span class="row-num-val" id="skill-count">--</span>
+      </div>
+      <div class="row-num">
+        <span class="row-num-label">技能分类</span>
+        <span class="row-num-val" id="skill-cats">--</span>
+      </div>
+      <div class="row-num">
+        <span class="row-num-label">定时任务</span>
+        <span class="row-num-val" id="cron-count">--</span>
+      </div>
+    </div>
+
+    <div class="footer">Hermes Agent · 系统状态</div>
+  </div>
+
+<script>
+  function fmtTime(d) {
+    const h = String(d.getHours()).padStart(2,'0');
+    const m = String(d.getMinutes()).padStart(2,'0');
+    const s = String(d.getSeconds()).padStart(2,'0');
+    return h + ':' + m + ':' + s;
+  }
+
+  function levelClass(pct) {
+    if (pct < 60) return 'low';
+    if (pct < 85) return 'mid';
+    return 'high';
+  }
+
+  function updateSystem() {
+    fetch('/shrimp-guard/api/status')
+      .then(r => r.json())
+      .then(d => {
+        const cpuP = parseFloat(d.cpu) || 0;
+        const memP = parseFloat(d.memory) || 0;
+        const diskP = parseFloat(d.disk) || 0;
+
+        const cpuEl = document.getElementById('cpu-v');
+        const memEl = document.getElementById('mem-v');
+        const diskEl = document.getElementById('disk-v');
+        const cpuB = document.getElementById('cpu-b');
+        const memB = document.getElementById('mem-b');
+        const diskB = document.getElementById('disk-b');
+
+        [cpuEl, memEl, diskEl, document.getElementById('uptime-v'),
+         document.getElementById('os-v')
+        ].forEach(el => el && el.classList.remove('skeleton'));
+
+        cpuEl.textContent = cpuP + '%';
+        cpuB.style.width = cpuP + '%';
+        cpuB.className = 'gauge-fill ' + levelClass(cpuP);
+
+        memEl.textContent = memP + '%';
+        memB.style.width = memP + '%';
+        memB.className = 'gauge-fill ' + levelClass(memP);
+
+        diskEl.textContent = diskP + '%';
+        diskB.style.width = diskP + '%';
+        diskB.className = 'gauge-fill ' + levelClass(diskP);
+
+        if (d.uptime) document.getElementById('uptime-v').textContent = d.uptime;
+        if (d.os) document.getElementById('os-v').textContent = d.os;
+
+        document.getElementById('refresh-time').textContent = fmtTime(new Date());
+      })
+      .catch(e => console.error('系统状态获取失败:', e));
+  }
+
+  function updateHermes() {
+    fetch('/shrimp-guard/api/hermes/info')
+      .then(r => r.json())
+      .then(d => {
+        // Gateway status
+        const badge = document.querySelector('#gw-status .badge');
+        if (d.gatewayRunning) {
+          badge.className = 'badge online';
+          badge.innerHTML = '<span class="badge-dot"></span>运行中';
+        } else {
+          badge.className = 'badge offline';
+          badge.innerHTML = '<span class="badge-dot"></span>已停止';
         }
+        document.getElementById('gw-uptime').textContent = d.gatewayUptime || '--';
+        document.getElementById('hermes-model').textContent = d.model || '--';
+        document.getElementById('hermes-provider').textContent = d.provider || '--';
 
-        function updateData() {
-            fetch('/shrimp-guard/api/status')
-                .then(r => r.json())
-                .then(d => {
-                    let cpuP = safePercent(d.cpu);
-                    document.getElementById('cpu-v').innerText = cpuP + '%';
-                    document.getElementById('cpu-b').style.width = cpuP + '%';
+        // Skills & memory
+        document.getElementById('skill-count').textContent = d.skillCount || '0';
+        document.getElementById('skill-cats').textContent = (d.skillCategories && d.skillCategories.length) || '0';
+        document.getElementById('cron-count').textContent = d.cronCount || '0';
+      })
+      .catch(e => console.error('Hermes 信息获取失败:', e));
+  }
 
-                    let memP = safePercent(d.memory);
-                    document.getElementById('mem-v').innerText = memP + '%';
-                    document.getElementById('mem-b').style.width = memP + '%';
-
-                    let diskP = safePercent(d.disk);
-                    document.getElementById('disk-v').innerText = diskP + '%';
-                    document.getElementById('disk-b').style.width = diskP + '%';
-
-                    if(d.uptime) document.getElementById('uptime-v').innerText = d.uptime;
-                    if(d.hostname) document.getElementById('host-v').innerText = d.hostname;
-                    if(d.os) document.getElementById('os-v').innerText = d.os;
-                })
-                .catch(e => console.error(e));
-        }
-
-        updateData();
-        setInterval(updateData, 3000);
-    </script>
+  document.addEventListener('DOMContentLoaded', () => {
+    ['cpu-v','mem-v','disk-v','uptime-v','os-v'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && (el.textContent === '--%' || el.textContent === '--h --m' || el.textContent === '--')) {
+        el.classList.add('skeleton');
+      }
+    });
+    updateSystem();
+    updateHermes();
+    setInterval(updateSystem, 3000);
+    setInterval(updateHermes, 10000);
+  });
+</script>
 </body>
 </html>
