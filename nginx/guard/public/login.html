@@ -3,77 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShrimpGuard - 安全验证</title>
+    <title>Hermes 守卫 · 安全验证</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/shrimp-guard/hermes_icon.ico">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
-            --primary: #f59e0b;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
+            --bg-deep: #010102;
+            --bg-page: #08090a;
+            --bg-panel: #0f1011;
+            --bg-surface: #191a1b;
+            --bg-card: rgba(255,255,255,0.02);
+            --border-subtle: rgba(255,255,255,0.05);
+            --border-default: rgba(255,255,255,0.08);
+            --text-primary: #f7f8f8;
+            --text-secondary: #d0d6e0;
+            --text-tertiary: #8a8f98;
+            --text-quaternary: #62666d;
+            --accent: #7170ff;
+            --accent-hover: #828fff;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
+
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
         body {
-            margin: 0; padding: 0;
-            background: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, sans-serif;
-            display: flex; align-items: center; justify-content: center;
-            height: 100vh;
+            font-family: var(--font-sans);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
+
+        /* Subtle background glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -40%;
+            left: -20%;
+            width: 70%;
+            height: 80%;
+            background: radial-gradient(ellipse, rgba(113,112,255,0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%;
+            right: -10%;
+            width: 50%;
+            height: 60%;
+            background: radial-gradient(ellipse, rgba(113,112,255,0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
         .login-card {
-            background: var(--card);
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            width: 90%; max-width: 360px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 2rem 2rem;
+            width: 92%;
+            max-width: 380px;
             text-align: center;
-            border: 1px solid #334155;
+            position: relative;
+            z-index: 1;
+            animation: fade-up 0.5s ease forwards;
         }
-        .logo { font-size: 3rem; margin-bottom: 1rem; }
-        h2 { margin: 0 0 1.5rem 0; font-weight: 700; color: var(--primary); }
-        .input-group { margin-bottom: 1.5rem; text-align: left; }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-wrap {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, rgba(113,112,255,0.15), rgba(113,112,255,0.05));
+            border: 1px solid rgba(113,112,255,0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        .logo-wrap img {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: block;
+        }
+        .login-card:hover .logo-wrap {
+            transform: scale(1.03);
+            box-shadow: 0 0 24px rgba(113,112,255,0.12);
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.01em;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-quaternary);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 1.25rem;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
         input {
-            width: 100%; padding: 0.75rem 1rem;
-            background: #0f172a; border: 1px solid #334155;
-            border-radius: 0.5rem; color: white; font-size: 1rem;
-            box-sizing: border-box; outline: none; transition: border-color 0.2s;
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            background: var(--bg-deep);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
         }
-        input:focus { border-color: var(--primary); }
+        input::placeholder { color: var(--text-quaternary); }
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(113,112,255,0.12);
+        }
+
         button {
-            width: 100%; padding: 0.75rem; border: none;
-            background: var(--primary); color: white;
-            font-size: 1rem; font-weight: 600; border-radius: 0.5rem;
-            cursor: pointer; transition: transform 0.1s, background 0.2s;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.01em;
         }
-        button:active { transform: scale(0.98); }
-        .error { color: #ef4444; margin-top: 1rem; font-size: 0.9rem; display: none; }
+        button:hover { background: var(--accent-hover); }
+        button:active { transform: scale(0.97); }
+
+        .footer-text {
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            color: var(--text-quaternary);
+        }
+
+        .error {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.6rem 0.8rem;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: var(--radius-sm);
+            color: #ef4444;
+            font-size: 0.82rem;
+            font-weight: 500;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
     </style>
 </head>
 <body>
     <div class="login-card" id="card">
-        <div class="logo">🦐</div>
-        <h2>虾卫士</h2>
+        <div class="logo-wrap"><img src="/shrimp-guard/hermes_logo.png" alt="Hermes"></div>
+        <h1>Hermes 守卫</h1>
+        <p class="subtitle">安全网关 · 访问授权</p>
+
         <form action="/shrimp-guard/do-login" method="POST">
             <div class="input-group">
-                <input type="password" name="password" placeholder="请输入访问密钥" autofocus required>
+                <label for="pw">访问密钥</label>
+                <input type="password" id="pw" name="password" placeholder="请输入密钥" autofocus required>
             </div>
             <button type="submit">立即授权</button>
         </form>
-        <div class="error" id="errorHint">密钥无效，请重新尝试</div>
+
+        <div class="error" id="errorHint">
+            <span>密钥无效，请重新尝试</span>
+        </div>
+
+        <p class="footer-text">Hermes Agent · 安全网关</p>
     </div>
+
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('error')) {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('error')) {
             document.getElementById('errorHint').style.display = 'block';
-            const card = document.getElementById('card');
-            card.style.animation = 'shake 0.4s ease-in-out';
         }
     </script>
-    <style>
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-    </style>
 </body>
 </html>

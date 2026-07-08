@@ -31,6 +31,7 @@ services:
         volumes:
             - '/home/lighthouse/workspace/WebServer/nginx/guard/config.json:/app/config.json'
             - '/home/lighthouse/workspace/WebServer/nginx/guard/server.js:/app/server.js'
+            - '/home/lighthouse/workspace/WebServer/nginx/guard/public:/app/public:ro'
             - '/proc:/host/proc:ro'
             - '/:/hostroot:ro'
         networks:
