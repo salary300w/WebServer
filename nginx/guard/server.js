@@ -179,7 +179,17 @@ function calcElapsed(startTicks) {
 }
 
 app.get('/api/hermes/info', async (req, res) => {
-    const HOME = '/hostroot/home/lighthouse/.hermes';
+    const BASE = '/hostroot/home/lighthouse/.hermes';
+    // 探测当前活跃 profile（切换 soul 后会变化）
+    let activeProfile = 'default';
+    try {
+        const ap = fs.readFileSync(BASE + '/active_profile', 'utf8').trim();
+        if (ap && ap !== 'default') activeProfile = ap;
+    } catch (e) {}
+    const HOME = activeProfile === 'default'
+        ? BASE
+        : BASE + '/profiles/' + activeProfile;
+
     try {
         // 1. Config
         let model = 'unknown', provider = 'unknown';
@@ -260,7 +270,7 @@ app.get('/api/hermes/info', async (req, res) => {
             memoryChars, memoryLimit, userChars, userLimit,
             cronCount,
             balance, balanceCurrency,
-            profile: 'default'
+            profile: activeProfile
         });
     } catch (err) {
         console.error('采集 Hermes 信息失败:', err);

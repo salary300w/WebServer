@@ -355,6 +355,10 @@
           <span class="stat-value" id="gw-uptime">--</span>
         </div>
         <div class="stat-item">
+          <span class="stat-label">当前 Soul</span>
+          <span class="stat-value" id="hermes-soul">--</span>
+        </div>
+        <div class="stat-item">
           <span class="stat-label">模型</span>
           <span class="stat-value" id="hermes-model">--</span>
         </div>
@@ -459,6 +463,11 @@
           badge.innerHTML = '<span class="badge-dot"></span>已停止';
         }
         document.getElementById('gw-uptime').textContent = d.gatewayUptime || '--';
+        // Soul 显示 — 如果当前 soul 就是阿尼亚，加个小彩蛋！
+        const soulEl = document.getElementById('hermes-soul');
+        const rawSoul = d.profile || 'default';
+        soulEl.textContent = rawSoul;
+        soulEl.classList.remove('skeleton');
         document.getElementById('hermes-model').textContent = d.model || '--';
         document.getElementById('hermes-provider').textContent = d.provider || '--';
 
@@ -480,7 +489,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    ['cpu-v','mem-v','disk-v','uptime-v','os-v','api-balance'].forEach(id => {
+    ['cpu-v','mem-v','disk-v','uptime-v','os-v','api-balance','hermes-soul'].forEach(id => {
       const el = document.getElementById(id);
       if (el && (el.textContent === '--%' || el.textContent === '--h --m' || el.textContent === '--')) {
         el.classList.add('skeleton');
