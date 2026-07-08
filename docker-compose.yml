@@ -13,6 +13,8 @@ services:
             - "86:86"
             - "8080:8080"
         volumes:
+            - '/home/lighthouse/workspace/WebServer/nginx/hermes-dashboard:/usr/share/nginx/hermes-dashboard:ro'
+            - '/home/lighthouse/workspace/WebServer/nginx/homework:/usr/share/nginx/homework:ro'
             - '/home/lighthouse/workspace/WebServer/root:/usr/share/nginx/html:ro'
             - '/home/lighthouse/workspace/WebServer/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro'
             - '/home/lighthouse/workspace/WebServer/nginx/error-pages:/usr/share/nginx/error-pages:ro'

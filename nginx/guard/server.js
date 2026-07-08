@@ -8,6 +8,43 @@ const app = express();
 const port = 3000;
 const CONFIG_PATH = path.join(__dirname, 'config.json');
 
+// ── In-memory cache ──
+const cache = { balance: null, balanceCurrency: 'CNY', balanceAt: 0 };
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function fetchBalance() {
+    const now = Date.now();
+    if (cache.balance !== null && (now - cache.balanceAt) < CACHE_TTL) {
+        return; // fresh enough
+    }
+    try {
+        const HOME = '/hostroot/home/lighthouse/.hermes';
+        const envPath = HOME + '/.env';
+        if (!fs.existsSync(envPath)) return;
+        const envRaw = fs.readFileSync(envPath, 'utf8');
+        const keyMatch = envRaw.match(/^DEEPSEEK_API_KEY=(.+)$/m);
+        if (!keyMatch) return;
+        const resp = await fetch('https://api.deepseek.com/user/balance', {
+            headers: { 'Authorization': 'Bearer ' + keyMatch[1].trim() }
+        });
+        if (resp.ok) {
+            const balData = await resp.json();
+            if (balData && balData.balance_infos && balData.balance_infos.length > 0) {
+                cache.balance = balData.balance_infos[0].total_balance;
+                cache.balanceCurrency = balData.balance_infos[0].currency || 'CNY';
+                cache.balanceAt = now;
+            }
+        }
+    } catch (e) {
+        console.error('获取余额失败:', e.message);
+    }
+}
+
+// Pre-warm cache on startup
+fetchBalance();
+// Keep cache fresh in background every 5 min
+setInterval(fetchBalance, CACHE_TTL);
+
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
@@ -141,7 +178,7 @@ function calcElapsed(startTicks) {
     } catch (e) { return '--'; }
 }
 
-app.get('/api/hermes/info', (req, res) => {
+app.get('/api/hermes/info', async (req, res) => {
     const HOME = '/hostroot/home/lighthouse/.hermes';
     try {
         // 1. Config
@@ -210,12 +247,19 @@ app.get('/api/hermes/info', (req, res) => {
             }
         } catch (e) {}
 
+        // 6. API balance (cached, refetches every 5 min)
+        const balance = cache.balance || '--';
+        const balanceCurrency = cache.balanceCurrency || 'CNY';
+        // Trigger background refresh if stale (doesn't block response)
+        fetchBalance();
+
         res.json({
             model, provider,
             gatewayRunning, gatewayUptime,
             skillCount, skillCategories,
             memoryChars, memoryLimit, userChars, userLimit,
             cronCount,
+            balance, balanceCurrency,
             profile: 'default'
         });
     } catch (err) {

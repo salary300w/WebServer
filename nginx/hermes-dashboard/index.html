@@ -362,6 +362,10 @@
           <span class="stat-label">提供商</span>
           <span class="stat-value" id="hermes-provider">--</span>
         </div>
+        <div class="stat-item">
+          <span class="stat-label">API 余额</span>
+          <span class="stat-value" id="api-balance">--</span>
+        </div>
       </div>
     </div>
 
@@ -462,12 +466,21 @@
         document.getElementById('skill-count').textContent = d.skillCount || '0';
         document.getElementById('skill-cats').textContent = (d.skillCategories && d.skillCategories.length) || '0';
         document.getElementById('cron-count').textContent = d.cronCount || '0';
+
+        // Balance
+        const balEl = document.getElementById('api-balance');
+        if (d.balance && d.balance !== '--') {
+          balEl.textContent = '\u00a5' + d.balance;
+          balEl.classList.remove('skeleton');
+        } else {
+          balEl.textContent = '--';
+        }
       })
       .catch(e => console.error('Hermes 信息获取失败:', e));
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    ['cpu-v','mem-v','disk-v','uptime-v','os-v'].forEach(id => {
+    ['cpu-v','mem-v','disk-v','uptime-v','os-v','api-balance'].forEach(id => {
       const el = document.getElementById(id);
       if (el && (el.textContent === '--%' || el.textContent === '--h --m' || el.textContent === '--')) {
         el.classList.add('skeleton');
