@@ -133,7 +133,7 @@
         }
 
         function updateData() {
-            fetch('sys_data.json?t=' + Date.now())
+            fetch('/shrimp-guard/api/status')
                 .then(r => r.json())
                 .then(d => {
                     let cpuP = safePercent(d.cpu);

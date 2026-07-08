@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 const app = express();
 const port = 3000;
@@ -51,6 +52,78 @@ app.post('/do-login', (req, res) => {
 app.get('/logout', (req, res) => {
     res.clearCookie('shrimp_auth');
     res.redirect('/login.html');
+});
+
+// === 系统状态 API ===
+
+function parseCpuLine(data) {
+    const line = data.split('\n').find(l => l.startsWith('cpu '));
+    if (!line) return null;
+    const parts = line.trim().split(/\s+/).slice(1).map(Number);
+    return { user: parts[0], nice: parts[1], system: parts[2], idle: parts[3], iowait: parts[4], irq: parts[5], softirq: parts[6] };
+}
+
+function parseMemValue(data, key) {
+    const m = data.match(new RegExp('^' + key + ':\\s+(\\d+)', 'm'));
+    return m ? parseInt(m[1]) : 0;
+}
+
+function formatUptime(data) {
+    const sec = parseInt(data.split(' ')[0]) || 0;
+    const d = Math.floor(sec / 86400);
+    const h = Math.floor((sec % 86400) / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    return d > 0 ? d + '天' + h + '小时' : h + '小时' + m + '分钟';
+}
+
+app.get('/api/status', (req, res) => {
+    try {
+        const stat1 = fs.readFileSync('/host/proc/stat', 'utf8');
+        const cpu1 = parseCpuLine(stat1);
+
+        setTimeout(() => {
+            try {
+                const stat2 = fs.readFileSync('/host/proc/stat', 'utf8');
+                const cpu2 = parseCpuLine(stat2);
+
+                const totalDelta = (cpu2.user - cpu1.user) + (cpu2.nice - cpu1.nice)
+                    + (cpu2.system - cpu1.system) + (cpu2.idle - cpu1.idle)
+                    + (cpu2.iowait - cpu1.iowait) + (cpu2.irq - cpu1.irq)
+                    + (cpu2.softirq - cpu1.softirq);
+                const idleDelta = cpu2.idle - cpu1.idle;
+                const cpu = totalDelta > 0 ? ((totalDelta - idleDelta) / totalDelta * 100).toFixed(1) : '0';
+
+                const memInfo = fs.readFileSync('/host/proc/meminfo', 'utf8');
+                const memTotal = parseMemValue(memInfo, 'MemTotal');
+                const memAvail = parseMemValue(memInfo, 'MemAvailable');
+                const memory = memTotal > 0 ? ((memTotal - memAvail) / memTotal * 100).toFixed(1) : '0';
+
+                const uptime = formatUptime(fs.readFileSync('/host/proc/uptime', 'utf8'));
+
+                const dfOut = execSync('df /hostroot', { encoding: 'utf8', timeout: 3000 });
+                const dfLast = dfOut.trim().split('\n').pop().split(/\s+/);
+                const disk = dfLast[4] ? dfLast[4].replace('%', '') : '0';
+
+                let hostname = 'unknown';
+                try { hostname = fs.readFileSync('/hostroot/etc/hostname', 'utf8').trim(); } catch (e) {}
+
+                let osName = 'Linux';
+                try {
+                    const osData = fs.readFileSync('/hostroot/etc/os-release', 'utf8');
+                    const m = osData.match(/PRETTY_NAME="([^"]+)"/);
+                    if (m) osName = m[1];
+                } catch (e) {}
+
+                res.json({ cpu, memory, disk, uptime, hostname, os: osName });
+            } catch (err) {
+                console.error('状态采集失败:', err);
+                res.status(500).json({ error: '采集失败' });
+            }
+        }, 200);
+    } catch (err) {
+        console.error('状态采集失败:', err);
+        res.status(500).json({ error: '采集失败' });
+    }
 });
 
 app.listen(port, () => {
