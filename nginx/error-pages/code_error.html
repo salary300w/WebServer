@@ -1,88 +1,432 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeServer 链路中断</title>
-    <style>
-        :root {
-            --term-green: #4ade80;
-            --term-bg: #0f172a;
-        }
-        body {
-            background-color: var(--term-bg);
-            color: var(--term-green);
-            font-family: 'Fira Code', 'Courier New', monospace;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        .container {
-            text-align: left;
-            border-left: 2px solid var(--term-green);
-            padding-left: 20px;
-            max-width: 600px;
-        }
-        .glitch {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-        .code {
-            color: #94a3b8;
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            height: 1.2rem;
-            background: var(--term-green);
-            animation: blink 1s infinite;
-            vertical-align: middle;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        a {
-            color: var(--term-bg);
-            background: var(--term-green);
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        a:hover {
-            opacity: 0.8;
-            box-shadow: 0 0 15px var(--term-green);
-        }
-        .shrimp-tail {
-            font-size: 0.8rem;
-            margin-top: 3rem;
-            color: #334155;
-        }
-    </style>
+<meta charset="utf-8">
+<title>Code Server — 服务中断</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep: #010102;
+  --bg-page: #08090a;
+  --bg-panel: #0f1011;
+  --bg-surface: #191a1b;
+  --bg-card: rgba(255,255,255,0.02);
+  --bg-card-hover: rgba(255,255,255,0.04);
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-default: rgba(255,255,255,0.08);
+  --text-primary: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-tertiary: #8a8f98;
+  --text-quaternary: #62666d;
+  --accent: #7170ff;
+  --accent-hover: #828fff;
+  --green: #27a644;
+  --emerald: #10b981;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+[data-theme="light"] {
+  --bg-deep: #f2f3f5;
+  --bg-page: #ffffff;
+  --bg-panel: #f8f9fa;
+  --bg-surface: #eef0f2;
+  --bg-card: rgba(0,0,0,0.02);
+  --bg-card-hover: rgba(0,0,0,0.04);
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-default: rgba(0,0,0,0.1);
+  --text-primary: #1d1d1f;
+  --text-secondary: #3a3a3e;
+  --text-tertiary: #6b6b72;
+  --text-quaternary: #9a9aa0;
+  --accent: #5b5bd6;
+  --accent-hover: #6b6be8;
+}
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; height: 100%; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+canvas#net {
+  position: fixed;
+  inset: 0;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-title {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.165px;
+  color: var(--text-primary);
+}
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-status {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--red);
+  padding: 4px 10px;
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 9999px;
+  background: rgba(239,68,68,0.08);
+}
+.nav-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(239,68,68,0.4);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.theme-toggle {
+  all: unset;
+  cursor: pointer;
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  user-select: none;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-default);
+  transform: scale(1.05);
+}
+.theme-toggle:active { transform: scale(0.95); }
+
+.container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  position: relative;
+  z-index: 10;
+}
+
+.error-card {
+  max-width: 520px;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  transform: translateY(8px);
+  animation: fade-up 0.4s ease forwards;
+}
+@keyframes fade-up {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.error-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(239,68,68,0.12);
+  border: 1px solid rgba(239,68,68,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.error-info { min-width: 0; }
+.error-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+.error-sub {
+  font-size: 0.75rem;
+  color: var(--text-quaternary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+.route-table {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.route-header {
+  background: var(--bg-card);
+  padding: 8px 14px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-quaternary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.route-row {
+  display: grid;
+  grid-template-columns: 1fr auto 72px;
+  padding: 11px 14px;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--border-subtle);
+  gap: 8px;
+  align-items: center;
+}
+.route-row:last-child { border-bottom: none; }
+.route-name { color: var(--text-tertiary); }
+.route-port {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+.status-ok {
+  color: var(--emerald);
+  font-weight: 500;
+  text-align: right;
+}
+.status-err {
+  color: var(--red);
+  font-weight: 500;
+  text-align: right;
+  animation: blink-err 1.5s infinite;
+}
+@keyframes blink-err {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.alert-box {
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 24px;
+}
+.alert-title {
+  color: var(--red);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.alert-msg {
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--font-sans);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--hover-border, var(--border-default));
+  transform: translateY(-1px);
+}
+
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-quaternary);
+  padding: 24px 0 8px;
+  letter-spacing: 0.3px;
+  position: relative;
+  z-index: 10;
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="glitch">ERROR: TRANSMISSION_FAILURE_1006</div>
-        <div class="code">
-            > system.connection.status = "LOST"<br>
-            > proxy_handshake: failed_to_stabilize<br>
-            > reason: CodeServer backend is currently unreachable...<br>
-            <span class="cursor"></span>
-        </div>
-        <div>
-            <a href="/">⚡ 尝试重连或返回根目录</a>
-        </div>
-        <div class="shrimp-tail">
-            -- 由 虾卫士(ShrimpGuard) 安保系统监控维护 --
-        </div>
+<canvas id="net"></canvas>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="nav-title">Hermes 提示</span>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="theme-btn" title="切换主题">🌙</button>
+    <span class="nav-status">
+      <span class="nav-status-dot"></span>
+      服务中断
+    </span>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="error-card">
+    <div class="error-header">
+      <div class="error-icon">💻</div>
+      <div class="error-info">
+        <div class="error-name">Code Server</div>
+        <div class="error-sub">Port 83</div>
+      </div>
     </div>
+
+    <div class="route-table">
+      <div class="route-header">SERVICE ROUTING</div>
+      <div class="route-row">
+        <span class="route-name">Code Server WebUI</span>
+        <span class="route-port">WebUI</span>
+        <span class="status-err">✗ DOWN</span>
+      </div>
+      <div class="route-row">
+        <span class="route-name">Backend Service</span>
+        <span class="route-port">Backend</span>
+        <span class="status-err">✗ UNREACHABLE</span>
+      </div>
+      <div class="route-row">
+        <span class="route-name">Nginx Proxy (Port 83)</span>
+        <span class="route-port">Proxy</span>
+        <span class="status-ok">✓ RUNNING</span>
+      </div>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-title">⚠ SERVICE UNAVAILABLE</div>
+      <div class="alert-msg">Code Server 编辑器后端服务无法连接。请检查 code-server 容器状态或重启服务。</div>
+    </div>
+
+    <div class="btn-row">
+      <a href="/" class="btn btn-primary">↩ 返回主页</a>
+      <a href="javascript:location.reload()" class="btn btn-secondary">⟳ 刷新重试</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Hermes Agent · 虾卫士(ShrimpGuard) 安保系统监控维护</div>
+
+<script>
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-btn').textContent = theme === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('hermes-theme', theme);
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+}
+(function initTheme() {
+  const saved = localStorage.getItem('hermes-theme');
+  if (saved === 'light' || saved === 'dark') {
+    applyTheme(saved);
+  } else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(prefersDark ? 'dark' : 'light');
+  }
+})();
+document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+
+const canvas = document.getElementById('net');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const nodes = Array.from({length: 36}, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  vx: (Math.random() - 0.5) * 0.3,
+  vy: (Math.random() - 0.5) * 0.3,
+}));
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  nodes.forEach(n => {
+    n.x += n.vx; n.y += n.vy;
+    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+  });
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i+1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(113,112,255,${0.3 * (1 - d/120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+    }
+    ctx.beginPath();
+    ctx.arc(nodes[i].x, nodes[i].y, 1.5, 0, Math.PI*2);
+    ctx.fillStyle = '#7170ff';
+    ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
 </body>
 </html>
