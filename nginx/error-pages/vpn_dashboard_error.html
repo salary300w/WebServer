@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>VPN Dashboard — 服务中断</title>
+<link rel="icon" type="image/x-icon" href="hermes_icon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -91,6 +92,16 @@ canvas#net {
   letter-spacing: -0.165px;
   color: var(--text-primary);
 }
+.logo-box {
+  width: 32px; height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.2s;
+}
+.logo-box:hover { opacity: 0.8; }
+.logo-box img { border-radius: 4px; }
 .nav-right { display: flex; align-items: center; gap: 12px; }
 .nav-status {
   display: flex; align-items: center; gap: 6px;
@@ -309,6 +320,7 @@ canvas#net {
 
 <nav class="navbar">
   <div class="nav-left">
+    <div class="logo-box"><img src="hermes_logo.png" width="24" height="24" alt="H"></div>
     <span class="nav-title">Hermes 提示</span>
   </div>
   <div class="nav-right">
