@@ -35,8 +35,39 @@
     --radius-lg: 12px;
     --shadow-card: 0 0 0 1px rgba(0,0,0,0.2);
     --shadow-inset: inset 0 0 12px 0 rgba(0,0,0,0.2);
+    --skeleton-shine: rgba(255,255,255,0.04);
+    --skeleton-mid: rgba(255,255,255,0.08);
+    --track-bg: rgba(255,255,255,0.06);
+    --hover-border: rgba(255,255,255,0.12);
+    --theme-toggle-bg: rgba(255,255,255,0.04);
+    --theme-toggle-hover: rgba(255,255,255,0.1);
     --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+
+  /* ── Light theme ── */
+  [data-theme="light"] {
+    --bg-deep: #f2f3f5;
+    --bg-page: #ffffff;
+    --bg-panel: #f8f9fa;
+    --bg-surface: #eef0f2;
+    --bg-secondary: #e4e5e8;
+    --bg-card: rgba(0,0,0,0.02);
+    --bg-card-hover: rgba(0,0,0,0.04);
+    --border-subtle: rgba(0,0,0,0.06);
+    --border-default: rgba(0,0,0,0.1);
+    --text-primary: #1d1d1f;
+    --text-secondary: #3a3a3e;
+    --text-tertiary: #6b6b72;
+    --text-quaternary: #9a9aa0;
+    --accent: #5b5bd6;
+    --accent-hover: #6b6be8;
+    --skeleton-shine: rgba(0,0,0,0.04);
+    --skeleton-mid: rgba(0,0,0,0.08);
+    --track-bg: rgba(0,0,0,0.06);
+    --hover-border: rgba(0,0,0,0.12);
+    --theme-toggle-bg: rgba(0,0,0,0.04);
+    --theme-toggle-hover: rgba(0,0,0,0.1);
   }
 
   html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
@@ -110,6 +141,30 @@
     font-family: var(--font-mono);
     white-space: nowrap;
   }
+  .theme-toggle {
+    all: unset;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    background: var(--theme-toggle-bg);
+    border: 1px solid var(--border-subtle);
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    user-select: none;
+    line-height: 1;
+  }
+  .theme-toggle:hover {
+    background: var(--theme-toggle-hover);
+    border-color: var(--border-default);
+    transform: scale(1.05);
+  }
+  .theme-toggle:active {
+    transform: scale(0.95);
+  }
 
   /* ── Container ── */
   .container {
@@ -131,7 +186,7 @@
   }
   .card:hover {
     background: var(--bg-card-hover);
-    border-color: rgba(255,255,255,0.12);
+    border-color: var(--hover-border);
   }
   .card-header {
     display: flex;
@@ -180,7 +235,7 @@
   }
   .gauge-track {
     height: 4px;
-    background: rgba(255,255,255,0.06);
+    background: var(--track-bg);
     border-radius: 2px;
     overflow: hidden;
   }
@@ -204,7 +259,7 @@
   /* ── Skeleton loading ── */
   .skeleton {
     display: inline-block;
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, var(--skeleton-shine) 25%, var(--skeleton-mid) 50%, var(--skeleton-shine) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
     border-radius: 3px;
@@ -292,6 +347,7 @@
       <span class="nav-title">Hermes 状态</span>
     </div>
     <div class="nav-right">
+      <button class="theme-toggle" id="theme-btn" title="切换主题">🌙</button>
       <span class="nav-refresh" id="refresh-time">--:--:--</span>
       <span class="nav-status">
         <span class="nav-status-dot"></span>
@@ -397,6 +453,28 @@
   </div>
 
 <script>
+  // ── Theme toggle ──
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('theme-btn').textContent = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('hermes-theme', theme);
+  }
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  }
+  // Restore saved theme on load, fallback to system preference
+  (function initTheme() {
+    const saved = localStorage.getItem('hermes-theme');
+    if (saved === 'light' || saved === 'dark') {
+      applyTheme(saved);
+    } else {
+      // Follow system
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(prefersDark ? 'dark' : 'light');
+    }
+  })();
+
   function fmtTime(d) {
     const h = String(d.getHours()).padStart(2,'0');
     const m = String(d.getMinutes()).padStart(2,'0');
@@ -463,10 +541,14 @@
           badge.innerHTML = '<span class="badge-dot"></span>已停止';
         }
         document.getElementById('gw-uptime').textContent = d.gatewayUptime || '--';
-        // Soul 显示 — 如果当前 soul 就是阿尼亚，加个小彩蛋！
+        // Soul 显示 — 阿尼亚小彩蛋 🥜
         const soulEl = document.getElementById('hermes-soul');
         const rawSoul = d.profile || 'default';
-        soulEl.textContent = rawSoul;
+        if (rawSoul === 'anya') {
+          soulEl.innerHTML = '<span style="color:#f472b6">阿尼亚 🥜</span>';
+        } else {
+          soulEl.textContent = rawSoul;
+        }
         soulEl.classList.remove('skeleton');
         document.getElementById('hermes-model').textContent = d.model || '--';
         document.getElementById('hermes-provider').textContent = d.provider || '--';
@@ -489,6 +571,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('theme-btn').addEventListener('click', toggleTheme);
     ['cpu-v','mem-v','disk-v','uptime-v','os-v','api-balance','hermes-soul'].forEach(id => {
       const el = document.getElementById(id);
       if (el && (el.textContent === '--%' || el.textContent === '--h --m' || el.textContent === '--')) {
