@@ -329,6 +329,79 @@
     color: var(--text-primary); font-variant-numeric: tabular-nums;
   }
 
+  /* ── Service Navigation ── */
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  @media (max-width: 480px) {
+    .service-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .service-tag {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+    min-height: 36px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-default);
+    border-radius: 9999px;
+    background: var(--bg-card);
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+    line-height: 1.2;
+    white-space: nowrap;
+    width: 100%;
+    position: relative;
+  }
+  .service-tag:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--hover-border);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .service-tag:active {
+    transform: translateY(0);
+  }
+  .service-tag .srv-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s;
+    position: relative;
+    z-index: 1;
+  }
+  .service-tag .srv-name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    pointer-events: none;
+  }
+  .service-tag .srv-dot.online {
+    background: var(--emerald);
+    box-shadow: 0 0 6px rgba(16,185,129,0.4);
+  }
+  .service-tag .srv-dot.offline {
+    background: var(--red);
+    box-shadow: 0 0 6px rgba(239,68,68,0.3);
+  }
+  .service-tag .srv-dot.checking {
+    background: var(--text-quaternary);
+    animation: pulse-dot 1.2s ease-in-out infinite;
+  }
+  .service-tag.srv-current {
+    border-color: var(--accent);
+    background: rgba(113,112,255,0.08);
+  }
+
   /* ── Footer ── */
   .footer {
     text-align: center;
@@ -447,6 +520,15 @@
         <span class="row-num-label">定时任务</span>
         <span class="row-num-val" id="cron-count">--</span>
       </div>
+    </div>
+
+    <!-- 服务导航 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">服务导航</span>
+        <span class="card-icon">🔗</span>
+      </div>
+      <div class="service-grid" id="service-grid"></div>
     </div>
 
     <div class="footer">Hermes Agent · 系统状态</div>
@@ -570,6 +652,46 @@
       .catch(e => console.error('Hermes 信息获取失败:', e));
   }
 
+  // ── Service Navigation ──
+  const SERVICES = [
+    { port: 81, name: 'Dashboard', icon: '🏠' },
+    { port: 82, name: 'noVNC',     icon: '🖥️' },
+    { port: 83, name: 'CodeServe', icon: '💻' },
+    { port: 84, name: 'Antigrav',  icon: '🚀' },
+    { port: 85, name: 'NextChat',  icon: '💬' },
+    { port: 86, name: 'VPN Dash',  icon: '🔒' },
+  ];
+
+  function renderServices() {
+    const grid = document.getElementById('service-grid');
+    const host = window.location.hostname;
+    const curPort = window.location.port || (window.location.protocol === 'https:' ? 443 : 80);
+    grid.innerHTML = SERVICES.map(s => {
+      const here = (parseInt(s.port) === parseInt(curPort));
+      const url = `//${host}:${s.port}/`;
+      return `<a href="${url}" class="service-tag${here ? ' srv-current' : ''}" target="_blank" rel="noopener" data-port="${s.port}">
+        <span class="srv-dot checking"></span>
+        <span class="srv-name">${s.icon} ${s.name}</span>
+      </a>`;
+    }).join('');
+    checkAllServices();
+  }
+
+  function checkAllServices() {
+    fetch('/shrimp-guard/api/services/health')
+      .then(r => r.json())
+      .then(data => {
+        SERVICES.forEach(s => {
+          const info = data[s.port];
+          if (!info) return;
+          const dot = document.querySelector(`.service-tag[data-port="${s.port}"] .srv-dot`);
+          if (!dot) return;
+          dot.className = 'srv-dot ' + (info.status === 'online' ? 'online' : 'offline');
+        });
+      })
+      .catch(e => console.error('服务健康检测失败:', e));
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('theme-btn').addEventListener('click', toggleTheme);
     ['cpu-v','mem-v','disk-v','uptime-v','os-v','api-balance','hermes-soul'].forEach(id => {
@@ -580,8 +702,10 @@
     });
     updateSystem();
     updateHermes();
+    renderServices();
     setInterval(updateSystem, 3000);
     setInterval(updateHermes, 10000);
+    setInterval(checkAllServices, 600000);
   });
 </script>
 </body>

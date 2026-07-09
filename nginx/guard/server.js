@@ -278,6 +278,27 @@ app.get('/api/hermes/info', async (req, res) => {
     }
 });
 
+
+// === 服务健康检测 API ===
+app.get('/api/services/health', async (req, res) => {
+    const PORTS = [81, 82, 83, 84, 85, 86];
+    const NAMES = {81:'Dashboard',82:'noVNC',83:'CodeServe',84:'Antigrav',85:'NextChat',86:'VPN Dash'};
+    const result = {};
+    // Temporarily disable TLS verification for internal health checks
+    const origEnv = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    for (const port of PORTS) {
+        try {
+            const r = await fetch('https://nginx:' + port + '/', { signal: AbortSignal.timeout(3000) });
+            result[port] = { name: NAMES[port], status: (r.status >= 200 && r.status < 400) ? 'online' : 'offline', code: r.status };
+        } catch (e) {
+            result[port] = { name: NAMES[port], status: 'offline', code: 0, error: e.message };
+        }
+    }
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = origEnv;
+    res.json(result);
+});
+
 app.listen(port, () => {
     console.log(`虾卫士 (读本子模式) 正在 ${port} 端口值班...`);
 });
