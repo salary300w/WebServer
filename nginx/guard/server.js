@@ -62,7 +62,7 @@ function getConfig() {
 
 app.get('/verify', (req, res) => {
     const config = getConfig();
-    if (req.cookies.shrimp_auth === config.token_secret) {
+    if (req.cookies.hermes_auth === config.token_secret) {
         res.status(200).send('OK');
     } else {
         res.status(401).send('Unauthorized');
@@ -74,7 +74,7 @@ app.post('/do-login', (req, res) => {
     const config = getConfig();
     
     if (password === config.password) {
-        res.cookie('shrimp_auth', config.token_secret, { 
+        res.cookie('hermes_auth', config.token_secret, { 
             maxAge: 604800000, 
             httpOnly: true, 
             path: '/',
@@ -87,7 +87,7 @@ app.post('/do-login', (req, res) => {
 });
 
 app.get('/logout', (req, res) => {
-    res.clearCookie('shrimp_auth');
+    res.clearCookie('hermes_auth');
     res.redirect('/login.html');
 });
 
@@ -300,5 +300,5 @@ app.get('/api/services/health', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`虾卫士 (读本子模式) 正在 ${port} 端口值班...`);
+    console.log(`Hermes Guard (读本子模式) 正在 ${port} 端口值班...`);
 });

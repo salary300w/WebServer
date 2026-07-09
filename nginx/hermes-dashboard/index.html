@@ -571,7 +571,7 @@
   }
 
   function updateSystem() {
-    fetch('/shrimp-guard/api/status')
+    fetch('/hermes-guard/api/status')
       .then(r => r.json())
       .then(d => {
         const cpuP = parseFloat(d.cpu) || 0;
@@ -610,7 +610,7 @@
   }
 
   function updateHermes() {
-    fetch('/shrimp-guard/api/hermes/info')
+    fetch('/hermes-guard/api/hermes/info')
       .then(r => r.json())
       .then(d => {
         // Gateway status
@@ -678,7 +678,7 @@
   }
 
   function checkAllServices() {
-    fetch('/shrimp-guard/api/services/health')
+    fetch('/hermes-guard/api/services/health')
       .then(r => r.json())
       .then(data => {
         SERVICES.forEach(s => {
