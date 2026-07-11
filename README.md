@@ -10,7 +10,7 @@ Nginx + Docker 反向代理网关，承载多服务统一接入与 Hermes 状态
 | **Hermes 状态** | **82 (HTTPS)** | **Hermes Agent 实时监控面板** |
 | code-server | 83 (HTTPS) | VS Code Web 版 |
 | antigravity | 84 (HTTPS) | 反向代理 |
-| NextChat | 85 (HTTPS) | ChatGPT Web UI |
+| Hermes Chat | 85 (HTTPS) | 阿尼亚网页聊天室 |
 | v2raya | 86 (HTTPS) | VPN 管理面板 |
 
 所有 HTTPS 使用自签名证书。

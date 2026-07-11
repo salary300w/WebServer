@@ -4,3 +4,5 @@ root/StrategyB/Backtest_Result.png
 root/StrategyB/Backtest_Result.html
 root/StrategyB/Transaction_Record.html
 .claude
+node_modules/
+nginx/hermes-chat/node_modules/
