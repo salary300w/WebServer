@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 const { execSync } = require('child_process');
 
 const app = express();
@@ -201,18 +202,25 @@ app.get('/api/hermes/info', async (req, res) => {
             if (pm) provider = pm[1];
         } catch (e) {}
 
-        // 2. Gateway process
+        // 2. Gateway process — scan host processes directly, not dependent on containers
         let gatewayRunning = false, gatewayUptime = '--';
         try {
-            const pidData = JSON.parse(fs.readFileSync(HOME + '/gateway.pid', 'utf8'));
-            const pid = pidData.pid;
-            const procStat = fs.readFileSync('/hostroot/proc/' + pid + '/stat', 'utf8');
-            const closeParen = procStat.lastIndexOf(')');
-            if (closeParen !== -1) {
-                const after = procStat.substring(closeParen + 2).split(' ');
-                const startTicks = parseInt(after[19]);
-                gatewayUptime = calcElapsed(startTicks);
-                gatewayRunning = true;
+            const pids = fs.readdirSync('/hostroot/proc').filter(p => /^\d+$/.test(p));
+            for (const pid of pids) {
+                try {
+                    const cmdline = fs.readFileSync('/hostroot/proc/' + pid + '/cmdline', 'utf8').replace(/\0/g, ' ').trim();
+                    if (cmdline.includes('gateway') && cmdline.includes('hermes') && !cmdline.includes('guard')) {
+                        const procStat = fs.readFileSync('/hostroot/proc/' + pid + '/stat', 'utf8');
+                        const closeParen = procStat.lastIndexOf(')');
+                        if (closeParen !== -1) {
+                            const after = procStat.substring(closeParen + 2).split(' ');
+                            const startTicks = parseInt(after[19]);
+                            gatewayUptime = calcElapsed(startTicks);
+                            gatewayRunning = true;
+                        }
+                        break;
+                    }
+                } catch (e) { /* skip */ }
             }
         } catch (e) {}
 
@@ -278,6 +286,180 @@ app.get('/api/hermes/info', async (req, res) => {
     }
 });
 
+
+// === Docker 容器状态 API ===
+app.get('/api/docker', async (req, res) => {
+    try {
+        const containers = await fetchDockerContainers();
+        res.json({ containers });
+    } catch (err) {
+        res.status(200).json({ containers: [], error: err.message });
+    }
+});
+
+// === Docker 容器操作 API ===
+app.post('/api/docker/action', express.json(), async (req, res) => {
+    const { name, action, password } = req.body;
+    if (!name || !action) {
+        return res.status(400).json({ error: '需要 name 和 action 参数' });
+    }
+    const validActions = ['start', 'stop', 'restart'];
+    if (!validActions.includes(action)) {
+        return res.status(400).json({ error: 'action 必须是 start/stop/restart' });
+    }
+    // Require password for all container operations
+    const config = getConfig();
+    if (!password || password !== config.password) {
+        return res.status(403).json({ error: '密码错误', needPassword: true });
+    }
+    // Safety: don't allow stopping the guard or nginx container
+    if ((name === 'guard' || name === 'nginx') && action === 'stop') {
+        return res.status(403).json({ error: '禁止停止 guard/nginx 容器' });
+    }
+    try {
+        const result = await dockerApi('/containers/' + name + '/' + action, 'POST');
+        res.json({ success: true, action, name, result });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+function dockerApi(path, method) {
+    method = method || 'GET';
+    return new Promise((resolve, reject) => {
+        const opts = {
+            socketPath: '/var/run/docker.sock',
+            path: path,
+            method: method,
+            timeout: method === 'POST' ? 30000 : 5000
+        };
+        const r = http.request(opts, (resp) => {
+            let body = '';
+            resp.on('data', chunk => body += chunk);
+            resp.on('end', () => {
+                if (resp.statusCode >= 200 && resp.statusCode < 400) {
+                    try { resolve(body ? JSON.parse(body) : { status: resp.statusCode }); }
+                    catch (e) { resolve({ status: resp.statusCode, raw: body }); }
+                } else {
+                    reject(new Error('HTTP ' + resp.statusCode + ': ' + body.substring(0, 100)));
+                }
+            });
+        });
+        r.on('error', reject);
+        r.setTimeout(30000, () => { r.destroy(); reject(new Error('timeout')); });
+        r.end();
+    });
+}
+
+async function fetchDockerContainers() {
+    const list = await dockerApi('/containers/json?all=true');
+    // Hide nginx and guard (infra containers) — stopping them kills the dashboard
+    const filtered = list.filter(c => {
+        const name = c.Names[0].replace(/^\//, '');
+        return name !== 'nginx' && name !== 'guard';
+    });
+    // Fetch stats for all containers in parallel
+    const statsResults = await Promise.allSettled(
+        filtered.map(c => dockerApi('/containers/' + c.Id + '/stats?stream=false'))
+    );
+    const statsList = [];
+    for (let i = 0; i < filtered.length; i++) {
+        const c = filtered[i];
+        const statsResult = statsResults[i];
+        if (statsResult.status === 'fulfilled') {
+            const stats = statsResult.value;
+            const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+            const sysDelta = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+            const cpuPct = sysDelta > 0 ? ((cpuDelta / sysDelta) * stats.cpu_stats.online_cpus * 100).toFixed(2) : '0';
+            const memUsage = stats.memory_stats.usage || 0;
+            const memLimit = stats.memory_stats.limit || 1;
+            const memPct = ((memUsage / memLimit) * 100).toFixed(1);
+            
+            statsList.push({
+                name: c.Names[0].replace(/^\//, ''),
+                id: c.Id.substring(0, 12),
+                state: c.State,
+                status: c.Status,
+                cpu: cpuPct + '%',
+                mem: formatBytes(memUsage),
+                memPct: memPct + '%',
+                memLimit: formatBytes(memLimit),
+                ports: c.Ports.map(p => p.publicPort || p.privatePort).filter(Boolean).join(', ') || '-'
+            });
+        } else {
+            statsList.push({
+                name: c.Names[0].replace(/^\//, ''),
+                id: c.Id.substring(0, 12),
+                state: c.State,
+                status: c.Status,
+                cpu: '-',
+                mem: '-',
+                memPct: '-',
+                memLimit: '-',
+                ports: '-'
+            });
+        }
+    }
+    // Sort: running first, then stopped
+    statsList.sort((a, b) => {
+        if (a.state === 'running' && b.state !== 'running') return -1;
+        if (a.state !== 'running' && b.state === 'running') return 1;
+        return 0;
+    });
+    return statsList;
+}
+
+function formatBytes(bytes) {
+    if (!bytes) return '0B';
+    const units = ['B', 'KiB', 'MiB', 'GiB'];
+    let i = 0;
+    let val = bytes;
+    while (val >= 1024 && i < units.length - 1) { val /= 1024; i++; }
+    return val.toFixed(i > 0 ? 1 : 0) + units[i];
+}
+
+// === TOP 进程 API ===
+app.get('/api/processes', (req, res) => {
+    try {
+        // Read directly from /proc via hostroot (which has all host processes)
+        const pids = fs.readdirSync('/hostroot/proc').filter(p => /^\d+$/.test(p));
+        const processes = [];
+        
+        for (const pid of pids) {
+            try {
+                const statRaw = fs.readFileSync('/hostroot/proc/' + pid + '/stat', 'utf8');
+                const closeParen = statRaw.lastIndexOf(')');
+                const after = statRaw.substring(closeParen + 2).split(' ');
+                const state = after[0];
+                const rssPages = parseInt(after[21]) || 0;
+                
+                // Only include processes with meaningful memory
+                if (rssPages < 100) continue; // skip tiny processes (less than ~400KB)
+                
+                let cmdline = '';
+                try {
+                    cmdline = fs.readFileSync('/hostroot/proc/' + pid + '/cmdline', 'utf8').replace(/\0/g, ' ').trim();
+                } catch (e) { continue; }
+                if (!cmdline) continue;
+                
+                const rssMB = ((rssPages * 4096) / 1024 / 1024).toFixed(1);
+                
+                processes.push({
+                    pid: pid,
+                    state: state,
+                    rss: rssMB + 'MB',
+                    command: cmdline.substring(0, 60)
+                });
+            } catch (e) { /* skip failed reads */ }
+        }
+        
+        // Sort by RSS descending, take top 10
+        processes.sort((a, b) => parseFloat(b.rss) - parseFloat(a.rss));
+        res.json({ processes: processes.slice(0, 12) });
+    } catch (err) {
+        res.status(200).json({ processes: [], error: err.message });
+    }
+});
 
 // === 服务健康检测 API ===
 app.get('/api/services/health', async (req, res) => {

@@ -329,6 +329,101 @@
     color: var(--text-primary); font-variant-numeric: tabular-nums;
   }
 
+  /* ── Progress bar (memory usage) ── */
+  .prog-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .prog-label { font-size: 12px; color: var(--text-tertiary); min-width: 80px; flex-shrink: 0; }
+  .prog-track { flex: 1; height: 6px; background: var(--track-bg); border-radius: 3px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease, background 0.3s; width: 0%; }
+  .prog-fill.purple { background: var(--accent); }
+  .prog-fill.green { background: var(--emerald); }
+  .prog-fill.orange { background: var(--orange); }
+  .prog-val { font-family: var(--font-mono); font-size: 11px; color: var(--text-quaternary); min-width: 60px; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ── Docker table ── */
+  .docker-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .docker-table th { text-align: left; font-size: 10px; font-weight: 500; color: var(--text-quaternary); text-transform: uppercase; letter-spacing: 0.4px; padding: 6px 4px; border-bottom: 1px solid var(--border-subtle); }
+  .docker-table td { padding: 7px 4px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .docker-table tr:last-child td { border-bottom: none; }
+  .dock-name { font-family: var(--font-sans); font-weight: 500; font-size: 12px; color: var(--text-primary); }
+  .dock-state { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 500; }
+  .dock-state .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .dock-state .dot.running { background: var(--emerald); box-shadow: 0 0 4px rgba(16,185,129,0.4); }
+  .dock-state .dot.exited { background: var(--text-quaternary); }
+  .dock-mem-bar { display: inline-block; width: 50px; height: 4px; background: var(--track-bg); border-radius: 2px; overflow: hidden; vertical-align: middle; margin-right: 6px; }
+  .dock-mem-fill { height: 100%; border-radius: 2px; }
+
+  /* ── Docker action buttons ── */
+  .dock-actions { white-space: nowrap; text-align: right; }
+  .dock-btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; font-size: 12px; margin: 0 1px; transition: background 0.15s, transform 0.15s; line-height: 1; }
+  .dock-btn:hover { transform: scale(1.12); }
+  .dock-btn:active { transform: scale(0.92); }
+  .dock-btn.start { color: var(--emerald); } .dock-btn.start:hover { background: rgba(16,185,129,0.15); }
+  .dock-btn.stop { color: var(--red); } .dock-btn.stop:hover { background: rgba(239,68,68,0.15); }
+  .dock-btn.restart { color: var(--orange); } .dock-btn.restart:hover { background: rgba(245,158,11,0.15); }
+  .dock-btn.loading { opacity: 0.4; pointer-events: none; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .dock-btn.hidden { display: none; }
+
+  /* ── Confirm Modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    animation: modal-fade 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+  @keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal-box {
+    background: var(--bg-panel); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); padding: 24px; width: 340px;
+    max-width: 90vw; box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+    animation: modal-slide 0.2s ease;
+  }
+  @keyframes modal-slide { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+  .modal-desc { font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px; line-height: 1.5; }
+  .modal-target { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text-primary); display: block; margin-top: 4px; }
+  .modal-input {
+    width: 100%; padding: 10px 12px; font-size: 13px; font-family: var(--font-mono);
+    background: var(--bg-surface); border: 1px solid var(--border-default);
+    border-radius: var(--radius-sm); color: var(--text-primary);
+    outline: none; transition: border-color 0.2s;
+    letter-spacing: 2px;
+  }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-input::placeholder { letter-spacing: 0; color: var(--text-quaternary); font-family: var(--font-sans); }
+  .modal-error { font-size: 11px; color: var(--red); margin-top: 8px; display: none; }
+  .modal-error.show { display: block; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  .modal-btn {
+    all: unset; cursor: pointer; padding: 8px 16px; border-radius: var(--radius-sm);
+    font-size: 12px; font-weight: 500; transition: background 0.15s, transform 0.15s;
+    line-height: 1;
+  }
+  .modal-btn:hover { transform: scale(1.03); }
+  .modal-btn:active { transform: scale(0.97); }
+  .modal-btn.cancel { background: var(--bg-surface); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }
+  .modal-btn.cancel:hover { background: var(--bg-secondary); }
+  .modal-btn.confirm-stop { background: var(--red); color: #fff; }
+  .modal-btn.confirm-stop:hover { background: #dc2626; }
+  .modal-btn.confirm-restart { background: var(--orange); color: #fff; }
+  .modal-btn.confirm-restart:hover { background: #d97706; }
+  .modal-btn.confirm-start { background: var(--emerald); color: #fff; }
+  .modal-btn.confirm-start:hover { background: #059669; }
+  .modal-btn.loading { opacity: 0.5; pointer-events: none; }
+
+  /* ── Process table ── */
+  .proc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .proc-table th { text-align: left; font-size: 10px; font-weight: 500; color: var(--text-quaternary); text-transform: uppercase; letter-spacing: 0.4px; padding: 6px 4px; border-bottom: 1px solid var(--border-subtle); }
+  .proc-table td { padding: 7px 4px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); font-family: var(--font-mono); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .proc-table tr:last-child td { border-bottom: none; }
+  .proc-table .col-pid { color: var(--text-quaternary); font-size: 10px; width: 52px; text-align: right; padding-right: 8px; }
+  .proc-table .col-rss { font-weight: 500; color: var(--text-primary); width: 60px; text-align: right; padding-right: 8px; }
+  .proc-table .col-bar { width: 50px; padding: 0 4px; }
+  .proc-table .proc-bar { display: block; width: 100%; height: 4px; background: var(--track-bg); border-radius: 2px; overflow: hidden; }
+  .proc-table .proc-bar-fill { display: block; height: 100%; border-radius: 2px; }
+  .proc-table .col-cmd { font-size: 11px; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 0; width: auto; }
+
   /* ── Service Navigation ── */
   .service-grid {
     display: grid;
@@ -520,6 +615,40 @@
         <span class="row-num-label">定时任务</span>
         <span class="row-num-val" id="cron-count">--</span>
       </div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border-subtle)">
+        <div class="prog-row">
+          <span class="prog-label">记忆体</span>
+          <div class="prog-track"><div class="prog-fill purple" id="mem-prog"></div></div>
+          <span class="prog-val" id="mem-prog-label">--/--</span>
+        </div>
+        <div class="prog-row">
+          <span class="prog-label">用户档案</span>
+          <div class="prog-track"><div class="prog-fill green" id="user-prog"></div></div>
+          <span class="prog-val" id="user-prog-label">--/--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Docker 容器 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Docker 容器</span>
+        <span class="card-icon">🐳</span>
+      </div>
+      <div id="docker-content">
+        <div style="text-align:center;padding:12px 0;color:var(--text-quaternary);font-size:12px">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 进程排行 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">内存占比排行</span>
+        <span class="card-icon">📋</span>
+      </div>
+      <div id="proc-content">
+        <div style="text-align:center;padding:12px 0;color:var(--text-quaternary);font-size:12px">加载中...</div>
+      </div>
     </div>
 
     <!-- 服务导航 -->
@@ -532,7 +661,21 @@
     </div>
 
     <div class="footer">Hermes Agent · 系统状态</div>
-  </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+      <div class="modal-box">
+        <div class="modal-title" id="modal-title">确认操作</div>
+        <div class="modal-desc" id="modal-desc">请输入密码确认</div>
+        <input class="modal-input" id="modal-password" type="password" placeholder="输入密码" autocomplete="off">
+        <div class="modal-error" id="modal-error">密码错误，请重试</div>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="modal-cancel">取消</button>
+          <button class="modal-btn confirm" id="modal-confirm">确认</button>
+        </div>
+      </div>
+    </div>
+    </div>
 
 <script>
   // ── Theme toggle ──
@@ -639,10 +782,27 @@
         document.getElementById('skill-cats').textContent = (d.skillCategories && d.skillCategories.length) || '0';
         document.getElementById('cron-count').textContent = d.cronCount || '0';
 
-        // Balance
+        // Memory progress bars
+        if (d.memoryChars != null && d.memoryLimit) {
+          const pct = Math.min(100, (d.memoryChars / d.memoryLimit) * 100);
+          const progEl = document.getElementById('mem-prog');
+          progEl.style.width = pct + '%';
+          progEl.className = 'prog-fill ' + (pct > 85 ? 'orange' : 'purple');
+          document.getElementById('mem-prog-label').textContent = d.memoryChars + '/' + d.memoryLimit;
+        }
+        if (d.userChars != null && d.userLimit) {
+          const pct = Math.min(100, (d.userChars / d.userLimit) * 100);
+          const progEl = document.getElementById('user-prog');
+          progEl.style.width = pct + '%';
+          progEl.className = 'prog-fill ' + (pct > 85 ? 'orange' : 'green');
+          document.getElementById('user-prog-label').textContent = d.userChars + '/' + d.userLimit;
+        }
+
+        // Balance detail
         const balEl = document.getElementById('api-balance');
         if (d.balance && d.balance !== '--') {
-          balEl.textContent = '\u00a5' + d.balance;
+          const cur = d.balanceCurrency || 'CNY';
+          balEl.textContent = cur + ' ' + d.balance;
           balEl.classList.remove('skeleton');
         } else {
           balEl.textContent = '--';
@@ -691,6 +851,154 @@
       .catch(e => console.error('服务健康检测失败:', e));
   }
 
+  // ── Docker Containers ──
+  function updateDocker() {
+    fetch('/hermes-guard/api/docker')
+      .then(r => r.json())
+      .then(d => {
+        const el = document.getElementById('docker-content');
+        if (!d.containers || d.containers.length === 0) {
+          el.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-quaternary);font-size:12px">无容器数据</div>';
+          return;
+        }
+        const rows = d.containers.map(c => {
+          const running = c.state === 'running';
+          const memPct = parseFloat(c.memPct) || 0;
+          const safeName = c.name.replace(/'/g,"\\'");
+          const btnStart = running ? 'hidden' : '';
+          const btnStop = running ? '' : 'hidden';
+          const btnRestart = running ? '' : 'hidden';
+          return `<tr>
+            <td><span class="dock-name">${c.name}</span></td>
+            <td><span class="dock-state"><span class="dot ${running ? 'running' : 'exited'}"></span>${c.state}</span></td>
+            <td>${c.cpu}</td>
+            <td><span class="dock-mem-bar"><span class="dock-mem-fill" style="width:${Math.min(100,memPct)}%;background:${memPct > 20 ? 'var(--orange)' : (memPct > 5 ? 'var(--accent)' : 'var(--emerald)')}"></span></span>${c.mem}</td>
+            <td style="color:${memPct > 15 ? 'var(--orange)' : 'var(--text-secondary)'}">${c.memPct}</td>
+            <td class="dock-actions">
+              <button class="dock-btn start ${btnStart}" onclick="doDockerAction('${safeName}','start')" title="启动">▶</button>
+              <button class="dock-btn stop ${btnStop}" onclick="doDockerAction('${safeName}','stop')" title="停止">⏹</button>
+              <button class="dock-btn restart ${btnRestart}" onclick="doDockerAction('${safeName}','restart')" title="重启">↻</button>
+            </td>
+          </tr>`;
+        }).join('');
+        el.innerHTML = `<table class="docker-table">
+          <thead><tr><th>名称</th><th>状态</th><th>CPU</th><th>内存</th><th>占比</th><th>操作</th></tr></thead>
+          <tbody>${rows}</tbody></table>`;
+      })
+      .catch(e => {
+        document.getElementById('docker-content').innerHTML =
+          '<div style="text-align:center;padding:12px 0;color:var(--text-quaternary);font-size:12px">加载失败</div>';
+      });
+  }
+
+  // ── Docker Action ──
+  let pendingAction = null;
+  let pendingName = null;
+  let pendingBtns = [];
+
+  function showModal(name, action) {
+    const labels = { start: '启动', stop: '停止', restart: '重启' };
+    const modal = document.getElementById('confirm-modal');
+    document.getElementById('modal-title').textContent = labels[action] + '容器';
+    document.getElementById('modal-desc').innerHTML = '确定要' + labels[action] + '以下容器？<span class="modal-target">' + name + '</span>';
+    document.getElementById('modal-password').value = '';
+    document.getElementById('modal-error').classList.remove('show');
+    const confirmBtn = document.getElementById('modal-confirm');
+    confirmBtn.textContent = '确认' + labels[action];
+    confirmBtn.className = 'modal-btn confirm-' + action;
+    modal.classList.add('open');
+    pendingAction = action;
+    pendingName = name;
+    // Find target buttons
+    const allRows = document.querySelectorAll('#docker-content .dock-btn');
+    pendingBtns = [];
+    allRows.forEach(b => {
+      if (b.closest('tr') && b.closest('tr').querySelector('.dock-name')?.textContent === name) {
+        pendingBtns.push(b);
+      }
+    });
+    // Focus password input
+    setTimeout(() => document.getElementById('modal-password').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('confirm-modal').classList.remove('open');
+    pendingAction = null;
+    pendingName = null;
+    pendingBtns = [];
+  }
+
+  function doDockerAction(name, action) {
+    showModal(name, action);
+  }
+
+  function executeAction(name, action, password) {
+    const btns = (name === pendingName) ? pendingBtns : [];
+    btns.forEach(b => b.classList.add('loading'));
+
+    const body = { name, action };
+    if (password) body.password = password;
+
+    fetch('/hermes-guard/api/docker/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) {
+        closeModal();
+        setTimeout(updateDocker, 1500);
+      } else if (d.needPassword) {
+        btns.forEach(b => b.classList.remove('loading'));
+        document.getElementById('modal-error').classList.add('show');
+        document.getElementById('modal-password').value = '';
+        document.getElementById('modal-password').focus();
+      } else {
+        alert('操作失败: ' + (d.error || '未知错误'));
+        btns.forEach(b => b.classList.remove('loading'));
+        closeModal();
+      }
+    })
+    .catch(e => {
+      alert('请求失败: ' + e.message);
+      btns.forEach(b => b.classList.remove('loading'));
+      closeModal();
+    });
+  }
+
+  // ── Top Processes ──
+  function updateProcesses() {
+    fetch('/hermes-guard/api/processes')
+      .then(r => r.json())
+      .then(d => {
+        const el = document.getElementById('proc-content');
+        if (!d.processes || d.processes.length === 0) {
+          el.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text-quaternary);font-size:12px">无进程数据</div>';
+          return;
+        }
+        const maxRss = parseFloat(d.processes[0].rss) || 1;
+        const rows = d.processes.map(p => {
+          const rssVal = parseFloat(p.rss) || 0;
+          const barW = Math.max(3, (rssVal / maxRss) * 100);
+          const barColor = rssVal > 200 ? 'var(--red)' : (rssVal > 100 ? 'var(--orange)' : 'var(--accent)');
+          return `<tr>
+            <td class="col-pid">${p.pid}</td>
+            <td class="col-rss">${p.rss}</td>
+            <td class="col-bar"><span class="proc-bar"><span class="proc-bar-fill" style="width:${barW}%;background:${barColor}"></span></span></td>
+            <td class="col-cmd" title="${p.command.replace(/"/g,'&quot;')}">${p.command}</td>
+          </tr>`;
+        }).join('');
+        el.innerHTML = `<table class="proc-table">
+          <thead><tr><th>PID</th><th>内存</th><th></th><th>命令</th></tr></thead>
+          <tbody>${rows}</tbody></table>`;
+      })
+      .catch(e => {
+        document.getElementById('proc-content').innerHTML =
+          '<div style="text-align:center;padding:12px 0;color:var(--text-quaternary);font-size:12px">加载失败</div>';
+      });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('theme-btn').addEventListener('click', toggleTheme);
     ['cpu-v','mem-v','disk-v','uptime-v','os-v','api-balance','hermes-soul'].forEach(id => {
@@ -701,10 +1009,29 @@
     });
     updateSystem();
     updateHermes();
+    updateDocker();
+    updateProcesses();
     renderServices();
     setInterval(updateSystem, 3000);
     setInterval(updateHermes, 10000);
+    setInterval(updateDocker, 15000);
+    setInterval(updateProcesses, 15000);
     setInterval(checkAllServices, 600000);
+
+    // Modal buttons
+    document.getElementById('modal-cancel').addEventListener('click', closeModal);
+    document.getElementById('modal-confirm').addEventListener('click', () => {
+      if (pendingName && pendingAction) {
+        const pw = document.getElementById('modal-password').value;
+        executeAction(pendingName, pendingAction, pw);
+      }
+    });
+    document.getElementById('modal-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('modal-confirm').click();
+    });
+    document.getElementById('confirm-modal').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
   });
 </script>
 </body>
