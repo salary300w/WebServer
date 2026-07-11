@@ -505,6 +505,79 @@
     padding: 24px 0 8px;
     letter-spacing: 0.3px;
   }
+
+  /* ── Mobile Responsive ── */
+  @media (max-width: 640px) {
+    .container { padding: 12px 10px 32px; gap: 10px; }
+    .card { padding: 14px; }
+    .card-header { margin-bottom: 14px; }
+    .navbar { padding: 12px 14px; }
+    .nav-title { font-size: 13px; }
+    .nav-right { gap: 6px; }
+    .nav-refresh { display: none; }
+    .nav-status { font-size: 11px; padding: 2px 8px; }
+    .nav-status .nav-status-dot { width: 6px; height: 6px; }
+
+    /* Docker table → card layout on mobile */
+    .docker-table thead { display: none; }
+    .docker-table, .docker-table tbody, .docker-table tr { display: block; }
+    .docker-table tr {
+      padding: 10px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      background: var(--bg-card);
+    }
+    .docker-table td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: none;
+      white-space: normal;
+      font-size: 12px;
+      gap: 8px;
+    }
+    .docker-table td::before {
+      content: attr(data-label);
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-quaternary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      font-family: var(--font-sans);
+      flex-shrink: 0;
+    }
+    .docker-table td:first-child { padding-top: 0; }
+    .docker-table td:last-child { padding-bottom: 0; }
+    .docker-table td:last-child::before { display: none; }
+    .dock-mem-bar { width: 40px; }
+    .dock-actions { text-align: right; }
+
+    /* Process table → horizontal scroll */
+    #proc-content { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .proc-table { min-width: 420px; }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 8px 8px 24px; gap: 8px; }
+    .card { padding: 12px; }
+    .navbar { padding: 10px 10px; }
+    .service-grid { grid-template-columns: 1fr 1fr; }
+    .service-tag { padding: 5px 10px; font-size: 12px; min-height: 32px; }
+    .footer { font-size: 10px; padding: 16px 0 6px; }
+    .modal-box { padding: 16px; }
+    .gauge-grid { gap: 12px; }
+    .stat-grid { gap: 10px; }
+    .prog-row { gap: 6px; }
+    .prog-label { min-width: 60px; font-size: 11px; }
+    .prog-val { min-width: 50px; font-size: 10px; }
+    .meta-row { gap: 12px; }
+  }
+
+  @media (max-width: 360px) {
+    .service-grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -869,11 +942,11 @@
           const btnStop = running ? '' : 'hidden';
           const btnRestart = running ? '' : 'hidden';
           return `<tr>
-            <td><span class="dock-name">${c.name}</span></td>
-            <td><span class="dock-state"><span class="dot ${running ? 'running' : 'exited'}"></span>${c.state}</span></td>
-            <td>${c.cpu}</td>
-            <td><span class="dock-mem-bar"><span class="dock-mem-fill" style="width:${Math.min(100,memPct)}%;background:${memPct > 20 ? 'var(--orange)' : (memPct > 5 ? 'var(--accent)' : 'var(--emerald)')}"></span></span>${c.mem}</td>
-            <td style="color:${memPct > 15 ? 'var(--orange)' : 'var(--text-secondary)'}">${c.memPct}</td>
+            <td data-label="名称"><span class="dock-name">${c.name}</span></td>
+            <td data-label="状态"><span class="dock-state"><span class="dot ${running ? 'running' : 'exited'}"></span>${c.state}</span></td>
+            <td data-label="CPU">${c.cpu}</td>
+            <td data-label="内存"><span class="dock-mem-bar"><span class="dock-mem-fill" style="width:${Math.min(100,memPct)}%;background:${memPct > 20 ? 'var(--orange)' : (memPct > 5 ? 'var(--accent)' : 'var(--emerald)')}"></span></span>${c.mem}</td>
+            <td data-label="占比" style="color:${memPct > 15 ? 'var(--orange)' : 'var(--text-secondary)'}">${c.memPct}</td>
             <td class="dock-actions">
               <button class="dock-btn start ${btnStart}" onclick="doDockerAction('${safeName}','start')" title="启动">▶</button>
               <button class="dock-btn stop ${btnStop}" onclick="doDockerAction('${safeName}','stop')" title="停止">⏹</button>
@@ -989,9 +1062,9 @@
             <td class="col-cmd" title="${p.command.replace(/"/g,'&quot;')}">${p.command}</td>
           </tr>`;
         }).join('');
-        el.innerHTML = `<table class="proc-table">
+        el.innerHTML = `<div class="proc-wrap"><table class="proc-table">
           <thead><tr><th>PID</th><th>内存</th><th></th><th>命令</th></tr></thead>
-          <tbody>${rows}</tbody></table>`;
+          <tbody>${rows}</tbody></table></div>`;
       })
       .catch(e => {
         document.getElementById('proc-content').innerHTML =
