@@ -1051,10 +1051,13 @@ function saveSessions(sessions) {
 function getCurrentMessages() {
   return [...document.querySelectorAll('.msg')].map(el => {
     const bubble = el.querySelector('.msg-bubble');
-    // 优先从 data-raw 读原始文本（保留 Markdown），旧消息 fallback 到 textContent
-    const text = bubble ? (bubble.dataset.raw || bubble.textContent) : '';
+    if (!bubble) return null;
+    const raw = bubble.dataset.raw;
+    // data.raw === '' 表示尚在加载中的 AI 气泡，跳过
+    if (raw === '') return null;
+    const text = raw || bubble.textContent;
     return { role: el.classList.contains('anya') ? 'anya' : 'user', text };
-  });
+  }).filter(Boolean);
 }
 
 function saveCurrentSession() {
@@ -1270,6 +1273,7 @@ async function sendMessage() {
   scrollBottom();
   saveHistory();
   isLoading = true;
+  const sessionIdAtSend = currentSessionId;
   const aiMsgEl = renderMessage('anya', '', false);
   const bubble = aiMsgEl.querySelector('.msg-bubble');
   bubble.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
@@ -1288,9 +1292,26 @@ async function sendMessage() {
     const data = await res.json();
     sessionToken = data.sessionToken;
     localStorage.setItem('anya_session', sessionToken);
-    bubble.dataset.raw = data.response;
-    bubble.innerHTML = formatMsg(data.response);
-    saveHistory(); scrollBottom();
+
+    if (document.contains(bubble)) {
+      // 用户仍在同一对话，正常渲染
+      bubble.dataset.raw = data.response;
+      bubble.innerHTML = formatMsg(data.response);
+      saveHistory();
+    } else {
+      // 用户已切换到其他对话，把回复存到原始会话中
+      const sessions = getSessions();
+      const idx = sessions.findIndex(s => s.id === sessionIdAtSend);
+      if (idx >= 0) {
+        sessions[idx].messages.push({ role: 'anya', text: data.response });
+        // 收到回复，移到最前面
+        const entry = sessions.splice(idx, 1)[0];
+        sessions.unshift(entry);
+        saveSessions(sessions);
+        renderSessionList();
+      }
+    }
+    scrollBottom();
   } catch (err) {
     bubble.dataset.raw = '啊！网络断了…阿尼亚连接不上了 🥲';
     bubble.innerHTML = formatMsg('啊！网络断了…阿尼亚连接不上了 🥲');
@@ -1311,6 +1332,9 @@ function saveHistory() {
       const firstUser = items.find(m => m.role === 'user');
       sessions[idx].messages = items;
       sessions[idx].name = firstUser ? firstUser.text.slice(0, 30) + (firstUser.text.length > 30 ? '…' : '') : sessions[idx].name;
+      // 该会话有新的活动，移到最前面
+      const entry = sessions.splice(idx, 1)[0];
+      sessions.unshift(entry);
       saveSessions(sessions);
       renderSessionList();
     } else {
