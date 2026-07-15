@@ -1258,6 +1258,38 @@ function scrollBottom() {
   requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
 }
 
+// 保存回复到原始会话（支持中途切换会话场景）
+function saveResponseToOriginalSession(sessionId, userText, responseText) {
+  const sessions = getSessions();
+  const idx = sessions.findIndex(s => s.id === sessionId);
+  if (idx >= 0) {
+    let msgs = sessions[idx].messages;
+    if (!Array.isArray(msgs)) msgs = sessions[idx].messages = [];
+    const lastMsg = msgs[msgs.length - 1];
+    if (lastMsg && lastMsg.role === 'anya' && !lastMsg.text) {
+      msgs[msgs.length - 1] = { role: 'anya', text: responseText };
+    } else {
+      msgs.push({ role: 'anya', text: responseText });
+    }
+    const entry = sessions.splice(idx, 1)[0];
+    sessions.unshift(entry);
+  } else {
+    // 会话已被删除，创建新会话兜底
+    sessions.unshift({
+      id: Date.now().toString(36),
+      name: userText.slice(0, 30) + (userText.length > 30 ? '…' : ''),
+      messages: [
+        { role: 'user', text: userText },
+        { role: 'anya', text: responseText }
+      ],
+      createdAt: Date.now()
+    });
+  }
+  if (sessions.length > 20) sessions.length = 20;
+  saveSessions(sessions);
+  renderSessionList();
+}
+
 // ═══════════════════════════════════════════════
 //  Send message (Hermes CLI)
 // ═══════════════════════════════════════════════
@@ -1272,22 +1304,28 @@ async function sendMessage() {
   renderMessage('user', text);
   scrollBottom();
   saveHistory();
-  isLoading = true;
+  // 必须在 saveHistory() 之后捕获，因为首次消息的 session 由它创建
   const sessionIdAtSend = currentSessionId;
   const aiMsgEl = renderMessage('anya', '', false);
   const bubble = aiMsgEl.querySelector('.msg-bubble');
   bubble.innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
   scrollBottom();
   try {
+    isLoading = true;
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: text, sessionToken }),
     });
     if (!res.ok) {
-      bubble.dataset.raw = '唔…阿尼亚走神了，爸爸再说一遍好不好？🥜';
-      bubble.innerHTML = formatMsg('唔…阿尼亚走神了，爸爸再说一遍好不好？🥜');
-      saveHistory(); scrollBottom(); return;
+      if (document.contains(bubble)) {
+        bubble.dataset.raw = '唔…阿尼亚走神了，爸爸再说一遍好不好？🥜';
+        bubble.innerHTML = formatMsg('唔…阿尼亚走神了，爸爸再说一遍好不好？🥜');
+        saveHistory();
+      } else {
+        saveResponseToOriginalSession(sessionIdAtSend, text, '唔…阿尼亚走神了，爸爸再说一遍好不好？🥜');
+      }
+      scrollBottom(); return;
     }
     const data = await res.json();
     sessionToken = data.sessionToken;
@@ -1300,22 +1338,19 @@ async function sendMessage() {
       saveHistory();
     } else {
       // 用户已切换到其他对话，把回复存到原始会话中
-      const sessions = getSessions();
-      const idx = sessions.findIndex(s => s.id === sessionIdAtSend);
-      if (idx >= 0) {
-        sessions[idx].messages.push({ role: 'anya', text: data.response });
-        // 收到回复，移到最前面
-        const entry = sessions.splice(idx, 1)[0];
-        sessions.unshift(entry);
-        saveSessions(sessions);
-        renderSessionList();
-      }
+      saveResponseToOriginalSession(sessionIdAtSend, text, data.response);
     }
     scrollBottom();
   } catch (err) {
-    bubble.dataset.raw = '啊！网络断了…阿尼亚连接不上了 🥲';
-    bubble.innerHTML = formatMsg('啊！网络断了…阿尼亚连接不上了 🥲');
-    saveHistory(); scrollBottom();
+    const errMsg = '啊！网络断了…阿尼亚连接不上了 🥲';
+    if (document.contains(bubble)) {
+      bubble.dataset.raw = errMsg;
+      bubble.innerHTML = formatMsg(errMsg);
+      saveHistory();
+    } else {
+      saveResponseToOriginalSession(sessionIdAtSend, text, errMsg);
+    }
+    scrollBottom();
   } finally {
     isLoading = false;
   }
