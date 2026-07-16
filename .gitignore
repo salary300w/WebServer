@@ -1,6 +1,7 @@
 .vscode
 build
 root/StrategyB/Backtest_Result.png
+root/StrategyB/Backtest_Monthly.png
 root/StrategyB/Backtest_Result.html
 root/StrategyB/Transaction_Record.html
 .claude
