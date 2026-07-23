@@ -242,9 +242,15 @@ app.get('/api/hermes/info', async (req, res) => {
             }
         } catch (e) {}
 
-        // 4. Memory store
-        let memoryChars = 0, memoryLimit = 2200;
-        let userChars = 0, userLimit = 1375;
+        // 4. Memory store — read limits from config.yaml (fallback hardcoded)
+        let memoryChars = 0, memoryLimit = 4400, userChars = 0, userLimit = 2750;
+        try {
+            const cfg = fs.readFileSync(HOME + '/config.yaml', 'utf8');
+            const ml = cfg.match(/memory_char_limit:\s*(\d+)/);
+            if (ml) memoryLimit = parseInt(ml[1]);
+            const ul = cfg.match(/user_char_limit:\s*(\d+)/);
+            if (ul) userLimit = parseInt(ul[1]);
+        } catch (e) {}
         try {
             const memPath = HOME + '/memories/MEMORY.md';
             if (fs.existsSync(memPath))
